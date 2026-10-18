@@ -6,12 +6,14 @@ namespace Orchestra\Seating\Export;
 
 use Orchestra\Core\Pdf\Pdf;
 use Orchestra\Projects\ProjectsService;
+use Orchestra\Seating\Capabilities;
 use Orchestra\Seating\Ui\SeatingTab;
 
 /**
  * Downloads the seating of a project as a PDF
- * (admin-post.php?action=orchestra_seating_pdf&project=ID), for everyone who can open the seating
- * tab. It changes nothing and needs no nonce.
+ * (admin-post.php?action=orchestra_seating_pdf&project=ID), for conductors and organizers, who may
+ * arrange the seating. Members see the seating, but cannot download it. It changes nothing and
+ * needs no nonce.
  */
 final class SeatingPdfController
 {
@@ -38,6 +40,14 @@ final class SeatingPdfController
         return \class_exists(Pdf::class);
     }
 
+    /**
+     * Whether the current user may download seatings.
+     */
+    public static function allowed(): bool
+    {
+        return \current_user_can(Capabilities::PLAN_MANAGE);
+    }
+
     public static function url(int $projectId): string
     {
         return \add_query_arg(['action' => self::ACTION, 'project' => $projectId], \admin_url('admin-post.php'));
@@ -50,7 +60,7 @@ final class SeatingPdfController
     {
         $projectId = \absint(\is_string($_GET['project'] ?? null) ? $_GET['project'] : 0);
         $project = $this->projects->project($projectId);
-        if ($project === null || !$this->tab->visible($project)) {
+        if ($project === null || !self::allowed() || !$this->tab->visible($project)) {
             \wp_die(\esc_html__('You are not allowed to do this.', 'orchestra-seating'), 403);
         }
 

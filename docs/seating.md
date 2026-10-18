@@ -27,7 +27,7 @@ projects, participation, program and assignments through `ProjectsService`, memb
 | Capability | Member | Conductor | Organizer |
 |---|:-:|:-:|:-:|
 | `orchestra_seating_plan_read`: see the seating of projects visible to members, once it is arranged | ✓ | ✓ | ✓ |
-| `orchestra_seating_plan_manage`: arrange the seating of every project | | ✓ | ✓ |
+| `orchestra_seating_plan_manage`: arrange the seating of every project and download it as PDF | | ✓ | ✓ |
 
 The seating of completed projects cannot be changed.
 
@@ -48,7 +48,8 @@ the grid:
 ## PDF
 
 "Download PDF" on the tab (`admin-post.php?action=orchestra_seating_pdf&project=ID`) creates a
-landscape A4 page of the saved seating, for everyone who can see the tab. The seats shrink with the
+landscape A4 page of the saved seating, for conductors and organizers
+(`orchestra_seating_plan_manage`). Members see the seating but cannot download it. The seats shrink with the
 grid (at most 28 mm, at least 10 mm), so that up to 30 × 30 seats fit on one page. It is created by
 orchestra-core 0.8 (`Orchestra\Core\Pdf\Pdf`); with an older core the button is hidden. Changes in
 the editor must be saved before they appear in the PDF.

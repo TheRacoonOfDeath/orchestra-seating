@@ -179,8 +179,6 @@ check(all("orchestra_seating_plan_manage" in c for c in caps[1:]), "conductors a
 _, page = mia.get(OVERVIEW)
 check("orchestra_tab=seating" not in page, "members see no seating before it is arranged")
 PDF = f"/wp-admin/admin-post.php?action=orchestra_seating_pdf&project={PROJECT}"
-status, _, _ = mia.request(PDF)
-check(status == 403, "members cannot download a seating that is not arranged yet")
 _, page = conductor.get(TAB)
 check("data-seating-form" in page and "Not seated" in page, "conductors open the seating editor")
 check(all(name in tray(page) for name in ["Mia", "Max", "Olga", "Lena-Marie"]) and "Carl" not in tray(page)
@@ -206,11 +204,17 @@ plain = text(page)
 check("data-seating-form" not in page and "Mia Horn 1" in plain and "Max Horn 2" in plain and "Olga —" in plain
       and "Voices in Pirates of the Caribbean" in plain, "members see names and voices, without editing")
 check("Lena-Marie Sophie von Hohenzollern-Sigmaringen" in plain, "long names are shown")
-check("Download PDF" in page, "members can download the seating as a PDF")
-status, headers, body = mia.request(PDF)
+check("Download PDF" not in page, "members see no PDF download")
+status, _, body = mia.request(PDF)
+check(status == 403 and not body.startswith(b"%PDF"), "members cannot download the seating")
+_, page = conductor.get(TAB)
+check("Download PDF" in page, "conductors can download the seating as a PDF")
+status, headers, body = conductor.request(PDF)
 check(status == 200 and headers.get("content-type") == "application/pdf" and body.startswith(b"%PDF-")
       and "Spring%20Concert%20-%20Seating.pdf" in headers.get("content-disposition", ""),
       "the seating is downloaded as a PDF")
+status, _, body = organizer.request(PDF)
+check(status == 200 and body.startswith(b"%PDF-"), "organizers can download the seating as a PDF")
 with open(os.path.join(WORK, "seating.pdf"), "wb") as handle:
     handle.write(body)
 status, _, _ = sam.request(PDF)
