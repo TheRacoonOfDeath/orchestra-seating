@@ -1,0 +1,159 @@
+/*
+ * The seating of orchestra-seating. Uses the tokens of orchestra-core's orchestra-ui.css.
+ * Every seat has the same size; names wrap onto two lines.
+ */
+.orchestra-seating {
+    --orchestra-seating-size: 7rem;
+    --orchestra-seating-line: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.orchestra-seating__scroll {
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.orchestra-seating__stage {
+    margin: 0 auto;
+    width: max-content;
+}
+
+.orchestra-seating__grid {
+    display: grid;
+    gap: 0.4rem;
+    grid-auto-rows: var(--orchestra-seating-size);
+    grid-template-columns: repeat(var(--orchestra-seating-columns, 4), var(--orchestra-seating-size));
+}
+
+.orchestra-seating__cell {
+    border: 1px dashed var(--orchestra-seating-line);
+    border-radius: var(--orchestra-radius-small, 6px);
+    display: flex;
+    min-width: 0;
+}
+
+.orchestra-seating__front {
+    border-top: 2px solid var(--orchestra-seating-line);
+    color: var(--orchestra-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    margin-top: 0.6rem;
+    padding-top: 0.3rem;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.orchestra-seating__person {
+    align-items: center;
+    background: color-mix(in srgb, var(--orchestra-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--orchestra-accent) 45%, transparent);
+    border-radius: var(--orchestra-radius-small, 6px);
+    box-sizing: border-box;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.2rem;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0.35rem;
+    text-align: center;
+}
+
+.orchestra-seating__name {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    font-size: 0.88rem;
+    font-weight: 600;
+    hyphens: auto;
+    line-height: 1.2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+.orchestra-seating__voice {
+    color: var(--orchestra-muted);
+    font-size: 0.75rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Editing ------------------------------------------------------------------------------------- */
+
+.orchestra-seating__tray-list {
+    border: 1px dashed var(--orchestra-seating-line);
+    border-radius: var(--orchestra-radius, 10px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-height: var(--orchestra-seating-size);
+    padding: 0.5rem;
+}
+
+.orchestra-seating__tray-list > .orchestra-seating__person {
+    flex: 0 0 var(--orchestra-seating-size);
+    height: var(--orchestra-seating-size);
+}
+
+/* Without JavaScript, people are seated with the selects of the table. */
+.orchestra-seating--edit:not(.orchestra-seating--js) .orchestra-seating__tray {
+    display: none;
+}
+
+.orchestra-seating--js .orchestra-seating__fallback {
+    display: none;
+}
+
+.orchestra-seating--js [data-seating-person] {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.orchestra-seating--js [data-seating-person]:focus-visible,
+.orchestra-seating--js [data-seating-cell]:focus-visible {
+    outline: 2px solid var(--orchestra-accent);
+    outline-offset: 2px;
+}
+
+.orchestra-seating .is-dragging {
+    opacity: 0.35;
+}
+
+.orchestra-seating .is-picked {
+    outline: 3px solid var(--orchestra-accent);
+    outline-offset: 2px;
+}
+
+.orchestra-seating .is-drop-target,
+.orchestra-seating .is-cursor {
+    background: color-mix(in srgb, var(--orchestra-accent) 8%, transparent);
+    outline: 2px solid var(--orchestra-accent);
+    outline-offset: 2px;
+}
+
+.orchestra-seating__ghost {
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+    cursor: grabbing;
+    opacity: 0.95;
+    pointer-events: none;
+    position: fixed;
+    z-index: 100000;
+}
+
+/* Phones: smaller seats, so that more of the orchestra fits on the screen. */
+@media (max-width: 600px) {
+    .orchestra-seating {
+        --orchestra-seating-size: 5.5rem;
+    }
+
+    .orchestra-seating__name {
+        font-size: 0.8rem;
+    }
+
+    .orchestra-seating__voice {
+        font-size: 0.7rem;
+    }
+}

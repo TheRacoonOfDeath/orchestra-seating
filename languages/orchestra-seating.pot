@@ -1,0 +1,164 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the orchestra-seating package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: orchestra-seating\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-18 23:30+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/Plugin.php:119
+msgid ""
+"Orchestra Seating requires Orchestra Core 0.7, Orchestra Projects 0.14, "
+"Orchestra Library and Orchestra Members to be active."
+msgstr ""
+
+#: src/Privacy/PersonalData.php:38 src/Privacy/PersonalData.php:53
+#: src/Privacy/PersonalData.php:74
+msgid "Orchestra seating"
+msgstr ""
+
+#: src/Privacy/PersonalData.php:78
+msgid "Project"
+msgstr ""
+
+#: src/Privacy/PersonalData.php:81
+msgid "Row"
+msgstr ""
+
+#: src/Privacy/PersonalData.php:82 src/Ui/SeatingTab.php:175
+msgid "Seat"
+msgstr ""
+
+#: src/Seating/SeatingInput.php:52
+msgid "A seat is outside the grid."
+msgstr ""
+
+#: src/Seating/SeatingInput.php:56
+msgid "Two people cannot sit on the same seat."
+msgstr ""
+
+#: src/Seating/SeatingInput.php:96
+msgid "The grid cannot get any larger."
+msgstr ""
+
+#: src/Seating/SeatingInput.php:99
+msgid "The grid needs a seat for everyone."
+msgstr ""
+
+#: src/Seating/SeatingInput.php:105
+msgid "Only an empty last row or column can be removed."
+msgstr ""
+
+#: src/Ui/SeatingController.php:50
+msgid "You are not allowed to do this."
+msgstr ""
+
+#: src/Ui/SeatingController.php:53
+msgid "The seating of a completed project cannot be changed."
+msgstr ""
+
+#: src/Ui/SeatingController.php:71
+msgid "The seating has been saved."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:55
+msgid "Seating"
+msgstr ""
+
+#. translators: %s: piece title
+#: src/Ui/SeatingTab.php:84
+#, php-format
+msgid "Voices in %s"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:129
+msgid "Add pieces to the program to show the voices."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:132
+msgid "Voices from"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:146
+msgid "Seat organizers"
+msgstr ""
+
+#. translators: 1: number of seated people, 2: number of people to seat
+#: src/Ui/SeatingTab.php:149
+#, php-format
+msgid "%1$d of %2$d people seated. Conductors are not seated."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:155 src/Ui/SeatingTab.php:235
+msgid "Not seated"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:160
+msgid ""
+"Drag people onto the seats or back here. Dropping on a taken seat swaps the "
+"two. With the keyboard: Enter picks a person up, the arrow keys choose a "
+"seat, Enter places them, Delete unseats them."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:167
+msgid "+ Row"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:168
+msgid "+ Column"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:169
+msgid "− Row"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:170
+msgid "− Column"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:175
+msgid "Person"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:181
+msgid "Nobody has accepted yet."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:185
+msgid "Save seating"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:188
+msgid "Remove everyone from their seats?"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:189
+msgid "Clear seating"
+msgstr ""
+
+#: src/Ui/SeatingTab.php:218
+msgid "Conductor"
+msgstr ""
+
+#. translators: %s: name
+#: src/Ui/SeatingTab.php:248
+#, php-format
+msgid "Seat of %s"
+msgstr ""
+
+#. translators: 1: row number, counted from the front, 2: seat number, counted from the left
+#: src/Ui/SeatingTab.php:256
+#, php-format
+msgid "Row %1$d, seat %2$d"
+msgstr ""
