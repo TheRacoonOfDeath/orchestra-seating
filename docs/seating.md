@@ -45,6 +45,14 @@ the grid:
   Space places them, Delete or Backspace unseats them, Escape cancels
 - changing the piece or "Seat organizers" saves right away
 
+## PDF
+
+"Download PDF" on the tab (`admin-post.php?action=orchestra_seating_pdf&project=ID`) creates a
+landscape A4 page of the saved seating, for everyone who can see the tab. The seats shrink with the
+grid (at most 28 mm, at least 10 mm), so that up to 30 × 30 seats fit on one page. It is created by
+orchestra-core 0.8 (`Orchestra\Core\Pdf\Pdf`); with an older core the button is hidden. Changes in
+the editor must be saved before they appear in the PDF.
+
 ## Storage
 
 | Table | Content |

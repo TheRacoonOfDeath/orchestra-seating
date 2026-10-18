@@ -10,6 +10,7 @@ use Orchestra\Projects\Project\Project;
 use Orchestra\Projects\Project\ProjectStatus;
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Capabilities;
+use Orchestra\Seating\Export\SeatingPdfController;
 use Orchestra\Seating\Seating\Person;
 use Orchestra\Seating\Seating\Seat;
 use Orchestra\Seating\Seating\SeatingInput;
@@ -46,16 +47,23 @@ final class SeatingTab
      */
     public function addTab(array $tabs, Project $project): array
     {
-        $visible = \current_user_can(Capabilities::PLAN_MANAGE) || (
-            \current_user_can(Capabilities::PLAN_READ)
-            && $project->status->visibleToMembers()
-            && $this->seating->plan($project)->seats !== []
-        );
-        if ($visible) {
+        if ($this->visible($project)) {
             $tabs[self::TAB] = \__('Seating', 'orchestra-seating');
         }
 
         return $tabs;
+    }
+
+    /**
+     * Whether the current user may see the seating of the project.
+     */
+    public function visible(Project $project): bool
+    {
+        return \current_user_can(Capabilities::PLAN_MANAGE) || (
+            \current_user_can(Capabilities::PLAN_READ)
+            && $project->status->visibleToMembers()
+            && $this->seating->plan($project)->seats !== []
+        );
     }
 
     /**
@@ -85,8 +93,8 @@ final class SeatingTab
                 $pieces[$pieceId] ?? ''
             )) . '</p>';
 
-            return $voices . '<div class="orchestra-card orchestra-seating">' . self::grid($plan, $people, false)
-                . '</div>';
+            return self::pdfButton($project) . $voices . '<div class="orchestra-card orchestra-seating">'
+                . self::grid($plan, $people, false) . '</div>';
         }
 
         $version = (string) @\filemtime(\dirname($this->pluginFile) . '/assets/seating.js');
@@ -98,7 +106,22 @@ final class SeatingTab
             ['in_footer' => true]
         );
 
-        return $this->editor($project, $plan, $people, $pieces, $pieceId, $tabUrl);
+        return self::pdfButton($project) . $this->editor($project, $plan, $people, $pieces, $pieceId, $tabUrl);
+    }
+
+    /**
+     * The download of the seating as a PDF, with orchestra-core 0.8 or later. It shows the saved
+     * seating, so the editor's changes must be saved first.
+     */
+    private static function pdfButton(Project $project): string
+    {
+        return SeatingPdfController::available()
+            ? '<div class="orchestra-actions">' . Form::link(
+                SeatingPdfController::url($project->id),
+                \__('Download PDF', 'orchestra-seating'),
+                'small'
+            ) . '</div>'
+            : '';
     }
 
     /**

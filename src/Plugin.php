@@ -12,6 +12,8 @@ use Orchestra\Members\Plugin as MembersPlugin;
 use Orchestra\Projects\Plugin as ProjectsPlugin;
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Database\Schema;
+use Orchestra\Seating\Export\SeatingPdf;
+use Orchestra\Seating\Export\SeatingPdfController;
 use Orchestra\Seating\Privacy\PersonalData;
 use Orchestra\Seating\Seating\SeatingRepository;
 use Orchestra\Seating\Seating\SeatingService;
@@ -105,7 +107,9 @@ final class Plugin
         \add_action('before_delete_post', [$seating, 'deleteProject']);
         \add_action('deleted_user', [$seating, 'deleteUser']);
         (new PersonalData($this->repository, $projects))->register();
-        (new SeatingTab($seating, $this->pluginFile))->register();
+        $tab = new SeatingTab($seating, $this->pluginFile);
+        $tab->register();
+        (new SeatingPdfController($projects, $tab, new SeatingPdf($seating)))->register();
         (new SeatingController($seating, $projects))->register();
     }
 

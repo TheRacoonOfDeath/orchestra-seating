@@ -15,6 +15,7 @@ Part of the Orchestra plugin suite. Requires
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
 - The grid starts with a seat for everyone; rows and columns can be added and removed
+- Download the seating as a PDF (with orchestra-core 0.8 or later)
 - Accepted participants are seated, conductors never; organizers by default, which can be
   switched off per project
 
