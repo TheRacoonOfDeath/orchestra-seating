@@ -164,6 +164,11 @@ def tray(page):
     return text(part)
 
 
+# --- Plugin dependencies ----------------------------------------------------------------------
+circular = wp_json('WP_Plugin_Dependencies::initialize(); echo json_encode(array_values(array_filter(array_keys(get_plugins()),'
+                   ' fn ($p) => WP_Plugin_Dependencies::has_circular_dependency($p))));')
+check(circular == [], "WordPress finds no circular plugin dependencies")
+
 # --- Capabilities and tab ---------------------------------------------------------------------
 caps = wp_json('echo json_encode(array_map(fn ($r) => array_keys(array_filter(get_role($r)->capabilities)),'
                ' ["orchestra_member", "orchestra_conductor", "orchestra_organizer"]));')
