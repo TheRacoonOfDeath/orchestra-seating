@@ -188,8 +188,8 @@ final class SeatingTab
         $html .= '<div class="orchestra-card orchestra-stack">' . self::grid($plan, $people, true)
             . '<div class="orchestra-actions">'
             . self::operation(\__('+ Row', 'orchestra-seating'), SeatingInput::ADD_ROW)
-            . self::operation(\__('+ Column', 'orchestra-seating'), SeatingInput::ADD_COLUMN)
             . self::operation(\__('− Row', 'orchestra-seating'), SeatingInput::REMOVE_ROW)
+            . self::operation(\__('+ Column', 'orchestra-seating'), SeatingInput::ADD_COLUMN)
             . self::operation(\__('− Column', 'orchestra-seating'), SeatingInput::REMOVE_COLUMN)
             . '</div></div>';
 
