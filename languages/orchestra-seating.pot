@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 00:24+0200\n"
+"POT-Creation-Date: 2026-10-19 10:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: %s: piece title
-#: src/Export/SeatingPdf.php:53 src/Ui/SeatingTab.php:92
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:92
 #, php-format
 msgid "Voices in %s"
 msgstr ""
 
-#: src/Export/SeatingPdf.php:58 src/Ui/SeatingTab.php:241
+#: src/Export/SeatingPdf.php:72 src/Ui/SeatingTab.php:248
 msgid "Conductor"
 msgstr ""
 
 #. translators: %s: project name
-#: src/Export/SeatingPdf.php:66
+#: src/Export/SeatingPdf.php:80
 #, php-format
 msgid "Seating: %s"
 msgstr ""
 
-#: src/Export/SeatingPdfController.php:54 src/Ui/SeatingController.php:50
+#: src/Export/SeatingPdfController.php:64 src/Ui/SeatingController.php:50
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src/Export/SeatingPdfController.php:59 src/Ui/SeatingTab.php:51
+#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:51
 msgid "Seating"
 msgstr ""
 
@@ -47,20 +47,20 @@ msgid ""
 "Orchestra Library and Orchestra Members to be active."
 msgstr ""
 
-#: src/Privacy/PersonalData.php:38 src/Privacy/PersonalData.php:53
-#: src/Privacy/PersonalData.php:74
+#: src/Privacy/PersonalData.php:39 src/Privacy/PersonalData.php:54
+#: src/Privacy/PersonalData.php:75
 msgid "Orchestra seating"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:78
+#: src/Privacy/PersonalData.php:79
 msgid "Project"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:81
+#: src/Privacy/PersonalData.php:82
 msgid "Row"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:82 src/Ui/SeatingTab.php:198
+#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:198
 msgid "Seat"
 msgstr ""
 
@@ -114,7 +114,7 @@ msgstr ""
 msgid "%1$d of %2$d people seated. Conductors are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:178 src/Ui/SeatingTab.php:258
+#: src/Ui/SeatingTab.php:178 src/Ui/SeatingTab.php:265
 msgid "Not seated"
 msgstr ""
 
@@ -130,11 +130,11 @@ msgid "+ Row"
 msgstr ""
 
 #: src/Ui/SeatingTab.php:191
-msgid "+ Column"
+msgid "− Row"
 msgstr ""
 
 #: src/Ui/SeatingTab.php:192
-msgid "− Row"
+msgid "+ Column"
 msgstr ""
 
 #: src/Ui/SeatingTab.php:193
@@ -162,13 +162,13 @@ msgid "Clear seating"
 msgstr ""
 
 #. translators: %s: name
-#: src/Ui/SeatingTab.php:271
+#: src/Ui/SeatingTab.php:278
 #, php-format
 msgid "Seat of %s"
 msgstr ""
 
-#. translators: 1: row number, counted from the front, 2: seat number, counted from the left
-#: src/Ui/SeatingTab.php:279
+#. translators: 1: row letter, A at the front, 2: seat number, counted from the left
+#: src/Ui/SeatingTab.php:286
 #, php-format
-msgid "Row %1$d, seat %2$d"
+msgid "Row %1$s, seat %2$d"
 msgstr ""

@@ -18,7 +18,10 @@ projects, participation, program and assignments through `ProjectsService`, memb
   the back or a seat at the right of every row; "− Row" and "− Column" remove the last row or
   column if it is empty. The grid keeps a seat for everyone: when more people accept, rows are
   added. At most 30 rows and 30 columns.
-- **Rows** count from the front: row 1 is next to the conductor, shown at the bottom.
+- **Rows** count from the front and are labelled with letters: row A is next to the conductor,
+  shown at the bottom (after Z come AA, AB, …). **Columns** are numbered from 1 on the left. The
+  labels appear beside and below the grid, in the PDF, in the seat selects ("Row A, seat 3") and
+  in the personal data export. They are display only: the form and the database keep numbers.
 - **People who no longer take part** (declined, inactive, organizers switched off, deleted) are
   not shown, and their seats are dropped the next time the seating is saved.
 

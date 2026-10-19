@@ -4,6 +4,8 @@
  */
 .orchestra-seating {
     --orchestra-seating-size: 7rem;
+    --orchestra-seating-label: 1.5rem;
+    --orchestra-seating-gap: 0.4rem;
     --orchestra-seating-line: color-mix(in srgb, currentColor 22%, transparent);
 }
 
@@ -19,9 +21,21 @@
 
 .orchestra-seating__grid {
     display: grid;
-    gap: 0.4rem;
-    grid-auto-rows: var(--orchestra-seating-size);
-    grid-template-columns: repeat(var(--orchestra-seating-columns, 4), var(--orchestra-seating-size));
+    gap: var(--orchestra-seating-gap);
+    grid-template-columns:
+        var(--orchestra-seating-label)
+        repeat(var(--orchestra-seating-columns, 4), var(--orchestra-seating-size));
+    grid-template-rows: repeat(var(--orchestra-seating-rows, 1), var(--orchestra-seating-size)) auto;
+}
+
+/* Row letters on the left, column numbers below the seats. */
+.orchestra-seating__label {
+    align-items: center;
+    color: var(--orchestra-muted);
+    display: flex;
+    font-size: 0.8rem;
+    font-weight: 600;
+    justify-content: center;
 }
 
 .orchestra-seating__cell {
@@ -36,7 +50,8 @@
     color: var(--orchestra-muted);
     font-size: 0.8rem;
     letter-spacing: 0.08em;
-    margin-top: 0.6rem;
+    margin-left: calc(var(--orchestra-seating-label) + var(--orchestra-seating-gap));
+    margin-top: 0.4rem;
     padding-top: 0.3rem;
     text-align: center;
     text-transform: uppercase;

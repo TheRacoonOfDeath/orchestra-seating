@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 00:24+0200\n"
+"POT-Creation-Date: 2026-10-19 10:43+0200\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -14,47 +14,51 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: %s: piece title
-#: src/Export/SeatingPdf.php:53 src/Ui/SeatingTab.php:92
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:92
 #, php-format
 msgid "Voices in %s"
 msgstr "Stimmen in %s"
 
-#: src/Export/SeatingPdf.php:58 src/Ui/SeatingTab.php:241
+#: src/Export/SeatingPdf.php:72 src/Ui/SeatingTab.php:248
 msgid "Conductor"
 msgstr "Dirigent"
 
 #. translators: %s: project name
-#: src/Export/SeatingPdf.php:66
+#: src/Export/SeatingPdf.php:80
 #, php-format
 msgid "Seating: %s"
 msgstr "Sitzplan: %s"
 
-#: src/Export/SeatingPdfController.php:54 src/Ui/SeatingController.php:50
+#: src/Export/SeatingPdfController.php:64 src/Ui/SeatingController.php:50
 msgid "You are not allowed to do this."
 msgstr "Das darfst du nicht."
 
-#: src/Export/SeatingPdfController.php:59 src/Ui/SeatingTab.php:51
+#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:51
 msgid "Seating"
 msgstr "Sitzplan"
 
 #: src/Plugin.php:123
-msgid "Orchestra Seating requires Orchestra Core 0.7, Orchestra Projects 0.14, Orchestra Library and Orchestra Members to be active."
-msgstr "Orchestra Seating benötigt Orchestra Core 0.7, Orchestra Projects 0.14, Orchestra Library und Orchestra Members."
+msgid ""
+"Orchestra Seating requires Orchestra Core 0.7, Orchestra Projects 0.14, "
+"Orchestra Library and Orchestra Members to be active."
+msgstr ""
+"Orchestra Seating benötigt Orchestra Core 0.7, Orchestra Projects 0.14, "
+"Orchestra Library und Orchestra Members."
 
-#: src/Privacy/PersonalData.php:38 src/Privacy/PersonalData.php:53
-#: src/Privacy/PersonalData.php:74
+#: src/Privacy/PersonalData.php:39 src/Privacy/PersonalData.php:54
+#: src/Privacy/PersonalData.php:75
 msgid "Orchestra seating"
 msgstr "Orchester-Sitzplan"
 
-#: src/Privacy/PersonalData.php:78
+#: src/Privacy/PersonalData.php:79
 msgid "Project"
 msgstr "Projekt"
 
-#: src/Privacy/PersonalData.php:81
+#: src/Privacy/PersonalData.php:82
 msgid "Row"
 msgstr "Reihe"
 
-#: src/Privacy/PersonalData.php:82 src/Ui/SeatingTab.php:198
+#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:198
 msgid "Seat"
 msgstr "Platz"
 
@@ -80,7 +84,8 @@ msgstr "Nur eine leere letzte Reihe oder Spalte kann entfernt werden."
 
 #: src/Ui/SeatingController.php:53
 msgid "The seating of a completed project cannot be changed."
-msgstr "Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
+msgstr ""
+"Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
 
 #: src/Ui/SeatingController.php:71
 msgid "The seating has been saved."
@@ -106,27 +111,34 @@ msgstr "Organisatoren setzen"
 #: src/Ui/SeatingTab.php:172
 #, php-format
 msgid "%1$d of %2$d people seated. Conductors are not seated."
-msgstr "%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
+msgstr ""
+"%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingTab.php:178 src/Ui/SeatingTab.php:258
+#: src/Ui/SeatingTab.php:178 src/Ui/SeatingTab.php:265
 msgid "Not seated"
 msgstr "Ohne Platz"
 
 #: src/Ui/SeatingTab.php:183
-msgid "Drag people onto the seats or back here. Dropping on a taken seat swaps the two. With the keyboard: Enter picks a person up, the arrow keys choose a seat, Enter places them, Delete unseats them."
-msgstr "Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz tauschen die beiden. Mit der Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, Enter setzt sie, Entf nimmt ihr den Platz."
+msgid ""
+"Drag people onto the seats or back here. Dropping on a taken seat swaps the "
+"two. With the keyboard: Enter picks a person up, the arrow keys choose a "
+"seat, Enter places them, Delete unseats them."
+msgstr ""
+"Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz "
+"tauschen die beiden. Mit der Tastatur: Enter nimmt eine Person auf, die "
+"Pfeiltasten wählen einen Platz, Enter setzt sie, Entf nimmt ihr den Platz."
 
 #: src/Ui/SeatingTab.php:190
 msgid "+ Row"
 msgstr "+ Reihe"
 
 #: src/Ui/SeatingTab.php:191
-msgid "+ Column"
-msgstr "+ Spalte"
-
-#: src/Ui/SeatingTab.php:192
 msgid "− Row"
 msgstr "− Reihe"
+
+#: src/Ui/SeatingTab.php:192
+msgid "+ Column"
+msgstr "+ Spalte"
 
 #: src/Ui/SeatingTab.php:193
 msgid "− Column"
@@ -153,13 +165,14 @@ msgid "Clear seating"
 msgstr "Sitzplan leeren"
 
 #. translators: %s: name
-#: src/Ui/SeatingTab.php:271
+#: src/Ui/SeatingTab.php:278
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
-#. translators: 1: row number, counted from the front, 2: seat number, counted from the left
-#: src/Ui/SeatingTab.php:279
+#. translators: 1: row letter, A at the front, 2: seat number, counted from the left
+#: src/Ui/SeatingTab.php:286
 #, php-format
-msgid "Row %1$d, seat %2$d"
-msgstr "Reihe %1$d, Platz %2$d"
+msgid "Row %1$s, seat %2$d"
+msgstr "Reihe %1$s, Platz %2$d"
+

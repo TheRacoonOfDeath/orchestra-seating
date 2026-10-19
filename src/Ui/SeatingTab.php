@@ -218,15 +218,18 @@ final class SeatingTab
     }
 
     /**
-     * The grid with the front row at the bottom, next to the conductor.
+     * The grid with the front row at the bottom, next to the conductor. The rows are labelled with
+     * letters on the left, the columns with numbers below.
      *
      * @param array<int, Person> $people
      */
     private static function grid(SeatingPlan $plan, array $people, bool $editable): string
     {
         $html = '<div class="orchestra-seating__scroll"><div class="orchestra-seating__stage">'
-            . '<div class="orchestra-seating__grid" style="--orchestra-seating-columns: ' . $plan->grid->columns . '">';
+            . '<div class="orchestra-seating__grid" style="--orchestra-seating-columns: ' . $plan->grid->columns
+            . '; --orchestra-seating-rows: ' . $plan->grid->rows . '">';
         for ($row = $plan->grid->rows; $row >= 1; $row--) {
+            $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . Seat::rowName($row) . '</div>';
             for ($column = 1; $column <= $plan->grid->columns; $column++) {
                 $seat = $plan->at($row, $column);
                 $person = $seat === null ? null : ($people[$seat->userId] ?? null);
@@ -235,6 +238,10 @@ final class SeatingTab
                     . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'
                     . ($person === null ? '' : self::person($person, $editable)) . '</div>';
             }
+        }
+        $html .= '<div aria-hidden="true"></div>';
+        for ($column = 1; $column <= $plan->grid->columns; $column++) {
+            $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . $column . '</div>';
         }
 
         return $html . '</div><div class="orchestra-seating__front">'
@@ -275,7 +282,7 @@ final class SeatingTab
 
     private static function seatLabel(int $row, int $column): string
     {
-        /* translators: 1: row number, counted from the front, 2: seat number, counted from the left */
-        return \sprintf(\__('Row %1$d, seat %2$d', 'orchestra-seating'), $row, $column);
+        /* translators: 1: row letter, A at the front, 2: seat number, counted from the left */
+        return \sprintf(\__('Row %1$s, seat %2$d', 'orchestra-seating'), Seat::rowName($row), $column);
     }
 }

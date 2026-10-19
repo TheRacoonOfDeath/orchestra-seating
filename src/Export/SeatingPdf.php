@@ -7,11 +7,13 @@ namespace Orchestra\Seating\Export;
 use Orchestra\Core\Pdf\Pdf;
 use Orchestra\Projects\Project\Project;
 use Orchestra\Seating\Seating\Person;
+use Orchestra\Seating\Seating\Seat;
 use Orchestra\Seating\Seating\SeatingService;
 
 /**
  * The seating of a project as a landscape PDF: the grid with the front row at the bottom, next to
- * the conductor, like on the page. The seats shrink with the size of the grid, so that it fits on
+ * the conductor, like on the page, with the row letters on the left and the column numbers below.
+ * The seats shrink with the size of the grid, so that it fits on
  * one page.
  */
 final class SeatingPdf
@@ -24,6 +26,8 @@ final class SeatingPdf
     /** Space between the seats and padding inside them, in mm; both count towards the seat size. */
     private const SPACING = 1.0;
     private const PADDING = 0.8;
+    /** Width of the row letters and height of the column numbers, in mm. */
+    private const LABEL = 5.0;
 
     public function __construct(private readonly SeatingService $seating)
     {
@@ -42,7 +46,7 @@ final class SeatingPdf
         $size = self::seatSize($plan->grid->rows, $plan->grid->columns);
         $rows = '';
         for ($row = $plan->grid->rows; $row >= 1; $row--) {
-            $rows .= '<tr>';
+            $rows .= '<tr><td class="label">' . Seat::rowName($row) . '</td>';
             for ($column = 1; $column <= $plan->grid->columns; $column++) {
                 $seat = $plan->at($row, $column);
                 $person = $seat === null ? null : ($people[$seat->userId] ?? null);
@@ -50,6 +54,11 @@ final class SeatingPdf
             }
             $rows .= '</tr>';
         }
+        $rows .= '<tr><td class="label"></td>';
+        for ($column = 1; $column <= $plan->grid->columns; $column++) {
+            $rows .= '<td class="label number">' . $column . '</td>';
+        }
+        $rows .= '</tr>';
 
         $intro = $pieceId === null ? '' : '<p class="muted">' . \esc_html(\sprintf(
             /* translators: %s: piece title */
@@ -59,7 +68,8 @@ final class SeatingPdf
         $width = $size * $plan->grid->columns + self::SPACING;
         $inner = \round($size - self::SPACING - 2 * self::PADDING, 1);
         $body = $intro . '<table class="grid">' . $rows . '</table>'
-            . '<div class="front" style="width: ' . $width . 'mm">' . \esc_html__('Conductor', 'orchestra-seating')
+            . '<div class="front" style="width: ' . $width . 'mm; padding-left: ' . (self::LABEL + self::SPACING)
+            . 'mm">' . \esc_html__('Conductor', 'orchestra-seating')
             . '</div>';
 
         $nameSize = \max(5.5, \min(9.0, $size * 0.32));
@@ -76,6 +86,9 @@ final class SeatingPdf
                 . '.seat { width: ' . $inner . 'mm; height: ' . $inner . 'mm; padding: ' . self::PADDING . 'mm;'
                 . ' text-align: center; vertical-align: middle; border: 0.6pt solid #8da2d8;'
                 . ' background: #e6ebf7; overflow: hidden; }'
+                . '.label { width: ' . self::LABEL . 'mm; padding: 0; text-align: center; vertical-align: middle;'
+                . ' font-size: 7.5pt; font-weight: bold; color: #6b6b6b; border: 0; background: none; }'
+                . '.label.number { height: ' . self::LABEL . 'mm; width: auto; }'
                 . '.seat.empty { background: #fff; border: 0.6pt dashed #c8c8c8; }'
                 . '.name { font-weight: bold; font-size: ' . $nameSize . 'pt; line-height: 1.15; }'
                 . '.voice { color: #6b6b6b; font-size: ' . \max(5.0, $nameSize - 1.5) . 'pt; }'
@@ -90,7 +103,11 @@ final class SeatingPdf
      */
     public static function seatSize(int $rows, int $columns): float
     {
-        $size = \min(self::MAX_SEAT, self::AREA_WIDTH / \max(1, $columns), self::AREA_HEIGHT / \max(1, $rows));
+        $size = \min(
+            self::MAX_SEAT,
+            (self::AREA_WIDTH - self::LABEL) / \max(1, $columns),
+            (self::AREA_HEIGHT - self::LABEL) / \max(1, $rows)
+        );
 
         return \round(\max(self::MIN_SEAT, $size), 1);
     }

@@ -184,6 +184,9 @@ check("data-seating-form" in page and "Not seated" in page, "conductors open the
 check(all(name in tray(page) for name in ["Mia", "Max", "Olga", "Lena-Marie"]) and "Carl" not in tray(page)
       and "Mo" not in tray(page).split(), "accepted members and organizers are to be seated, conductors and those who declined are not")
 check(cells(page) == 4, "the grid starts with a seat for everyone")
+labels = re.findall(r'class="orchestra-seating__label"[^>]*>([^<]*)<', page)
+check(labels == ["A", "1", "2", "3", "4"] and "Row A, seat 4" in page,
+      "rows are labelled with letters from the front, columns with numbers from the left")
 
 # --- Arranging ----------------------------------------------------------------------------------
 _, page = save(conductor, {"mia": "1-1", "max": "1-2", "organizer": "1-3", "lena": "1-4"}, piece=SEED["pirates"])
@@ -280,7 +283,7 @@ wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", "open")
 wp("user", "delete", str(ids["lena"]), "--yes")
 check("lena" not in seats(), "deleting a user removes their seat")
 export = wp_json(f'echo json_encode(apply_filters("wp_privacy_personal_data_exporters", [])["orchestra-seating"]["callback"]("mia@example.com"));')
-check(export and export["data"] and export["data"][0]["data"][1]["value"] == "1", "the seat is in the personal data export")
+check(export and export["data"] and export["data"][0]["data"][1]["value"] == "A", "the seat is in the personal data export")
 wp("post", "delete", str(PROJECT), "--force")
 left = wp_json('global $wpdb; echo json_encode([(int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_seats"),'
                ' (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_plans")]);')
