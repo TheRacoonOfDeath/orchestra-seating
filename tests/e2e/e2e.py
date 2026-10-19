@@ -155,6 +155,18 @@ def cells(page):
     return len(re.findall(r"data-seating-cell=", page))
 
 
+def cell_classes(page, seat):
+    match = re.search(r'class="orchestra-seating__cell([^"]*)" data-seating-seat="' + seat + '"', page)
+    return match.group(1).split() if match else None
+
+
+def color_of(page, name):
+    match = re.search(r'<div class="orchestra-seating__person"([^>]*)>\s*<span class="orchestra-seating__name">'
+                      + re.escape(name) + '<', page)
+    color = re.search(r'data-seating-color="(\d+)"', match.group(1)) if match else None
+    return color.group(1) if color else None
+
+
 def tray(page):
     part = page.split("data-seating-tray", 1)[1].split("</section>", 1)[0] if "data-seating-tray" in page else ""
     return text(part)
@@ -212,9 +224,15 @@ _, page = mia.get(TAB)
 plain = text(page)
 check("data-seating-form" not in page and "Mia Horn 1" in plain and "Max Horn 2" in plain and "Olga —" in plain
       and "Voices in Pirates of the Caribbean (1 of 2)" in plain, "members see names and voices, without editing")
-check(f'data-seating-voice="{SEED["dance"]}" hidden' in page and 'data-seating-step="1"' in page,
+check(re.search(f'data-seating-voice="{SEED["dance"]}"[^>]* hidden>', page) is not None and 'data-seating-step="1"' in page,
       "the voices of every piece are there to step through")
 check("Lena-Marie Sophie von Hohenzollern-Sigmaringen" in plain, "long names are shown")
+# Row A: Max (Horn 2), Mia (Horn 1), Olga and Lena without a part in Pirates of the Caribbean.
+check(color_of(page, "Mia") == "0" and color_of(page, "Max") == "1" and color_of(page, "Olga") is None,
+      "every voice has its own color, people without a voice have none")
+check("is-split-right" in cell_classes(page, "1-1") and "is-split-right" in cell_classes(page, "1-2")
+      and "is-split-right" not in cell_classes(page, "1-3"),
+      "a thick line separates neighbours with different voices")
 check("Download PDF" not in page, "members see no PDF download")
 status, _, body = mia.request(PDF)
 check(status == 403 and not body.startswith(b"%PDF"), "members cannot download the seating")

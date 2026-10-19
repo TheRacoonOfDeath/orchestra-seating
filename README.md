@@ -12,6 +12,7 @@ Part of the Orchestra plugin suite. Requires
 - A **Seating** tab on every project, on the projects page and in wp-admin
 - A grid of seats of equal size; each person shows their name and their part in a piece of the
   program, and arrows step through the pieces of the program
+- Each voice has its own light color, and thick lines separate neighbours with different voices
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
 - The grid starts with a seat for everyone; rows and columns can be added and removed

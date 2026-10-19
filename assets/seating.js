@@ -3,7 +3,8 @@
  * touch and pen) or with the keyboard.
  *
  * Every person carries one voice per piece of the program; the arrows show the voices of the
- * previous or next piece without reloading. Without JavaScript the arrows are links.
+ * previous or next piece without reloading. Without JavaScript the arrows are links. Each voice has
+ * a color, and a thick line separates neighbours with different voices.
  *
  * The form keeps one select per person (`seat[userId]` = "row-column" or "" for no seat). Without
  * JavaScript, people are seated with these selects; with JavaScript they are hidden and kept in
@@ -20,6 +21,45 @@
 
     var EDGE = 60;
     var THRESHOLD = 4;
+
+    // Colors the people by the voice shown and draws the lines between neighbours with different
+    // voices, like the server does for the first page.
+    function paint(container) {
+        var tones = {};
+        Array.prototype.forEach.call(container.querySelectorAll('[data-seating-seat]'), function (cell) {
+            var person = cell.querySelector('.orchestra-seating__person');
+            tones[cell.getAttribute('data-seating-seat')] = person ? person.getAttribute('data-seating-tone') || '' : null;
+        });
+        Array.prototype.forEach.call(container.querySelectorAll('[data-seating-seat]'), function (cell) {
+            var parts = cell.getAttribute('data-seating-seat').split('-');
+            var row = parseInt(parts[0], 10);
+            var column = parseInt(parts[1], 10);
+            var own = tones[row + '-' + column];
+            var right = tones[row + '-' + (column + 1)];
+            var back = tones[(row + 1) + '-' + column];
+            cell.classList.toggle('is-split-right', own != null && right != null && own !== right);
+            cell.classList.toggle('is-split-back', own != null && back != null && own !== back);
+        });
+    }
+
+    function showVoice(container, pieceId) {
+        Array.prototype.forEach.call(container.querySelectorAll('.orchestra-seating__person'), function (person) {
+            Array.prototype.forEach.call(person.querySelectorAll('[data-seating-voice]'), function (voice) {
+                var shown = voice.getAttribute('data-seating-voice') === pieceId;
+                voice.hidden = !shown;
+                if (shown) {
+                    ['data-seating-tone', 'data-seating-color'].forEach(function (name) {
+                        if (voice.hasAttribute(name)) {
+                            person.setAttribute(name, voice.getAttribute(name));
+                        } else {
+                            person.removeAttribute(name);
+                        }
+                    });
+                }
+            });
+        });
+        paint(container);
+    }
 
     function initVoices(container) {
         var cycler = container.querySelector('[data-seating-voices]');
@@ -39,9 +79,7 @@
             index = (position + pieces.length) % pieces.length;
             var id = String(pieces[index].id);
             title.textContent = pieces[index].label;
-            Array.prototype.forEach.call(container.querySelectorAll('[data-seating-voice]'), function (voice) {
-                voice.hidden = voice.getAttribute('data-seating-voice') !== id;
-            });
+            showVoice(container, id);
             // Keeps the piece when the page is reloaded, e.g. after saving.
             if (window.history.replaceState) {
                 var url = new URL(window.location.href);
@@ -106,6 +144,7 @@
             cells.forEach(function (cell) {
                 cell.classList.toggle('is-empty', !cell.querySelector('[data-seating-person]'));
             });
+            paint(form);
         }
 
         // Puts the person on the cell, or back to the tray for null. A person already on the cell

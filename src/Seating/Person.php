@@ -14,7 +14,18 @@ final class Person
         public readonly string $name,
         /** @var array<int, string> piece ID => the part in that piece, for the pieces with an assignment */
         public readonly array $voices,
+        /** @var array<int, int> piece ID => the position of the part among the parts of the piece, from 0 */
+        public readonly array $tones = [],
     ) {
+    }
+
+    /**
+     * The position of the part in the piece among its parts, which chooses its color; null without
+     * an assignment. People with the same part have the same tone.
+     */
+    public function tone(?int $pieceId): ?int
+    {
+        return $pieceId === null ? null : $this->tones[$pieceId] ?? null;
     }
 
     /**

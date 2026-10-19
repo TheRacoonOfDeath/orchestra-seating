@@ -31,6 +31,9 @@ final class SeatingTab
 
     private const HANDLE = 'orchestra-seating';
 
+    /** The number of voice colors in seating.css; further voices repeat them. */
+    private const COLORS = 8;
+
     public function __construct(private readonly SeatingService $seating, private readonly string $pluginFile)
     {
     }
@@ -279,7 +282,9 @@ final class SeatingTab
 
     /**
      * The grid with the front row at the bottom, next to the conductor. The rows are labelled with
-     * letters on the left, the columns with numbers below.
+     * letters on the left, the columns with numbers below. A thick line separates neighbours with
+     * different voices in the shown piece; seating.js redraws the lines when the piece or the
+     * seating changes.
      *
      * @param array<int, Person> $people
      * @param array<int, string> $pieces
@@ -294,12 +299,24 @@ final class SeatingTab
         $html = '<div class="orchestra-seating__scroll"><div class="orchestra-seating__stage">'
             . '<div class="orchestra-seating__grid" style="--orchestra-seating-columns: ' . $plan->grid->columns
             . '; --orchestra-seating-rows: ' . $plan->grid->rows . '">';
+        $tone = static function (int $row, int $column) use ($plan, $people, $pieceId): ?string {
+            $seat = $plan->at($row, $column);
+            $person = $seat === null ? null : ($people[$seat->userId] ?? null);
+
+            return $person === null ? null : (string) $person->tone($pieceId);
+        };
         for ($row = $plan->grid->rows; $row >= 1; $row--) {
             $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . Seat::rowName($row) . '</div>';
             for ($column = 1; $column <= $plan->grid->columns; $column++) {
                 $seat = $plan->at($row, $column);
                 $person = $seat === null ? null : ($people[$seat->userId] ?? null);
-                $html .= '<div class="orchestra-seating__cell' . ($person === null ? ' is-empty' : '') . '"'
+                $own = $tone($row, $column);
+                $right = $tone($row, $column + 1);
+                $back = $tone($row + 1, $column);
+                $html .= '<div class="orchestra-seating__cell' . ($person === null ? ' is-empty' : '')
+                    . ($own !== null && $right !== null && $own !== $right ? ' is-split-right' : '')
+                    . ($own !== null && $back !== null && $own !== $back ? ' is-split-back' : '') . '"'
+                    . ' data-seating-seat="' . Seat::key($row, $column) . '"'
                     . ($editable ? ' data-seating-cell="' . Seat::key($row, $column) . '"' : '')
                     . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'
                     . ($person === null ? '' : self::person($person, $editable, $pieces, $pieceId)) . '</div>';
@@ -325,13 +342,24 @@ final class SeatingTab
         foreach (\array_keys($pieces) as $id) {
             $voice = $person->voice($id);
             $voices .= '<span class="orchestra-seating__voice" data-seating-voice="' . $id . '"'
-                . ($id === $pieceId ? '' : ' hidden') . '>' . \esc_html($voice === '' ? '—' : $voice) . '</span>';
+                . self::tone($person->tone($id)) . ($id === $pieceId ? '' : ' hidden') . '>'
+                . \esc_html($voice === '' ? '—' : $voice) . '</span>';
         }
 
-        return '<div class="orchestra-seating__person"'
+        return '<div class="orchestra-seating__person"' . self::tone($person->tone($pieceId))
             . ($editable ? ' data-seating-person="' . $person->userId . '" tabindex="0" role="button"' : '')
             . ' title="' . \esc_attr($person->name) . '">'
             . '<span class="orchestra-seating__name">' . \esc_html($person->name) . '</span>' . $voices . '</div>';
+    }
+
+    /**
+     * The voice of a person as attributes: the tone tells voices apart, the color is one of the
+     * eight colors of seating.css. Without a voice, there is no tone and no color.
+     */
+    private static function tone(?int $tone): string
+    {
+        return $tone === null ? ' data-seating-tone=""'
+            : ' data-seating-tone="' . $tone . '" data-seating-color="' . ($tone % self::COLORS) . '"';
     }
 
     private static function seatSelect(SeatingPlan $plan, Person $person): string

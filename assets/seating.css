@@ -6,6 +6,7 @@
     --orchestra-seating-size: 7rem;
     --orchestra-seating-label: 1.5rem;
     --orchestra-seating-gap: 0.4rem;
+    --orchestra-seating-split: color-mix(in srgb, currentColor 70%, transparent);
     --orchestra-seating-line: color-mix(in srgb, currentColor 22%, transparent);
 }
 
@@ -68,6 +69,31 @@
     border-radius: var(--orchestra-radius-small, 6px);
     display: flex;
     min-width: 0;
+    position: relative;
+}
+
+/* A thick line in the gap between neighbours with different voices: to the right and behind. */
+.orchestra-seating__cell.is-split-right::after,
+.orchestra-seating__cell.is-split-back::before {
+    background: var(--orchestra-seating-split);
+    border-radius: 2px;
+    content: "";
+    pointer-events: none;
+    position: absolute;
+}
+
+.orchestra-seating__cell.is-split-right::after {
+    bottom: calc(var(--orchestra-seating-gap) / -2);
+    right: calc(var(--orchestra-seating-gap) / -2 - 1.5px);
+    top: calc(var(--orchestra-seating-gap) / -2);
+    width: 3px;
+}
+
+.orchestra-seating__cell.is-split-back::before {
+    height: 3px;
+    left: calc(var(--orchestra-seating-gap) / -2);
+    right: calc(var(--orchestra-seating-gap) / -2);
+    top: calc(var(--orchestra-seating-gap) / -2 - 1.5px);
 }
 
 .orchestra-seating__front {
@@ -97,6 +123,49 @@
     overflow: hidden;
     padding: 0.35rem;
     text-align: center;
+}
+
+/* One light color per voice of the shown piece; people without a voice are grey. */
+.orchestra-seating__person[data-seating-tone=""] {
+    background: color-mix(in srgb, currentColor 6%, transparent);
+    border-color: color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.orchestra-seating__person[data-seating-color] {
+    background: color-mix(in srgb, var(--orchestra-seating-voice) 20%, transparent);
+    border-color: color-mix(in srgb, var(--orchestra-seating-voice) 60%, transparent);
+}
+
+.orchestra-seating__person[data-seating-color="0"] {
+    --orchestra-seating-voice: #3b82f6;
+}
+
+.orchestra-seating__person[data-seating-color="1"] {
+    --orchestra-seating-voice: #f59e0b;
+}
+
+.orchestra-seating__person[data-seating-color="2"] {
+    --orchestra-seating-voice: #10b981;
+}
+
+.orchestra-seating__person[data-seating-color="3"] {
+    --orchestra-seating-voice: #ef4444;
+}
+
+.orchestra-seating__person[data-seating-color="4"] {
+    --orchestra-seating-voice: #8b5cf6;
+}
+
+.orchestra-seating__person[data-seating-color="5"] {
+    --orchestra-seating-voice: #06b6d4;
+}
+
+.orchestra-seating__person[data-seating-color="6"] {
+    --orchestra-seating-voice: #ec4899;
+}
+
+.orchestra-seating__person[data-seating-color="7"] {
+    --orchestra-seating-voice: #84cc16;
 }
 
 .orchestra-seating__name {

@@ -62,14 +62,16 @@ final class SeatingService
     {
         $parts = [];
         foreach ($this->projects->programPieceIds($plan->projectId) as $pieceId) {
-            foreach ($this->library->parts($pieceId) as $part) {
-                $parts[$part->id] = $part->name;
+            foreach ($this->library->parts($pieceId) as $position => $part) {
+                $parts[$part->id] = [$part->name, $position];
             }
         }
         $voices = [];
+        $tones = [];
         foreach ($this->projects->assignments($plan->projectId) as $assignment) {
             if ($assignment->userId !== null && isset($parts[$assignment->partId])) {
-                $voices[$assignment->userId][$assignment->pieceId] = $parts[$assignment->partId];
+                [$voices[$assignment->userId][$assignment->pieceId], $tones[$assignment->userId][$assignment->pieceId]]
+                    = $parts[$assignment->partId];
             }
         }
 
@@ -77,7 +79,7 @@ final class SeatingService
         foreach ($this->peopleIds($plan->projectId, $plan->seatOrganizers) as $userId) {
             $member = $this->members->member($userId);
             if ($member !== null) {
-                $people[] = new Person($userId, $member->displayName, $voices[$userId] ?? []);
+                $people[] = new Person($userId, $member->displayName, $voices[$userId] ?? [], $tones[$userId] ?? []);
             }
         }
         \usort($people, static fn (Person $a, Person $b): int => \strcasecmp($a->name, $b->name));
