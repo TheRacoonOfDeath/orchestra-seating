@@ -28,6 +28,31 @@
     grid-template-rows: repeat(var(--orchestra-seating-rows, 1), var(--orchestra-seating-size)) auto;
 }
 
+/* The arrows that step through the pieces; only the voices on the seats change. */
+.orchestra-seating__voices {
+    align-items: center;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+}
+
+.orchestra-seating__piece {
+    font-weight: 600;
+    min-width: 0;
+    text-align: center;
+}
+
+.orchestra-seating__voice[hidden] {
+    display: none;
+}
+
+.orchestra-seating__import {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
 /* Row letters on the left, column numbers below the seats. */
 .orchestra-seating__label {
     align-items: center;

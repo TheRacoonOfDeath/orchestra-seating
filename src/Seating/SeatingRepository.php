@@ -40,7 +40,6 @@ final class SeatingRepository
         return new SeatingPlan(
             $projectId,
             new GridSize(\max(1, Row::int($row, 'grid_rows')), \max(1, Row::int($row, 'grid_columns'))),
-            Row::nullableInt($row, 'piece_id'),
             Row::int($row, 'seat_organizers') === 1,
             $seats,
             true
@@ -53,10 +52,9 @@ final class SeatingRepository
             'project_id' => $plan->projectId,
             'grid_rows' => $plan->grid->rows,
             'grid_columns' => $plan->grid->columns,
-            'piece_id' => $plan->pieceId,
             'seat_organizers' => $plan->seatOrganizers ? 1 : 0,
             'updated_at' => \current_time('mysql', true),
-        ], ['%d', '%d', '%d', '%d', '%d', '%s']); // wpdb writes NULL for a null piece_id
+        ], ['%d', '%d', '%d', '%d', '%s']);
 
         $this->wpdb->delete($this->schema->seatsTable(), ['project_id' => $plan->projectId], ['%d']);
         foreach ($plan->seats as $seat) {
@@ -67,6 +65,16 @@ final class SeatingRepository
                 'seat_column' => $seat->column,
             ], ['%d', '%d', '%d', '%d']);
         }
+    }
+
+    /**
+     * @return list<int> the projects with a saved seating
+     */
+    public function projectIds(): array
+    {
+        return \array_map('intval', $this->wpdb->get_col(
+            $this->wpdb->prepare('SELECT project_id FROM %i', $this->schema->plansTable())
+        ));
     }
 
     public function deleteProject(int $projectId): void

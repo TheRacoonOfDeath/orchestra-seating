@@ -55,21 +55,21 @@ final class SeatingService
     }
 
     /**
-     * @return list<Person> the people to seat with their voice in the plan's piece, ordered by name
+     * @return list<Person> the people to seat with their voices in the pieces of the program,
+     *         ordered by name
      */
     public function people(SeatingPlan $plan): array
     {
-        $pieceId = $this->pieceId($plan);
-        $voices = [];
-        if ($pieceId !== null) {
-            $parts = [];
+        $parts = [];
+        foreach ($this->projects->programPieceIds($plan->projectId) as $pieceId) {
             foreach ($this->library->parts($pieceId) as $part) {
                 $parts[$part->id] = $part->name;
             }
-            foreach ($this->projects->assignments($plan->projectId) as $assignment) {
-                if ($assignment->pieceId === $pieceId && $assignment->userId !== null) {
-                    $voices[$assignment->userId] = $parts[$assignment->partId] ?? '';
-                }
+        }
+        $voices = [];
+        foreach ($this->projects->assignments($plan->projectId) as $assignment) {
+            if ($assignment->userId !== null && isset($parts[$assignment->partId])) {
+                $voices[$assignment->userId][$assignment->pieceId] = $parts[$assignment->partId];
             }
         }
 
@@ -77,26 +77,12 @@ final class SeatingService
         foreach ($this->peopleIds($plan->projectId, $plan->seatOrganizers) as $userId) {
             $member = $this->members->member($userId);
             if ($member !== null) {
-                $people[] = new Person($userId, $member->displayName, $voices[$userId] ?? '');
+                $people[] = new Person($userId, $member->displayName, $voices[$userId] ?? []);
             }
         }
         \usort($people, static fn (Person $a, Person $b): int => \strcasecmp($a->name, $b->name));
 
         return $people;
-    }
-
-    /**
-     * The piece whose parts are shown: the chosen one while it is in the program, otherwise the
-     * first piece of the program.
-     */
-    public function pieceId(SeatingPlan $plan): ?int
-    {
-        $program = $this->projects->programPieceIds($plan->projectId);
-        if ($plan->pieceId !== null && \in_array($plan->pieceId, $program, true)) {
-            return $plan->pieceId;
-        }
-
-        return $program[0] ?? null;
     }
 
     /**
@@ -110,6 +96,31 @@ final class SeatingService
         }
 
         return $pieces;
+    }
+
+    /**
+     * The saved seating of a project as it was arranged, without the participation changes since.
+     */
+    public function savedPlan(int $projectId): ?SeatingPlan
+    {
+        return $this->repository->find($projectId);
+    }
+
+    /**
+     * @return array<int, string> project ID => name of the other projects with a saved seating,
+     *         newest first
+     */
+    public function importSources(int $projectId): array
+    {
+        $withSeating = $this->repository->projectIds();
+        $sources = [];
+        foreach ($this->projects->projects() as $project) {
+            if ($project->id !== $projectId && \in_array($project->id, $withSeating, true)) {
+                $sources[$project->id] = $project->title;
+            }
+        }
+
+        return $sources;
     }
 
     public function save(SeatingPlan $plan): void

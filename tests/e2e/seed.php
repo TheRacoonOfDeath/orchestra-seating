@@ -2,7 +2,8 @@
 
 /**
  * Test data for e2e.py, run with `wp eval-file`: two pieces with parts in orchestra-library, and an
- * open project with both pieces, accepted participants and assignments in orchestra-projects.
+ * open project with both pieces, accepted participants and assignments in orchestra-projects, and a
+ * completed project whose seating is imported.
  * Prints the IDs as JSON.
  */
 
@@ -65,5 +66,11 @@ $assignments = new AssignmentRepository($wpdb, $schema);
 $assignments->insert($project, $ids['pirates'], $ids['pirates:Horn 1'], $user('mia'), 1);
 $assignments->insert($project, $ids['pirates'], $ids['pirates:Horn 2'], $user('max'), 1);
 $assignments->insert($project, $ids['dance'], $ids['dance:Violin 1'], $user('mia'), 1);
+
+// A second project, whose seating e2e.py imports.
+$ids['autumn'] = wp_insert_post(
+    ['post_type' => 'orchestra_project', 'post_status' => 'publish', 'post_title' => 'Autumn Concert']
+);
+update_post_meta($ids['autumn'], 'orchestra_projects_status', 'completed');
 
 echo json_encode($ids);

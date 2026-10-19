@@ -10,6 +10,7 @@ use Orchestra\Projects\Project\ProjectStatus;
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Capabilities;
 use Orchestra\Seating\Seating\SeatingInput;
+use Orchestra\Seating\Seating\SeatingPlan;
 use Orchestra\Seating\Seating\SeatingService;
 
 /**
@@ -55,11 +56,12 @@ final class SeatingController
         }
 
         $input = \wp_unslash($_POST);
+        $sources = $this->seating->importSources($project->id);
         [$plan, $errors] = SeatingInput::apply(
             $input,
             $this->seating->plan($project),
-            $this->projects->programPieceIds($project->id),
-            fn (bool $seatOrganizers): array => $this->seating->peopleIds($project->id, $seatOrganizers)
+            fn (bool $seatOrganizers): array => $this->seating->peopleIds($project->id, $seatOrganizers),
+            fn (int $sourceId): ?SeatingPlan => isset($sources[$sourceId]) ? $this->seating->savedPlan($sourceId) : null
         );
         if ($errors !== []) {
             Notices::errors($errors);
@@ -67,8 +69,16 @@ final class SeatingController
         }
 
         $this->seating->save($plan);
-        if (($input[SeatingInput::FIELD_OPERATION] ?? SeatingInput::SAVE) === SeatingInput::SAVE) {
+        $operation = $input[SeatingInput::FIELD_OPERATION] ?? SeatingInput::SAVE;
+        if ($operation === SeatingInput::SAVE) {
             Notices::success(\__('The seating has been saved.', 'orchestra-seating'));
+        } elseif ($operation === SeatingInput::IMPORT) {
+            $sourceId = $input[SeatingInput::FIELD_IMPORT] ?? '';
+            Notices::success(\sprintf(
+                /* translators: %s: project name */
+                \__('The seating of %s has been imported.', 'orchestra-seating'),
+                \is_numeric($sourceId) ? $sources[(int) $sourceId] ?? '' : ''
+            ));
         }
         Redirect::back();
     }

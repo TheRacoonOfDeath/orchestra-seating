@@ -12,8 +12,16 @@ final class Person
     public function __construct(
         public readonly int $userId,
         public readonly string $name,
-        /** The part in the chosen piece; "" without an assignment */
-        public readonly string $voice,
+        /** @var array<int, string> piece ID => the part in that piece, for the pieces with an assignment */
+        public readonly array $voices,
     ) {
+    }
+
+    /**
+     * The part in the piece; "" without an assignment.
+     */
+    public function voice(?int $pieceId): string
+    {
+        return $pieceId === null ? '' : $this->voices[$pieceId] ?? '';
     }
 }

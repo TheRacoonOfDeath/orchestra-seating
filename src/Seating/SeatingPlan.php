@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Orchestra\Seating\Seating;
 
 /**
- * The seating of a project: the grid, the piece whose parts are shown as voices, whether
- * organizers are seated, and the seats.
+ * The seating of a project: the grid, whether organizers are seated, and the seats. It does not
+ * depend on a piece: the voices of every piece of the program can be shown on it.
  */
 final class SeatingPlan
 {
@@ -16,7 +16,6 @@ final class SeatingPlan
     public function __construct(
         public readonly int $projectId,
         public readonly GridSize $grid,
-        public readonly ?int $pieceId,
         public readonly bool $seatOrganizers,
         public readonly array $seats,
         /** Whether the plan has been saved; a new plan is only a suggestion */
@@ -26,7 +25,7 @@ final class SeatingPlan
 
     public static function initial(int $projectId, int $people): self
     {
-        return new self($projectId, GridSize::initial($people), null, true, []);
+        return new self($projectId, GridSize::initial($people), true, []);
     }
 
     /**
@@ -36,12 +35,10 @@ final class SeatingPlan
         ?GridSize $grid = null,
         ?array $seats = null,
         ?bool $seatOrganizers = null,
-        int|false|null $pieceId = false,
     ): self {
         return new self(
             $this->projectId,
             $grid ?? $this->grid,
-            $pieceId === false ? $this->pieceId : $pieceId,
             $seatOrganizers ?? $this->seatOrganizers,
             $seats ?? $this->seats,
             $this->saved
@@ -91,6 +88,23 @@ final class SeatingPlan
         }
 
         return $this->with(grid: $grid, seats: $seats);
+    }
+
+    /**
+     * The seating of another project for the people of this one: everyone who is seated there
+     * gets the same seat, the seats of people who do not take part here stay empty, and new people
+     * are not seated. The grid is taken over and grows if it is too small.
+     *
+     * @param list<int> $userIds The people to seat
+     */
+    public function importedFrom(self $source, array $userIds): self
+    {
+        $seats = \array_values(\array_filter(
+            $source->seats,
+            static fn (Seat $seat): bool => \in_array($seat->userId, $userIds, true)
+        ));
+
+        return $this->with(grid: $source->grid, seats: $seats)->arrangedFor($userIds);
     }
 
     /**

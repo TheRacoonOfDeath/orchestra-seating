@@ -106,6 +106,7 @@ def field(page, name):
 def text(page):
     """The visible text of a page, for checks independent of markup."""
     page = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", page, flags=re.S)
+    page = re.sub(r"<span[^>]*\shidden>[^<]*</span>", " ", page)
     return html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page)))
 
 
@@ -123,7 +124,7 @@ mia, sam = Session("mia"), Session("sam")
 
 def seats():
     rows = wp_json('global $wpdb; echo json_encode($wpdb->get_results("SELECT user_id, seat_row, seat_column FROM'
-                   ' {$wpdb->prefix}orchestra_seating_seats ORDER BY seat_row, seat_column", ARRAY_A));') or []
+                   ' {$wpdb->prefix}orchestra_seating_seats WHERE project_id = ' + str(PROJECT) + ' ORDER BY seat_row, seat_column", ARRAY_A));') or []
     names = {v: k for k, v in ids.items()}
     return {names.get(int(r["user_id"]), r["user_id"]): f'{r["seat_row"]}-{r["seat_column"]}' for r in rows}
 
@@ -132,8 +133,8 @@ def form_of(page):
     return next((f for f in re.findall(r"<form.*?</form>", page, flags=re.S) if "orchestra_seating_save" in f), "")
 
 
-def save(session, placement, op="save", piece=None, organizers=True, page=None):
-    """Submits the seating form like a browser: every select, the piece and the organizer switch."""
+def save(session, placement, op="save", organizers=True, page=None, extra=None):
+    """Submits the seating form like a browser: every select and the organizer switch."""
     if page is None:
         _, page = session.get(TAB)
     form = form_of(page)
@@ -144,14 +145,9 @@ def save(session, placement, op="save", piece=None, organizers=True, page=None):
     for user in re.findall(r'name="seat\[(\d+)\]"', form):
         login = next((k for k, v in ids.items() if v == int(user)), "")
         data[f"seat[{user}]"] = placement.get(login, "")
-    if piece is not None:
-        data["piece"] = str(piece)
-    else:
-        selected = re.search(r'<option value="(\d+)" selected', form)
-        if selected:
-            data["piece"] = selected.group(1)
     if organizers:
         data["seat_organizers"] = "1"
+    data.update(extra or {})
     return session.post("/wp-admin/admin-post.php", data)
 
 
@@ -168,6 +164,16 @@ def tray(page):
 circular = wp_json('WP_Plugin_Dependencies::initialize(); echo json_encode(array_values(array_filter(array_keys(get_plugins()),'
                    ' fn ($p) => WP_Plugin_Dependencies::has_circular_dependency($p))));')
 check(circular == [], "WordPress finds no circular plugin dependencies")
+
+# --- Schema -------------------------------------------------------------------------------------
+# Version 1 stored a piece per seating; the update drops the column.
+old = wp_json('global $wpdb; $wpdb->query("ALTER TABLE {$wpdb->prefix}orchestra_seating_plans ADD COLUMN piece_id bigint(20) unsigned DEFAULT NULL");'
+              ' update_option("orchestra_seating_schema_version", 1);'
+              ' echo json_encode($wpdb->get_col("SHOW COLUMNS FROM {$wpdb->prefix}orchestra_seating_plans"));')
+check("piece_id" in old, "the seating of version 1 has a piece")
+columns = wp_json('global $wpdb; echo json_encode([$wpdb->get_col("SHOW COLUMNS FROM {$wpdb->prefix}orchestra_seating_plans"),'
+                  ' (int) get_option("orchestra_seating_schema_version")]);')
+check("piece_id" not in columns[0] and columns[1] == 2, "updating drops the piece of the seating")
 
 # --- Capabilities and tab ---------------------------------------------------------------------
 caps = wp_json('echo json_encode(array_map(fn ($r) => array_keys(array_filter(get_role($r)->capabilities)),'
@@ -189,7 +195,7 @@ check(labels == ["A", "1", "2", "3", "4"] and "Row A, seat 4" in page,
       "rows are labelled with letters from the front, columns with numbers from the left")
 
 # --- Arranging ----------------------------------------------------------------------------------
-_, page = save(conductor, {"mia": "1-1", "max": "1-2", "organizer": "1-3", "lena": "1-4"}, piece=SEED["pirates"])
+_, page = save(conductor, {"mia": "1-1", "max": "1-2", "organizer": "1-3", "lena": "1-4"})
 check("The seating has been saved." in text(page) and seats() == {"mia": "1-1", "max": "1-2", "organizer": "1-3", "lena": "1-4"},
       "conductors seat people")
 _, page = save(organizer, {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"})
@@ -205,7 +211,9 @@ check("orchestra_tab=seating" in page, "members see the seating once it is arran
 _, page = mia.get(TAB)
 plain = text(page)
 check("data-seating-form" not in page and "Mia Horn 1" in plain and "Max Horn 2" in plain and "Olga —" in plain
-      and "Voices in Pirates of the Caribbean" in plain, "members see names and voices, without editing")
+      and "Voices in Pirates of the Caribbean (1 of 2)" in plain, "members see names and voices, without editing")
+check(f'data-seating-voice="{SEED["dance"]}" hidden' in page and 'data-seating-step="1"' in page,
+      "the voices of every piece are there to step through")
 check("Lena-Marie Sophie von Hohenzollern-Sigmaringen" in plain, "long names are shown")
 check("Download PDF" not in page, "members see no PDF download")
 status, _, body = mia.request(PDF)
@@ -222,9 +230,9 @@ with open(os.path.join(WORK, "seating.pdf"), "wb") as handle:
     handle.write(body)
 status, _, _ = sam.request(PDF)
 check(status == 403, "others cannot download the seating")
-save(conductor, {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"}, piece=SEED["dance"])
-_, page = mia.get(TAB)
-check("Mia Violin 1" in text(page) and "Max —" in text(page), "the voices follow the chosen piece")
+_, page = mia.get(f'{TAB}&seating_piece={SEED["dance"]}')
+check("Mia Violin 1" in text(page) and "Max —" in text(page) and "Voices in Lord of the Dance (2 of 2)" in text(page),
+      "the arrows show the voices of the next piece without JavaScript")
 status, _ = save(mia, {"mia": "1-1"}, page=page)
 check(status == 403 or "orchestra_seating_save" not in form_of(page), "members cannot change the seating")
 status, _ = sam.post("/wp-admin/admin-post.php", {"action": "orchestra_seating_save", "project": str(PROJECT)})
@@ -256,6 +264,34 @@ save(conductor, placement, organizers=True)
 _, page = conductor.get(TAB)
 check("Olga" in tray(page), "organizers are seated again when switched on")
 
+# --- Import -------------------------------------------------------------------------------------
+_, page = conductor.get(TAB)
+check("Import seating" not in page, "there is nothing to import without another seating")
+AUTUMN = SEED["autumn"]
+# The seating of another project: Mia and Lena take part in both, Mo declined Spring Concert.
+wp_eval(f'global $wpdb; $wpdb->insert("{{$wpdb->prefix}}orchestra_seating_plans", ["project_id" => {AUTUMN},'
+        f' "grid_rows" => 1, "grid_columns" => 5, "seat_organizers" => 1, "updated_at" => "2026-01-01 00:00:00"]);'
+        f' foreach (["{ids["mia"]}" => 4, "{ids["lena"]}" => 1, "{ids["mo"]}" => 2] as $user => $column) {{'
+        f' $wpdb->insert("{{$wpdb->prefix}}orchestra_seating_seats", ["project_id" => {AUTUMN}, "user_id" => $user,'
+        f' "seat_row" => 1, "seat_column" => $column]); }}')
+_, page = conductor.get(TAB)
+check(f'<option value="{AUTUMN}">Autumn Concert</option>' in page and f'<option value="{PROJECT}">' not in page,
+      "other projects with a seating can be imported")
+_, page = mia.get(TAB)
+check("Import seating" not in page, "members cannot import a seating")
+before = seats()
+_, page = save(conductor, placement, op="import", extra={"import_project": str(PROJECT)})
+check("Choose a project with a seating." in text(page) and seats() == before, "a project cannot import its own seating")
+_, page = save(conductor, placement, op="import", extra={"import_project": str(AUTUMN)})
+check("The seating of Autumn Concert has been imported." in text(page), "the seating of another project is imported")
+check(seats().get("mia") == "1-4" and seats().get("lena") == "1-1",
+      "people in both projects keep their seat")
+check("max" not in seats() and "organizer" not in seats() and all(n in tray(page) for n in ["Max", "Olga"]),
+      "people new to the seating are not seated")
+check("mo" not in seats() and cells(page) == 5 and ">Mo<" not in page,
+      "the seats of people who do not take part stay empty")
+save(conductor, placement)
+
 # --- Participation changes ----------------------------------------------------------------------
 wp_eval(f'global $wpdb; $wpdb->update("{{$wpdb->prefix}}orchestra_projects_participation", ["status" => "declined"],'
         f' ["project_id" => {PROJECT}, "user_id" => {ids["max"]}]);')
@@ -284,7 +320,7 @@ wp("user", "delete", str(ids["lena"]), "--yes")
 check("lena" not in seats(), "deleting a user removes their seat")
 export = wp_json(f'echo json_encode(apply_filters("wp_privacy_personal_data_exporters", [])["orchestra-seating"]["callback"]("mia@example.com"));')
 check(export and export["data"] and export["data"][0]["data"][1]["value"] == "A", "the seat is in the personal data export")
-wp("post", "delete", str(PROJECT), "--force")
+wp("post", "delete", str(PROJECT), str(AUTUMN), "--force")
 left = wp_json('global $wpdb; echo json_encode([(int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_seats"),'
                ' (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_plans")]);')
 check(left == [0, 0], "deleting the project removes its seating")

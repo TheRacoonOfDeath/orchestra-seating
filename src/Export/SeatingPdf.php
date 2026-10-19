@@ -13,8 +13,8 @@ use Orchestra\Seating\Seating\SeatingService;
 /**
  * The seating of a project as a landscape PDF: the grid with the front row at the bottom, next to
  * the conductor, like on the page, with the row letters on the left and the column numbers below.
- * The seats shrink with the size of the grid, so that it fits on
- * one page.
+ * It shows names only, because the voices depend on the piece. The seats shrink with the size of
+ * the grid, so that it fits on one page.
  */
 final class SeatingPdf
 {
@@ -40,8 +40,6 @@ final class SeatingPdf
         foreach ($this->seating->people($plan) as $person) {
             $people[$person->userId] = $person;
         }
-        $pieceId = $this->seating->pieceId($plan);
-        $pieces = $this->seating->programPieces($project->id);
 
         $size = self::seatSize($plan->grid->rows, $plan->grid->columns);
         $rows = '';
@@ -60,19 +58,14 @@ final class SeatingPdf
         }
         $rows .= '</tr>';
 
-        $intro = $pieceId === null ? '' : '<p class="muted">' . \esc_html(\sprintf(
-            /* translators: %s: piece title */
-            \__('Voices in %s', 'orchestra-seating'),
-            $pieces[$pieceId] ?? ''
-        )) . '</p>';
         $width = $size * $plan->grid->columns + self::SPACING;
         $inner = \round($size - self::SPACING - 2 * self::PADDING, 1);
-        $body = $intro . '<table class="grid">' . $rows . '</table>'
+        $body = '<table class="grid">' . $rows . '</table>'
             . '<div class="front" style="width: ' . $width . 'mm; padding-left: ' . (self::LABEL + self::SPACING)
             . 'mm">' . \esc_html__('Conductor', 'orchestra-seating')
             . '</div>';
 
-        $nameSize = \max(5.5, \min(9.0, $size * 0.32));
+        $nameSize = \max(5.5, \min(10.0, $size * 0.36));
 
         return Pdf::document(
             \sprintf(
@@ -91,7 +84,6 @@ final class SeatingPdf
                 . '.label.number { height: ' . self::LABEL . 'mm; width: auto; }'
                 . '.seat.empty { background: #fff; border: 0.6pt dashed #c8c8c8; }'
                 . '.name { font-weight: bold; font-size: ' . $nameSize . 'pt; line-height: 1.15; }'
-                . '.voice { color: #6b6b6b; font-size: ' . \max(5.0, $nameSize - 1.5) . 'pt; }'
                 . '.front { margin: 2mm auto 0; padding-top: 1mm; border-top: 1.5pt solid #b8b8b8;'
                 . ' text-align: center; font-size: 7.5pt; letter-spacing: 1pt; color: #6b6b6b;'
                 . ' text-transform: uppercase; }'
@@ -114,7 +106,6 @@ final class SeatingPdf
 
     private static function seat(Person $person): string
     {
-        return '<td class="seat"><div class="name">' . \esc_html($person->name) . '</div><div class="voice">'
-            . \esc_html($person->voice === '' ? '—' : $person->voice) . '</div></td>';
+        return '<td class="seat"><div class="name">' . \esc_html($person->name) . '</div></td>';
     }
 }

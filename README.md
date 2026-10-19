@@ -11,12 +11,15 @@ Part of the Orchestra plugin suite. Requires
 
 - A **Seating** tab on every project, on the projects page and in wp-admin
 - A grid of seats of equal size; each person shows their name and their part in a piece of the
-  program
+  program, and arrows step through the pieces of the program
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
 - The grid starts with a seat for everyone; rows and columns can be added and removed
 - Rows are labelled A, B, … from the front, columns 1, 2, … from the left
-- Conductors and organizers download the seating as a PDF (with orchestra-core 0.8 or later)
+- The seating of another project can be imported: people in both projects keep their seat, new
+  people are not seated
+- Conductors and organizers download the seating as a PDF with names (with orchestra-core 0.8 or
+  later)
 - Accepted participants are seated, conductors never; organizers by default, which can be
   switched off per project
 

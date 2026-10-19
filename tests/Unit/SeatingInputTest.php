@@ -16,16 +16,15 @@ final class SeatingInputTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->plan = new SeatingPlan(9, new GridSize(2, 4), null, true, [new Seat(1, 1, 1)], true);
+        $this->plan = new SeatingPlan(9, new GridSize(2, 4), true, [new Seat(1, 1, 1)], true);
     }
 
-    public function testSeatsThePeopleAndChoosesThePiece(): void
+    public function testSeatsThePeople(): void
     {
-        [$plan, $errors] = $this->apply(['seat' => [1 => '2-4', 2 => '1-1', 3 => '', 99 => '1-2'], 'piece' => '7']);
+        [$plan, $errors] = $this->apply(['seat' => [1 => '2-4', 2 => '1-1', 3 => '', 99 => '1-2']]);
 
         $this->assertSame([], $errors);
         $this->assertSame([[1, 2, 4], [2, 1, 1]], self::seats($plan));
-        $this->assertSame(7, $plan->pieceId);
         $this->assertTrue($plan->seatOrganizers);
     }
 
@@ -37,9 +36,40 @@ final class SeatingInputTest extends TestCase
         $this->assertSame($this->plan, $plan);
     }
 
-    public function testIgnoresPiecesOutsideTheProgram(): void
+    public function testImportsTheSeatingOfAnotherProject(): void
     {
-        $this->assertNull($this->apply(['piece' => '8'])[0]->pieceId);
+        // People 1 and 2 took part in project 5, person 4 did not take part here; person 3 is new.
+        $source = new SeatingPlan(5, new GridSize(1, 5), true, [
+            new Seat(1, 1, 5),
+            new Seat(2, 1, 1),
+            new Seat(4, 1, 3),
+        ], true);
+        [$plan, $errors] = $this->apply(
+            ['op' => 'import', 'import_project' => '5', 'seat' => [1 => '2-2']],
+            static fn (int $id): ?SeatingPlan => $id === 5 ? $source : null
+        );
+
+        $this->assertSame([], $errors);
+        $this->assertSame(9, $plan->projectId);
+        $this->assertSame([[1, 1, 5], [2, 1, 1]], self::seats($plan), 'the submitted seats are replaced');
+        $this->assertSame([3], $plan->unseated([1, 2, 3]));
+        $this->assertSame([1, 5], self::gridSize($plan), 'the grid of the other project is taken over');
+    }
+
+    public function testImportingGrowsTheGridForEveryone(): void
+    {
+        $source = new SeatingPlan(5, new GridSize(1, 2), true, [new Seat(1, 1, 2)], true);
+        [$plan] = $this->apply(['op' => 'import', 'import_project' => '5'], static fn (): SeatingPlan => $source);
+
+        $this->assertSame([2, 2], self::gridSize($plan));
+    }
+
+    public function testImportsOnlyFromProjectsWithASeating(): void
+    {
+        [$plan, $errors] = $this->apply(['op' => 'import', 'import_project' => '6']);
+
+        $this->assertSame(['Choose a project with a seating.'], $errors);
+        $this->assertSame($this->plan, $plan);
     }
 
     public function testAddsAndRemovesRowsAndColumns(): void
@@ -55,9 +85,9 @@ final class SeatingInputTest extends TestCase
 
     public function testKeepsASeatForEveryone(): void
     {
-        $plan = new SeatingPlan(9, new GridSize(1, 4), null, true, [], true);
+        $plan = new SeatingPlan(9, new GridSize(1, 4), true, [], true);
         $input = ['op' => 'remove_column', 'seat_organizers' => '1'];
-        [, $errors] = SeatingInput::apply($input, $plan, [], static fn (): array => [1, 2, 3, 4]);
+        [, $errors] = SeatingInput::apply($input, $plan, static fn (): array => [1, 2, 3, 4], self::noSource(...));
 
         $this->assertSame(['The grid needs a seat for everyone.'], $errors);
     }
@@ -65,7 +95,7 @@ final class SeatingInputTest extends TestCase
     public function testLeavingOutOrganizersDropsTheirSeats(): void
     {
         $people = static fn (bool $organizers): array => $organizers ? [1, 2] : [1];
-        [$plan] = SeatingInput::apply(['seat' => [1 => '1-1', 2 => '1-2']], $this->plan, [], $people);
+        [$plan] = SeatingInput::apply(['seat' => [1 => '1-1', 2 => '1-2']], $this->plan, $people, self::noSource(...));
 
         $this->assertFalse($plan->seatOrganizers);
         $this->assertSame([[1, 1, 1]], self::seats($plan));
@@ -78,13 +108,24 @@ final class SeatingInputTest extends TestCase
 
     /**
      * @param array<string, mixed> $input
+     * @param (\Closure(int): ?SeatingPlan)|null $source
      * @return array{SeatingPlan, list<string>}
      */
-    private function apply(array $input): array
+    private function apply(array $input, ?\Closure $source = null): array
     {
         $people = static fn (): array => [1, 2, 3];
 
-        return SeatingInput::apply($input + ['seat_organizers' => '1'], $this->plan, [7], $people);
+        return SeatingInput::apply(
+            $input + ['seat_organizers' => '1'],
+            $this->plan,
+            $people,
+            $source ?? self::noSource(...)
+        );
+    }
+
+    private static function noSource(int $projectId): ?SeatingPlan
+    {
+        return null;
     }
 
     /**

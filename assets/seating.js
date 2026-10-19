@@ -1,5 +1,9 @@
 /*
- * Arranging the seating by drag and drop (mouse, touch and pen) or with the keyboard.
+ * Stepping through the voices of the pieces, and arranging the seating by drag and drop (mouse,
+ * touch and pen) or with the keyboard.
+ *
+ * Every person carries one voice per piece of the program; the arrows show the voices of the
+ * previous or next piece without reloading. Without JavaScript the arrows are links.
  *
  * The form keeps one select per person (`seat[userId]` = "row-column" or "" for no seat). Without
  * JavaScript, people are seated with these selects; with JavaScript they are hidden and kept in
@@ -9,13 +13,56 @@
  * - Keyboard: Enter or Space on a person picks them up, the arrow keys move between the seats
  *   (up is further back), Enter or Space places them, Delete or Backspace unseats them, Escape
  *   cancels.
- * - Changing the piece or "Seat organizers" saves right away, because it changes the people shown.
+ * - Changing "Seat organizers" saves right away, because it changes the people shown.
  */
 (function () {
     'use strict';
 
     var EDGE = 60;
     var THRESHOLD = 4;
+
+    function initVoices(container) {
+        var cycler = container.querySelector('[data-seating-voices]');
+        if (!cycler) {
+            return;
+        }
+        var pieces = JSON.parse(cycler.getAttribute('data-seating-voices'));
+        var title = cycler.querySelector('[data-seating-piece]');
+        var index = 0;
+        pieces.forEach(function (piece, position) {
+            if (String(piece.id) === cycler.getAttribute('data-seating-current')) {
+                index = position;
+            }
+        });
+
+        function show(position) {
+            index = (position + pieces.length) % pieces.length;
+            var id = String(pieces[index].id);
+            title.textContent = pieces[index].label;
+            Array.prototype.forEach.call(container.querySelectorAll('[data-seating-voice]'), function (voice) {
+                voice.hidden = voice.getAttribute('data-seating-voice') !== id;
+            });
+            // Keeps the piece when the page is reloaded, e.g. after saving.
+            if (window.history.replaceState) {
+                var url = new URL(window.location.href);
+                url.searchParams.set('seating_piece', id);
+                window.history.replaceState(null, '', url);
+            }
+            var redirect = container.querySelector('input[name="redirect_to"]');
+            if (redirect) {
+                var target = new URL(redirect.value, window.location.href);
+                target.searchParams.set('seating_piece', id);
+                redirect.value = target.toString();
+            }
+        }
+
+        Array.prototype.forEach.call(cycler.querySelectorAll('[data-seating-step]'), function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                show(index + parseInt(link.getAttribute('data-seating-step'), 10));
+            });
+        });
+    }
 
     function init(form) {
         form.classList.add('orchestra-seating--js');
@@ -288,5 +335,6 @@
         });
     }
 
+    Array.prototype.forEach.call(document.querySelectorAll('[data-seating]'), initVoices);
     Array.prototype.forEach.call(document.querySelectorAll('[data-seating-form]'), init);
 }());

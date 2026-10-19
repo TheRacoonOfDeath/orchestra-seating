@@ -15,7 +15,8 @@ final class SeatingInput
     public const FIELD_OPERATION = 'op';
     /** `seat[userId]` = "row-column", e.g. "2-5", or "" for no seat */
     public const FIELD_SEATS = 'seat';
-    public const FIELD_PIECE = 'piece';
+    /** The project whose seating is imported */
+    public const FIELD_IMPORT = 'import_project';
     public const FIELD_SEAT_ORGANIZERS = 'seat_organizers';
 
     public const SAVE = 'save';
@@ -24,18 +25,32 @@ final class SeatingInput
     public const REMOVE_ROW = 'remove_row';
     public const REMOVE_COLUMN = 'remove_column';
     public const CLEAR = 'clear';
+    public const IMPORT = 'import';
 
     /**
      * @param array<mixed> $input Unslashed form data
-     * @param list<int> $programPieceIds
      * @param Closure(bool $seatOrganizers): list<int> $people The people to seat, depending on
      *        whether organizers are seated
+     * @param Closure(int $projectId): ?SeatingPlan $source The seating that may be imported from a
+     *        project, or null
      * @return array{SeatingPlan, list<string>} the new plan, or the current one and error messages
      */
-    public static function apply(array $input, SeatingPlan $current, array $programPieceIds, Closure $people): array
+    public static function apply(array $input, SeatingPlan $current, Closure $people, Closure $source): array
     {
         $seatOrganizers = ($input[self::FIELD_SEAT_ORGANIZERS] ?? '') === '1';
         $userIds = $people($seatOrganizers);
+        $operation = $input[self::FIELD_OPERATION] ?? self::SAVE;
+
+        if ($operation === self::IMPORT) {
+            $projectId = $input[self::FIELD_IMPORT] ?? '';
+            $imported = \is_numeric($projectId) ? $source((int) $projectId) : null;
+            if ($imported === null) {
+                return [$current, [\__('Choose a project with a seating.', 'orchestra-seating')]];
+            }
+
+            return [$current->with(seatOrganizers: $seatOrganizers)->importedFrom($imported, $userIds), []];
+        }
+
         $grid = $current->grid->fitting(\count($userIds));
 
         $submitted = \is_array($input[self::FIELD_SEATS] ?? null) ? $input[self::FIELD_SEATS] : [];
@@ -63,11 +78,8 @@ final class SeatingInput
             return [$current, \array_values(\array_unique($errors))];
         }
 
-        $piece = $input[self::FIELD_PIECE] ?? '';
-        $pieceId = \is_numeric($piece) && \in_array((int) $piece, $programPieceIds, true) ? (int) $piece : null;
-        $plan = $current->with(grid: $grid, seats: $seats, seatOrganizers: $seatOrganizers, pieceId: $pieceId);
+        $plan = $current->with(grid: $grid, seats: $seats, seatOrganizers: $seatOrganizers);
 
-        $operation = $input[self::FIELD_OPERATION] ?? self::SAVE;
         [$plan, $error] = match ($operation) {
             self::ADD_ROW => self::resize($plan, 1, 0, \count($userIds)),
             self::ADD_COLUMN => self::resize($plan, 0, 1, \count($userIds)),

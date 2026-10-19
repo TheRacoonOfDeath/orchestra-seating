@@ -12,7 +12,7 @@ use wpdb;
 final class Schema
 {
     /** Increase whenever a table definition changes; dbDelta() applies the difference. */
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     public const OPTION_VERSION = 'orchestra_seating_schema_version';
 
@@ -46,7 +46,6 @@ final class Schema
   project_id bigint(20) unsigned NOT NULL,
   grid_rows int(11) NOT NULL,
   grid_columns int(11) NOT NULL,
-  piece_id bigint(20) unsigned DEFAULT NULL,
   seat_organizers tinyint(1) NOT NULL DEFAULT 1,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (project_id)
@@ -63,6 +62,14 @@ final class Schema
   UNIQUE KEY project_cell (project_id,seat_row,seat_column),
   KEY user_id (user_id)
 ) {$charsetCollate};");
+
+        // Version 2: the seating no longer stores a piece. dbDelta() never drops columns.
+        $pieceColumn = $this->wpdb->get_var(
+            $this->wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $this->plansTable(), 'piece_id')
+        );
+        if ($pieceColumn !== null) {
+            $this->wpdb->query("ALTER TABLE {$this->plansTable()} DROP COLUMN piece_id");
+        }
 
         \update_option(self::OPTION_VERSION, self::VERSION, true);
     }

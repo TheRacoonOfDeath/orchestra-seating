@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 10:43+0200\n"
+"POT-Creation-Date: 2026-10-19 14:59+0200\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -13,27 +13,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#. translators: %s: piece title
-#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:92
-#, php-format
-msgid "Voices in %s"
-msgstr "Stimmen in %s"
-
-#: src/Export/SeatingPdf.php:72 src/Ui/SeatingTab.php:248
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:314
 msgid "Conductor"
 msgstr "Dirigent"
 
 #. translators: %s: project name
-#: src/Export/SeatingPdf.php:80
+#: src/Export/SeatingPdf.php:73
 #, php-format
 msgid "Seating: %s"
 msgstr "Sitzplan: %s"
 
-#: src/Export/SeatingPdfController.php:64 src/Ui/SeatingController.php:50
+#: src/Export/SeatingPdfController.php:64 src/Ui/SeatingController.php:51
 msgid "You are not allowed to do this."
 msgstr "Das darfst du nicht."
 
-#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:51
+#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:54
 msgid "Seating"
 msgstr "Sitzplan"
 
@@ -58,67 +52,87 @@ msgstr "Projekt"
 msgid "Row"
 msgstr "Reihe"
 
-#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:198
+#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:229
 msgid "Seat"
 msgstr "Platz"
 
-#: src/Seating/SeatingInput.php:52
+#: src/Seating/SeatingInput.php:48
+msgid "Choose a project with a seating."
+msgstr "Wähle ein Projekt mit Sitzplan."
+
+#: src/Seating/SeatingInput.php:67
 msgid "A seat is outside the grid."
 msgstr "Ein Platz liegt außerhalb des Rasters."
 
-#: src/Seating/SeatingInput.php:56
+#: src/Seating/SeatingInput.php:71
 msgid "Two people cannot sit on the same seat."
 msgstr "Zwei Personen können nicht auf demselben Platz sitzen."
 
-#: src/Seating/SeatingInput.php:96
+#: src/Seating/SeatingInput.php:108
 msgid "The grid cannot get any larger."
 msgstr "Das Raster kann nicht größer werden."
 
-#: src/Seating/SeatingInput.php:99
+#: src/Seating/SeatingInput.php:111
 msgid "The grid needs a seat for everyone."
 msgstr "Das Raster braucht einen Platz für alle."
 
-#: src/Seating/SeatingInput.php:105
+#: src/Seating/SeatingInput.php:117
 msgid "Only an empty last row or column can be removed."
 msgstr "Nur eine leere letzte Reihe oder Spalte kann entfernt werden."
 
-#: src/Ui/SeatingController.php:53
+#: src/Ui/SeatingController.php:54
 msgid "The seating of a completed project cannot be changed."
 msgstr ""
 "Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
 
-#: src/Ui/SeatingController.php:71
+#: src/Ui/SeatingController.php:74
 msgid "The seating has been saved."
 msgstr "Der Sitzplan wurde gespeichert."
 
-#: src/Ui/SeatingTab.php:121
-msgid "Download PDF"
-msgstr "PDF herunterladen"
+#. translators: %s: project name
+#: src/Ui/SeatingController.php:79
+#, php-format
+msgid "The seating of %s has been imported."
+msgstr "Der Sitzplan von %s wurde übernommen."
 
-#: src/Ui/SeatingTab.php:152
+#: src/Ui/SeatingTab.php:121
 msgid "Add pieces to the program to show the voices."
 msgstr "Füge dem Programm Stücke hinzu, um die Stimmen anzuzeigen."
 
-#: src/Ui/SeatingTab.php:155
-msgid "Voices from"
-msgstr "Stimmen aus"
+#. translators: 1: piece title, 2: its position in the program, 3: number of pieces
+#: src/Ui/SeatingTab.php:130
+#, php-format
+msgid "Voices in %1$s (%2$d of %3$d)"
+msgstr "Stimmen in %1$s (%2$d von %3$d)"
 
-#: src/Ui/SeatingTab.php:169
+#: src/Ui/SeatingTab.php:146
+msgid "Previous piece"
+msgstr "Vorheriges Stück"
+
+#: src/Ui/SeatingTab.php:149
+msgid "Next piece"
+msgstr "Nächstes Stück"
+
+#: src/Ui/SeatingTab.php:161
+msgid "Download PDF"
+msgstr "PDF herunterladen"
+
+#: src/Ui/SeatingTab.php:199
 msgid "Seat organizers"
 msgstr "Organisatoren setzen"
 
 #. translators: 1: number of seated people, 2: number of people to seat
-#: src/Ui/SeatingTab.php:172
+#: src/Ui/SeatingTab.php:202
 #, php-format
 msgid "%1$d of %2$d people seated. Conductors are not seated."
 msgstr ""
 "%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingTab.php:178 src/Ui/SeatingTab.php:265
+#: src/Ui/SeatingTab.php:208 src/Ui/SeatingTab.php:340
 msgid "Not seated"
 msgstr "Ohne Platz"
 
-#: src/Ui/SeatingTab.php:183
+#: src/Ui/SeatingTab.php:213
 msgid ""
 "Drag people onto the seats or back here. Dropping on a taken seat swaps the "
 "two. With the keyboard: Enter picks a person up, the arrow keys choose a "
@@ -128,51 +142,69 @@ msgstr ""
 "tauschen die beiden. Mit der Tastatur: Enter nimmt eine Person auf, die "
 "Pfeiltasten wählen einen Platz, Enter setzt sie, Entf nimmt ihr den Platz."
 
-#: src/Ui/SeatingTab.php:190
+#: src/Ui/SeatingTab.php:221
 msgid "+ Row"
 msgstr "+ Reihe"
 
-#: src/Ui/SeatingTab.php:191
+#: src/Ui/SeatingTab.php:222
 msgid "− Row"
 msgstr "− Reihe"
 
-#: src/Ui/SeatingTab.php:192
+#: src/Ui/SeatingTab.php:223
 msgid "+ Column"
 msgstr "+ Spalte"
 
-#: src/Ui/SeatingTab.php:193
+#: src/Ui/SeatingTab.php:224
 msgid "− Column"
 msgstr "− Spalte"
 
-#: src/Ui/SeatingTab.php:198
+#: src/Ui/SeatingTab.php:229
 msgid "Person"
 msgstr "Person"
 
-#: src/Ui/SeatingTab.php:204
+#: src/Ui/SeatingTab.php:236
 msgid "Nobody has accepted yet."
 msgstr "Noch niemand hat zugesagt."
 
-#: src/Ui/SeatingTab.php:208
+#: src/Ui/SeatingTab.php:240
 msgid "Save seating"
 msgstr "Sitzplan speichern"
 
-#: src/Ui/SeatingTab.php:211
+#: src/Ui/SeatingTab.php:243
 msgid "Remove everyone from their seats?"
 msgstr "Alle von ihren Plätzen nehmen?"
 
-#: src/Ui/SeatingTab.php:212
+#: src/Ui/SeatingTab.php:244
 msgid "Clear seating"
 msgstr "Sitzplan leeren"
 
+#: src/Ui/SeatingTab.php:265
+msgid "Seating of another project"
+msgstr "Sitzplan eines anderen Projekts"
+
+#: src/Ui/SeatingTab.php:269
+msgid ""
+"Replace the current seating with the seating of the chosen project? People "
+"who take part in both keep their seat, everyone else is not seated."
+msgstr ""
+"Den aktuellen Sitzplan durch den Sitzplan des gewählten Projekts ersetzen? "
+"Wer an beiden teilnimmt, behält seinen Platz, alle anderen bekommen keinen "
+"Platz."
+
+#: src/Ui/SeatingTab.php:272
+msgid "Import seating"
+msgstr "Sitzplan übernehmen"
+
 #. translators: %s: name
-#: src/Ui/SeatingTab.php:278
+#: src/Ui/SeatingTab.php:353
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingTab.php:286
+#: src/Ui/SeatingTab.php:361
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"
+
 
