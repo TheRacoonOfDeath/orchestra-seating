@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 16:08+0200\n"
+"POT-Creation-Date: 2026-10-20 14:34+0200\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:331
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:341
 msgid "Conductor"
 msgstr "Dirigent"
 
@@ -128,7 +128,7 @@ msgid "%1$d of %2$d people seated. Conductors are not seated."
 msgstr ""
 "%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingTab.php:211 src/Ui/SeatingTab.php:368
+#: src/Ui/SeatingTab.php:211 src/Ui/SeatingTab.php:378
 msgid "Not seated"
 msgstr "Ohne Platz"
 
@@ -163,8 +163,8 @@ msgid "Person"
 msgstr "Person"
 
 #: src/Ui/SeatingTab.php:239
-msgid "Nobody has accepted yet."
-msgstr "Noch niemand hat sich angemeldet."
+msgid "Nobody has accepted yet. Everyone who registers can be seated here."
+msgstr "Noch niemand hat sich angemeldet. Alle, die sich anmelden, können hier gesetzt werden."
 
 #: src/Ui/SeatingTab.php:243
 msgid "Save seating"
@@ -196,13 +196,16 @@ msgid "Import seating"
 msgstr "Sitzplan übernehmen"
 
 #. translators: %s: name
-#: src/Ui/SeatingTab.php:381
+#: src/Ui/SeatingTab.php:391
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingTab.php:389
+#: src/Ui/SeatingTab.php:399
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"
+
+#~ msgid "Nobody has accepted yet."
+#~ msgstr "Noch niemand hat sich angemeldet."

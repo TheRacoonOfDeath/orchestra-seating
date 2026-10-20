@@ -236,7 +236,7 @@ final class SeatingTab
                         : ' <span class="orchestra-muted">(' . \esc_html($person->voice($pieceId)) . ')</span>'),
                     self::seatSelect($plan, $person),
                 ], \array_values($people)),
-                \__('Nobody has accepted yet.', 'orchestra-seating')
+                \__('Nobody has accepted yet. Everyone who registers can be seated here.', 'orchestra-seating')
             ) . '</div>';
 
         return $html . '<div class="orchestra-actions">'
