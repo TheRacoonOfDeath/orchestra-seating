@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 14:59+0200\n"
+"POT-Creation-Date: 2026-10-19 16:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:314
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingTab.php:331
 msgid "Conductor"
 msgstr ""
 
@@ -31,7 +31,7 @@ msgstr ""
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:54
+#: src/Export/SeatingPdfController.php:69 src/Ui/SeatingTab.php:57
 msgid "Seating"
 msgstr ""
 
@@ -54,7 +54,7 @@ msgstr ""
 msgid "Row"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:229
+#: src/Privacy/PersonalData.php:83 src/Ui/SeatingTab.php:232
 msgid "Seat"
 msgstr ""
 
@@ -96,107 +96,107 @@ msgstr ""
 msgid "The seating of %s has been imported."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:121
+#: src/Ui/SeatingTab.php:124
 msgid "Add pieces to the program to show the voices."
 msgstr ""
 
 #. translators: 1: piece title, 2: its position in the program, 3: number of pieces
-#: src/Ui/SeatingTab.php:130
+#: src/Ui/SeatingTab.php:133
 #, php-format
 msgid "Voices in %1$s (%2$d of %3$d)"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:146
+#: src/Ui/SeatingTab.php:149
 msgid "Previous piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:149
+#: src/Ui/SeatingTab.php:152
 msgid "Next piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:161
+#: src/Ui/SeatingTab.php:164
 msgid "Download PDF"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:199
+#: src/Ui/SeatingTab.php:202
 msgid "Seat organizers"
 msgstr ""
 
 #. translators: 1: number of seated people, 2: number of people to seat
-#: src/Ui/SeatingTab.php:202
+#: src/Ui/SeatingTab.php:205
 #, php-format
 msgid "%1$d of %2$d people seated. Conductors are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:208 src/Ui/SeatingTab.php:340
+#: src/Ui/SeatingTab.php:211 src/Ui/SeatingTab.php:368
 msgid "Not seated"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:213
+#: src/Ui/SeatingTab.php:216
 msgid ""
 "Drag people onto the seats or back here. Dropping on a taken seat swaps the "
 "two. With the keyboard: Enter picks a person up, the arrow keys choose a "
 "seat, Enter places them, Delete unseats them."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:221
+#: src/Ui/SeatingTab.php:224
 msgid "+ Row"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:222
+#: src/Ui/SeatingTab.php:225
 msgid "− Row"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:223
+#: src/Ui/SeatingTab.php:226
 msgid "+ Column"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:224
+#: src/Ui/SeatingTab.php:227
 msgid "− Column"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:229
+#: src/Ui/SeatingTab.php:232
 msgid "Person"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:236
+#: src/Ui/SeatingTab.php:239
 msgid "Nobody has accepted yet."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:240
+#: src/Ui/SeatingTab.php:243
 msgid "Save seating"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:243
+#: src/Ui/SeatingTab.php:246
 msgid "Remove everyone from their seats?"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:244
+#: src/Ui/SeatingTab.php:247
 msgid "Clear seating"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:265
+#: src/Ui/SeatingTab.php:268
 msgid "Seating of another project"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:269
+#: src/Ui/SeatingTab.php:272
 msgid ""
 "Replace the current seating with the seating of the chosen project? People "
 "who take part in both keep their seat, everyone else is not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:272
+#: src/Ui/SeatingTab.php:275
 msgid "Import seating"
 msgstr ""
 
 #. translators: %s: name
-#: src/Ui/SeatingTab.php:353
+#: src/Ui/SeatingTab.php:381
 #, php-format
 msgid "Seat of %s"
 msgstr ""
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingTab.php:361
+#: src/Ui/SeatingTab.php:389
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr ""
