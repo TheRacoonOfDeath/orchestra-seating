@@ -61,6 +61,10 @@
             "@lint",
             "@analyse",
             "@test"
+        ],
+        "e2e": [
+            "Composer\\Config::disableProcessTimeout",
+            "tests/e2e/run.sh"
         ]
     }
 }

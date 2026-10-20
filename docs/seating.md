@@ -17,8 +17,9 @@ projects, participation, program and assignments through `ProjectsService`, memb
   "—". Members and editors can both step through the pieces.
 - **Voice colors:** in the shown piece, every voice has a light color, chosen by the position of the
   part in the piece (eight colors, repeated after the eighth part); people with the same voice have
-  the same color, people without a voice are grey. A thick line separates neighbours (side by side
-  or one behind the other) with different voices, so the sections stand out. Colors and lines
+  the same color, people without a voice are grey. Every seated person has a thick line on all four
+  sides, except towards a neighbour (side by side or one behind the other) with the same voice, so
+  every section is outlined as a whole; people without a voice form sections of their own. Colors and lines
   change with the piece and follow the people while they are moved.
 - **Grid:** every seat has the same size and holds one person. A new seating starts with a seat for
   everyone, wider than deep (e.g. 3 rows of 5 for 12 people). "+ Row" and "+ Column" add a row at
@@ -62,7 +63,7 @@ the grid:
 
 Every person carries their voice in every piece of the program (`data-seating-voice`, hidden
 except for the shown piece, with `data-seating-tone` and `data-seating-color`). The server renders
-the colors and lines (`is-split-right`, `is-split-back`) of the first piece; `seating.js` redraws
+the colors and lines (`is-line-back`, `is-line-front`, `is-line-left`, `is-line-right`) of the first piece; `seating.js` redraws
 them when the piece changes or someone is moved. With JavaScript the arrows switch the voices in place; without it they
 are links to the tab with `seating_piece=ID`. The shown piece is kept in the URL and in the form's
 `redirect_to`, so saving returns to the same piece. "Import seating" posts `op=import` with

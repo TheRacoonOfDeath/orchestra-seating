@@ -4,7 +4,8 @@
  *
  * Every person carries one voice per piece of the program; the arrows show the voices of the
  * previous or next piece without reloading. Without JavaScript the arrows are links. Each voice has
- * a color, and a thick line separates neighbours with different voices.
+ * a color, and every person has a thick line on each side except towards neighbours with the same
+ * voice, so that the sections are outlined.
  *
  * The form keeps one select per person (`seat[userId]` = "row-column" or "" for no seat). Without
  * JavaScript, people are seated with these selects; with JavaScript they are hidden and kept in
@@ -22,8 +23,8 @@
     var EDGE = 60;
     var THRESHOLD = 4;
 
-    // Colors the people by the voice shown and draws the lines between neighbours with different
-    // voices, like the server does for the first page.
+    // Draws a thick line on every side of a seated person, except towards a neighbour with the same
+    // voice, like the server does for the first page.
     function paint(container) {
         var tones = {};
         Array.prototype.forEach.call(container.querySelectorAll('[data-seating-seat]'), function (cell) {
@@ -35,10 +36,16 @@
             var row = parseInt(parts[0], 10);
             var column = parseInt(parts[1], 10);
             var own = tones[row + '-' + column];
-            var right = tones[row + '-' + (column + 1)];
-            var back = tones[(row + 1) + '-' + column];
-            cell.classList.toggle('is-split-right', own != null && right != null && own !== right);
-            cell.classList.toggle('is-split-back', own != null && back != null && own !== back);
+            var neighbours = {
+                back: (row + 1) + '-' + column,
+                front: (row - 1) + '-' + column,
+                left: row + '-' + (column - 1),
+                right: row + '-' + (column + 1)
+            };
+            Object.keys(neighbours).forEach(function (side) {
+                var tone = tones[neighbours[side]];
+                cell.classList.toggle('is-line-' + side, own != null && (tone == null || tone !== own));
+            });
         });
     }
 

@@ -12,7 +12,7 @@ Part of the Orchestra plugin suite. Requires
 - A **Seating** tab on every project, on the projects page and in wp-admin
 - A grid of seats of equal size; each person shows their name and their part in a piece of the
   program, and arrows step through the pieces of the program
-- Each voice has its own light color, and thick lines separate neighbours with different voices
+- Each voice has its own light color, and a thick line outlines every section of people with the same voice
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
 - The grid starts with a seat for everyone; rows and columns can be added and removed
@@ -46,5 +46,5 @@ The domain model, use cases and capabilities of the whole suite are documented i
 ```bash
 composer install
 composer check      # coding standard, static analysis and unit tests
-tests/e2e/run.sh    # end-to-end test with WordPress and the other Orchestra plugins
+composer e2e        # end-to-end test with WordPress and the other Orchestra plugins (tests/e2e/run.sh)
 ```

@@ -282,9 +282,9 @@ final class SeatingTab
 
     /**
      * The grid with the front row at the bottom, next to the conductor. The rows are labelled with
-     * letters on the left, the columns with numbers below. A thick line separates neighbours with
-     * different voices in the shown piece; seating.js redraws the lines when the piece or the
-     * seating changes.
+     * letters on the left, the columns with numbers below. Every seated person has a thick line on
+     * each side, except towards a neighbour with the same voice in the shown piece, so that every
+     * section is outlined; seating.js redraws the lines when the piece or the seating changes.
      *
      * @param array<int, Person> $people
      * @param array<int, string> $pieces
@@ -311,11 +311,21 @@ final class SeatingTab
                 $seat = $plan->at($row, $column);
                 $person = $seat === null ? null : ($people[$seat->userId] ?? null);
                 $own = $tone($row, $column);
-                $right = $tone($row, $column + 1);
-                $back = $tone($row + 1, $column);
-                $html .= '<div class="orchestra-seating__cell' . ($person === null ? ' is-empty' : '')
-                    . ($own !== null && $right !== null && $own !== $right ? ' is-split-right' : '')
-                    . ($own !== null && $back !== null && $own !== $back ? ' is-split-back' : '') . '"'
+                $lines = '';
+                if ($own !== null) {
+                    $neighbours = [
+                        'back' => [$row + 1, $column],
+                        'front' => [$row - 1, $column],
+                        'left' => [$row, $column - 1],
+                        'right' => [$row, $column + 1],
+                    ];
+                    foreach ($neighbours as $side => [$neighbourRow, $neighbourColumn]) {
+                        if ($tone($neighbourRow, $neighbourColumn) !== $own) {
+                            $lines .= ' is-line-' . $side;
+                        }
+                    }
+                }
+                $html .= '<div class="orchestra-seating__cell' . ($person === null ? ' is-empty' : '') . $lines . '"'
                     . ' data-seating-seat="' . Seat::key($row, $column) . '"'
                     . ($editable ? ' data-seating-cell="' . Seat::key($row, $column) . '"' : '')
                     . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'

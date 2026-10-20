@@ -6,7 +6,8 @@
     --orchestra-seating-size: 7rem;
     --orchestra-seating-label: 1.5rem;
     --orchestra-seating-gap: 0.4rem;
-    --orchestra-seating-split: color-mix(in srgb, currentColor 70%, transparent);
+    /* Opaque, so that the lines do not get darker where they overlap at the corners. */
+    --orchestra-seating-split: color-mix(in srgb, currentColor 70%, Canvas);
     --orchestra-seating-line: color-mix(in srgb, currentColor 22%, transparent);
 }
 
@@ -15,8 +16,10 @@
     padding-bottom: 0.25rem;
 }
 
+/* Room for the lines around the seats at the edge of the grid, which the scrolling would cut off. */
 .orchestra-seating__stage {
     margin: 0 auto;
+    padding: calc(var(--orchestra-seating-gap) / 2 + 2px);
     width: max-content;
 }
 
@@ -72,28 +75,33 @@
     position: relative;
 }
 
-/* A thick line in the gap between neighbours with different voices: to the right and behind. */
-.orchestra-seating__cell.is-split-right::after,
-.orchestra-seating__cell.is-split-back::before {
-    background: var(--orchestra-seating-split);
-    border-radius: 2px;
+/*
+ * Thick lines around every seated person, centred in the gap, except towards neighbours with the
+ * same voice: the lines of two neighbours with different voices fall on the same spot, and every
+ * section is outlined. The back of the grid is at the top, the front (the conductor) at the bottom.
+ */
+.orchestra-seating__cell:is(.is-line-back, .is-line-front, .is-line-left, .is-line-right)::after {
+    border: 0 solid var(--orchestra-seating-split);
     content: "";
+    inset: calc(var(--orchestra-seating-gap) / -2 - 1.5px);
     pointer-events: none;
     position: absolute;
 }
 
-.orchestra-seating__cell.is-split-right::after {
-    bottom: calc(var(--orchestra-seating-gap) / -2);
-    right: calc(var(--orchestra-seating-gap) / -2 - 1.5px);
-    top: calc(var(--orchestra-seating-gap) / -2);
-    width: 3px;
+.orchestra-seating__cell.is-line-back::after {
+    border-top-width: 3px;
 }
 
-.orchestra-seating__cell.is-split-back::before {
-    height: 3px;
-    left: calc(var(--orchestra-seating-gap) / -2);
-    right: calc(var(--orchestra-seating-gap) / -2);
-    top: calc(var(--orchestra-seating-gap) / -2 - 1.5px);
+.orchestra-seating__cell.is-line-front::after {
+    border-bottom-width: 3px;
+}
+
+.orchestra-seating__cell.is-line-left::after {
+    border-left-width: 3px;
+}
+
+.orchestra-seating__cell.is-line-right::after {
+    border-right-width: 3px;
 }
 
 .orchestra-seating__front {

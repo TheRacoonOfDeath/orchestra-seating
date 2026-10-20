@@ -230,9 +230,11 @@ check("Lena-Marie Sophie von Hohenzollern-Sigmaringen" in plain, "long names are
 # Row A: Max (Horn 2), Mia (Horn 1), Olga and Lena without a part in Pirates of the Caribbean.
 check(color_of(page, "Mia") == "0" and color_of(page, "Max") == "1" and color_of(page, "Olga") is None,
       "every voice has its own color, people without a voice have none")
-check("is-split-right" in cell_classes(page, "1-1") and "is-split-right" in cell_classes(page, "1-2")
-      and "is-split-right" not in cell_classes(page, "1-3"),
-      "a thick line separates neighbours with different voices")
+check({"is-line-left", "is-line-right", "is-line-front"} <= set(cell_classes(page, "1-1"))
+      and {"is-line-left", "is-line-right"} <= set(cell_classes(page, "1-2")),
+      "every person is outlined, also towards neighbours with different voices and the edge of the grid")
+check("is-line-right" not in cell_classes(page, "1-3") and "is-line-left" not in cell_classes(page, "1-4"),
+      "there is no line between neighbours with the same voice")
 check("Download PDF" not in page, "members see no PDF download")
 status, _, body = mia.request(PDF)
 check(status == 403 and not body.startswith(b"%PDF"), "members cannot download the seating")
