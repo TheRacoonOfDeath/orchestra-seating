@@ -4,8 +4,9 @@
  * Plugin Name:      Orchestra Seating
  * Plugin URI:       https://github.com/TheRacoonOfDeath/orchestra-seating
  * Description:      Seating plans for the projects of the Orchestra plugin suite.
- * Version:          0.6.1
- * Author:           Julian Nickerl
+ * Version:          0.6.2
+ * Author:           Julian Nickerl (contact@julian-nickerl.de)
+ * Author URI:       mailto:contact@julian-nickerl.de
  * License:          MIT
  * Text Domain:      orchestra-seating
  * Domain Path:      /languages
