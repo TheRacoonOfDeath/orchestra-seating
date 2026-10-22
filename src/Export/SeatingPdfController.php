@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Orchestra\Seating\Export;
 
 use Orchestra\Core\Pdf\Pdf;
+use Orchestra\Core\Ui\LoginPageRedirect;
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Capabilities;
 use Orchestra\Seating\Ui\SeatingTab;
@@ -29,7 +30,7 @@ final class SeatingPdfController
     public function register(): void
     {
         \add_action('admin_post_' . self::ACTION, [$this, 'handle']);
-        \add_action('admin_post_nopriv_' . self::ACTION, 'auth_redirect');
+        \add_action('admin_post_nopriv_' . self::ACTION, [LoginPageRedirect::class, 'requireLogin']);
     }
 
     /**
