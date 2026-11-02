@@ -118,9 +118,6 @@ final class SeatingEditor
             ) . '</div>';
 
         return $html . '<div class="orchestra-actions">'
-            // seating.js submits the form with this button when a voice is changed.
-            . ($voiceChoices === [] ? '' : '<button type="submit" name="' . SeatingInput::FIELD_OPERATION
-                . '" value="' . SeatingInput::VOICES . '" hidden data-seating-voices-submit></button>')
             . Form::submit(
                 \__('Save seating', 'orchestra-seating'),
                 'primary',

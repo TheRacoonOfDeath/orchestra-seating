@@ -308,6 +308,7 @@ mia_select = re.search(rf'<select[^>]*name="voice\[{PIRATES}\]\[{ids["mia"]}\]"[
 check(mia_select is not None and re.search(rf'value="{HORN1}"[^>]*selected', mia_select.group(0)) is not None
       and field(form, f"voice_was[{PIRATES}][{ids['mia']}]") == str(HORN1),
       "conductors choose the voices in the seating with a select per piece")
+check(re.search(r"<button[^>]*\shidden", form) is None, "the form has no hidden buttons, which themes may show")
 # Mia played Horn 1 and later Horn 2 of the piece in two other projects.
 wp_eval('$r = new Orchestra\\Projects\\Assignment\\AssignmentRepository($GLOBALS["wpdb"],'
         ' new Orchestra\\Projects\\Database\\Schema($GLOBALS["wpdb"]));'

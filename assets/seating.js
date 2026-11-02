@@ -280,13 +280,18 @@
             });
         });
 
-        var voicesSubmit = form.querySelector('[data-seating-voices-submit]');
         Array.prototype.forEach.call(form.querySelectorAll('.orchestra-seating__voice-select'), function (select) {
             select.addEventListener('change', function () {
-                if (form.requestSubmit && voicesSubmit) {
-                    form.requestSubmit(voicesSubmit);
-                } else if (voicesSubmit) {
-                    voicesSubmit.click();
+                // Submits the form without a button, with op=voices.
+                var operation = document.createElement('input');
+                operation.type = 'hidden';
+                operation.name = 'op';
+                operation.value = 'voices';
+                form.appendChild(operation);
+                if (form.requestSubmit) {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
                 }
             });
         });
