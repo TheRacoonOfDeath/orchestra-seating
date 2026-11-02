@@ -23,7 +23,8 @@ projects, participation, program and assignments through `ProjectsService`, memb
   the assignments tab: only while the project is neither a draft nor completed, and
   only for users who may manage assignments (`orchestra_projects_assignment_manage`). Otherwise,
   and with an older orchestra-projects, the voices are shown as text. In the select, the part the
-  person played last time in another project is green, a part they played before that yellow
+  person played last time in another project is green and listed first, then the parts they
+  played before that in yellow, then the others, each group by name
   (`ProjectsService::playedParts()`, orchestra-projects 0.30; only for users with
   `orchestra_projects_assignment_history_read`). Browsers that show their own picker may ignore
   the colors.

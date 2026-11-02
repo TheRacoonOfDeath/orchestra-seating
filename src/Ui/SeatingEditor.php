@@ -353,7 +353,8 @@ final class SeatingEditor
     /**
      * The voice of a person in a piece as a select of its parts. The hidden field keeps the part
      * shown when the page was loaded, so that only changed voices are saved. The part the person
-     * played last time is green, parts they played before are yellow.
+     * played last time is green and listed first, then the parts they played before in yellow, then
+     * the others; each group by name.
      *
      * @param list<VoiceChoice> $choices
      * @param array<int, bool> $played part ID => whether the person played it last time
@@ -368,6 +369,14 @@ final class SeatingEditor
     ): string {
         $current = $person->part($pieceId);
         $options = '<option value="">—</option>';
+        // Green first, then yellow, then the others; by name within each group.
+        $rank = static fn (VoiceChoice $choice): int => match ($played[$choice->partId] ?? null) {
+            true => 0,
+            false => 1,
+            null => 2,
+        };
+        \usort($choices, static fn (VoiceChoice $a, VoiceChoice $b): int => $rank($a) <=> $rank($b)
+            ?: \strnatcasecmp($a->name, $b->name));
         foreach ($choices as $choice) {
             $class = !isset($played[$choice->partId]) ? ''
                 : ' class="orchestra-seating__played--' . ($played[$choice->partId] ? 'last' : 'earlier') . '"';

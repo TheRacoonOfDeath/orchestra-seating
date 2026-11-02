@@ -325,6 +325,15 @@ def option_class(page, user, part):
 check(option_class(played_page, "mia", HORN2) == "last" and option_class(played_page, "mia", HORN1) == "earlier"
       and option_class(played_page, "lena", HORN1) == "",
       "the voice select is green for the part played last time, yellow for one played before")
+
+
+def option_order(page, user):
+    select = re.search(rf'<select[^>]*name="voice\[{PIRATES}\]\[{ids[user]}\]"[^>]*>.*?</select>', page, flags=re.S)
+    return re.findall(r'<option value="\d+"[^>]*>([^<]+)', select.group(0)) if select else []
+
+
+check(option_order(played_page, "mia") == ["Horn 2", "Horn 1"] and option_order(played_page, "lena") == ["Horn 1", "Horn 2"],
+      "the voice played last time comes first, then those played before, then the others, each by name")
 wp_eval('global $wpdb; $wpdb->query("DELETE FROM {$wpdb->prefix}orchestra_projects_assignments'
         ' WHERE project_id IN (999998, 999999)");')
 _, page = save(conductor, arranged, op="voices", page=page, extra={
