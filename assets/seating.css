@@ -4,6 +4,7 @@
  */
 .orchestra-seating {
     --orchestra-seating-size: 7rem;
+    --orchestra-seating-control: 1.6rem;
     --orchestra-seating-label: 1.5rem;
     --orchestra-seating-gap: 0.4rem;
     /* Opaque, so that the lines do not get darker where they overlap at the corners. */
@@ -32,6 +33,88 @@
     grid-template-rows: repeat(var(--orchestra-seating-rows, 1), var(--orchestra-seating-size)) auto;
 }
 
+/* The editor has a row of buttons above the seats and a column of buttons left of them. */
+.orchestra-seating__grid--edit {
+    grid-template-columns:
+        var(--orchestra-seating-control)
+        var(--orchestra-seating-label)
+        repeat(var(--orchestra-seating-columns, 4), var(--orchestra-seating-size));
+    grid-template-rows:
+        var(--orchestra-seating-control)
+        repeat(var(--orchestra-seating-rows, 1), var(--orchestra-seating-size))
+        auto;
+}
+
+.orchestra-seating__grid--edit + .orchestra-seating__front {
+    margin-left: calc(var(--orchestra-seating-control) + var(--orchestra-seating-label) + 2 * var(--orchestra-seating-gap));
+}
+
+.orchestra-seating__control {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+/* "×" deletes the row or column; "+" sits on the gap between two rows or columns. */
+.orchestra-seating__delete,
+.orchestra-seating__add {
+    align-items: center;
+    background: Canvas;
+    border: 1px solid var(--orchestra-seating-line);
+    border-radius: 50%;
+    color: var(--orchestra-muted);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    height: 1.3rem;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    width: 1.3rem;
+}
+
+.orchestra-seating__delete:hover,
+.orchestra-seating__delete:focus-visible {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.orchestra-seating__add {
+    opacity: 0.55;
+    position: absolute;
+    z-index: 1;
+}
+
+.orchestra-seating__add:hover,
+.orchestra-seating__add:focus-visible {
+    border-color: var(--orchestra-accent);
+    color: var(--orchestra-accent);
+    opacity: 1;
+}
+
+.orchestra-seating__control--column .orchestra-seating__add--before {
+    left: calc(var(--orchestra-seating-gap) / -2);
+    transform: translateX(-50%);
+}
+
+.orchestra-seating__control--column .orchestra-seating__add--after {
+    right: calc(var(--orchestra-seating-gap) / -2);
+    transform: translateX(50%);
+}
+
+.orchestra-seating__control--row .orchestra-seating__add--before {
+    top: calc(var(--orchestra-seating-gap) / -2);
+    transform: translateY(-50%);
+}
+
+.orchestra-seating__control--row .orchestra-seating__add--after {
+    bottom: calc(var(--orchestra-seating-gap) / -2);
+    transform: translateY(50%);
+}
+
 /* The arrows that step through the pieces; only the voices on the seats change. */
 .orchestra-seating__voices {
     align-items: center;
@@ -48,13 +131,6 @@
 
 .orchestra-seating__voice[hidden] {
     display: none;
-}
-
-.orchestra-seating__import {
-    align-items: flex-end;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
 }
 
 /* Row letters on the left, column numbers below the seats. */
@@ -249,6 +325,27 @@
     background: color-mix(in srgb, var(--orchestra-accent) 8%, transparent);
     outline: 2px solid var(--orchestra-accent);
     outline-offset: 2px;
+}
+
+/* Dropping on the edge of a taken seat puts the person between two people. */
+.orchestra-seating .is-insert-before::before,
+.orchestra-seating .is-insert-after::before {
+    background: var(--orchestra-accent);
+    border-radius: 2px;
+    bottom: 0;
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 4px;
+    z-index: 2;
+}
+
+.orchestra-seating .is-insert-before::before {
+    left: calc(var(--orchestra-seating-gap) / -2 - 2px);
+}
+
+.orchestra-seating .is-insert-after::before {
+    right: calc(var(--orchestra-seating-gap) / -2 - 2px);
 }
 
 .orchestra-seating__ghost {

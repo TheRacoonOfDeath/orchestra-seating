@@ -67,16 +67,6 @@ final class SeatingRepository
         }
     }
 
-    /**
-     * @return list<int> the projects with a saved seating
-     */
-    public function projectIds(): array
-    {
-        return \array_map('intval', $this->wpdb->get_col(
-            $this->wpdb->prepare('SELECT project_id FROM %i', $this->schema->plansTable())
-        ));
-    }
-
     public function deleteProject(int $projectId): void
     {
         $this->wpdb->delete($this->schema->seatsTable(), ['project_id' => $projectId], ['%d']);

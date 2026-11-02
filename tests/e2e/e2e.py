@@ -113,8 +113,11 @@ def text(page):
 
 ids = {login: user_id(login) for login in ["admin", "organizer", "conductor", "mia", "max", "mo", "lena", "sam"]}
 PROJECT = SEED["project"]
-PAGES = wp_json('echo json_encode(["projects" => Orchestra\\Core\\Ui\\Pages::url("orchestra_projects")]);')
+AUTUMN = SEED["autumn"]
+PAGES = wp_json('echo json_encode(["projects" => Orchestra\\Core\\Ui\\Pages::url("orchestra_projects"),'
+                ' "seating" => Orchestra\\Core\\Ui\\Pages::url("orchestra_seating")]);')
 PROJECTS = PAGES["projects"].replace(BASE, "")
+MASTER = PAGES["seating"].replace(BASE, "")
 TAB = f"{PROJECTS}&orchestra_project={PROJECT}&orchestra_tab=seating"
 OVERVIEW = f"{PROJECTS}&orchestra_project={PROJECT}"
 
@@ -122,15 +125,15 @@ admin, organizer, conductor = Session("admin", "admin"), Session("organizer"), S
 mia, sam = Session("mia"), Session("sam")
 
 
-def seats():
+def seats(project=PROJECT):
     rows = wp_json('global $wpdb; echo json_encode($wpdb->get_results("SELECT user_id, seat_row, seat_column FROM'
-                   ' {$wpdb->prefix}orchestra_seating_seats WHERE project_id = ' + str(PROJECT) + ' ORDER BY seat_row, seat_column", ARRAY_A));') or []
+                   ' {$wpdb->prefix}orchestra_seating_seats WHERE project_id = ' + str(project) + ' ORDER BY seat_row, seat_column", ARRAY_A));') or []
     names = {v: k for k, v in ids.items()}
     return {names.get(int(r["user_id"]), r["user_id"]): f'{r["seat_row"]}-{r["seat_column"]}' for r in rows}
 
 
-def form_of(page):
-    return next((f for f in re.findall(r"<form.*?</form>", page, flags=re.S) if "orchestra_seating_save" in f), "")
+def form_of(page, action="orchestra_seating_save"):
+    return next((f for f in re.findall(r"<form.*?</form>", page, flags=re.S) if f'value="{action}"' in f), "")
 
 
 def save(session, placement, op="save", organizers=True, page=None, extra=None):
@@ -148,6 +151,20 @@ def save(session, placement, op="save", organizers=True, page=None, extra=None):
     if organizers:
         data["seat_organizers"] = "1"
     data.update(extra or {})
+    return session.post("/wp-admin/admin-post.php", data)
+
+
+def save_master(session, placement, op="save"):
+    """Submits the form of the master seating like a browser."""
+    _, page = session.get(MASTER)
+    form = form_of(page, "orchestra_seating_master_save")
+    data = {
+        "action": "orchestra_seating_master_save", "op": op,
+        "_wpnonce": field(form, "_wpnonce") or "missing", "redirect_to": field(form, "redirect_to") or MASTER,
+    }
+    for user in re.findall(r'name="seat\[(\d+)\]"', form):
+        login = next((k for k, v in ids.items() if v == int(user)), "")
+        data[f"seat[{user}]"] = placement.get(login, "")
     return session.post("/wp-admin/admin-post.php", data)
 
 
@@ -260,21 +277,39 @@ check(status in (403, 400) or seats()["mia"] == "1-2", "others cannot change the
 
 # --- Grid ---------------------------------------------------------------------------------------
 placement = {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"}
-save(conductor, placement, op="add_row")
 _, page = conductor.get(TAB)
-check(cells(page) == 8, "rows can be added")
-save(conductor, placement, op="add_column")
-_, page = conductor.get(TAB)
-check(cells(page) == 10, "columns can be added")
-_, page = save(conductor, {"mia": "2-5", "max": "1-1", "organizer": "1-3", "lena": "1-4"}, op="remove_row")
-check("Only an empty last row or column can be removed." in text(page) and cells(page) == 10,
-      "rows with people cannot be removed")
-save(conductor, placement, op="remove_row")
-save(conductor, placement, op="remove_column")
-_, page = conductor.get(TAB)
-check(cells(page) == 4, "empty rows and columns can be removed")
-_, page = save(conductor, placement, op="remove_column")
-check("The grid needs a seat for everyone." in text(page), "the grid keeps a seat for everyone")
+check('value="insert_row-2"' in page and 'value="insert_row-1"' in page and 'value="insert_column-5"' in page
+      and 'value="delete_column-4"' in page and 'value="delete_row-1"' not in page,
+      "there are buttons to insert rows and columns everywhere and to delete them, but not the last row")
+_, page = save(conductor, placement, op="insert_row-1")
+check(cells(page) == 8 and seats() == {"max": "2-1", "mia": "2-2", "organizer": "2-3", "lena": "2-4"},
+      "a row is inserted in front of the others, which move back")
+_, page = save(conductor, seats(), op="insert_column-2")
+check(cells(page) == 10 and seats() == {"max": "2-1", "mia": "2-3", "organizer": "2-4", "lena": "2-5"},
+      "a column is inserted between two others")
+check(re.search(r'value="delete_column-3"[^>]*data-orchestra-confirm=', page) is not None
+      and re.search(r'value="delete_column-2"[^>]*data-orchestra-confirm=', page) is None,
+      "deleting a column with people asks first")
+_, page = save(conductor, seats(), op="delete_column-3")
+check(cells(page) == 8 and seats() == {"max": "2-1", "organizer": "2-3", "lena": "2-4"} and "Mia" in tray(page),
+      "deleting a column unseats the people on it")
+_, page = save(conductor, seats(), op="delete_row-1")
+check(cells(page) == 4 and seats() == {"max": "1-1", "organizer": "1-3", "lena": "1-4"}, "the rows behind move forward")
+_, page = save(conductor, seats(), op="delete_row-1")
+check("The last row or column cannot be deleted." in text(page) and cells(page) == 4, "the last row stays")
+_, page = save(conductor, seats(), op="delete_column-2")
+check(cells(page) == 3 and seats() == {"max": "1-1", "organizer": "1-2", "lena": "1-3"}, "columns are deleted anywhere")
+between = {"insert_person": str(ids["mia"]), "insert_at": "1-2"}
+_, page = save(conductor, seats(), op="insert_between", extra=between)
+check(cells(page) == 4 and seats() == {"max": "1-1", "mia": "1-2", "organizer": "1-3", "lena": "1-4"},
+      "putting someone between two people of a full row adds a column and moves the others aside")
+_, page = save(conductor, {"mia": "1-2", "organizer": "1-3", "lena": "1-4"}, op="insert_between",
+               extra={"insert_person": str(ids["max"]), "insert_at": "1-4"})
+check(seats() == {"mia": "1-1", "organizer": "1-2", "max": "1-3", "lena": "1-4"},
+      "the others move towards the nearest empty seat of the row")
+_, page = save(conductor, seats(), op="insert_between", extra={"insert_person": str(ids["sam"]), "insert_at": "1-2"})
+check("The person cannot be seated there." in text(page), "only people of the seating can be put between others")
+save(conductor, placement)
 
 # --- Organizers ---------------------------------------------------------------------------------
 save(conductor, placement, organizers=False)
@@ -284,33 +319,47 @@ save(conductor, placement, organizers=True)
 _, page = conductor.get(TAB)
 check("Olga" in tray(page), "organizers are seated again when switched on")
 
-# --- Import -------------------------------------------------------------------------------------
+# --- Master seating ---------------------------------------------------------------------------
 _, page = conductor.get(TAB)
-check("Import seating" not in page, "there is nothing to import without another seating")
-AUTUMN = SEED["autumn"]
-# The seating of another project: Mia and Lena take part in both, Mo declined Spring Concert.
-wp_eval(f'global $wpdb; $wpdb->insert("{{$wpdb->prefix}}orchestra_seating_plans", ["project_id" => {AUTUMN},'
-        f' "grid_rows" => 1, "grid_columns" => 5, "seat_organizers" => 1, "updated_at" => "2026-01-01 00:00:00"]);'
-        f' foreach (["{ids["mia"]}" => 4, "{ids["lena"]}" => 1, "{ids["mo"]}" => 2] as $user => $column) {{'
-        f' $wpdb->insert("{{$wpdb->prefix}}orchestra_seating_seats", ["project_id" => {AUTUMN}, "user_id" => $user,'
-        f' "seat_row" => 1, "seat_column" => $column]); }}')
+check("There is no master seating yet." in text(page) and 'value="apply_master"' not in page,
+      "without a master seating there is nothing to apply")
+_, page = save(conductor, placement, op="apply_master")
+check("There is no master seating yet." in text(page) and seats().get("mia") == "1-2", "nothing is applied")
+status, page = mia.get(MASTER)
+check("data-seating-form" not in page and "You are not allowed to arrange the seating." in text(page),
+      "members cannot see the master seating")
+def menu(session):
+    nav = re.search(r'<nav class="orchestra-nav".*?</nav>', session.get(PROJECTS)[1], flags=re.S)
+    return text(nav.group(0)) if nav else ""
+
+
+check("Seating" not in menu(mia) and "Seating" in menu(conductor),
+      "the Seating area is in the menu of conductors and organizers only")
+_, page = organizer.get(MASTER)
+check("data-seating-form" in page and all(n in tray(page) for n in ["Mia", "Max", "Mo", "Olga", "Lena-Marie"])
+      and "Carl" not in tray(page) and "Sam" not in tray(page) and "data-seating-voice" not in page,
+      "the master seating has every active member and organizer, without voices")
+check(cells(page) == 8, "the master seating starts with a seat for everyone")
+master = {"mo": "1-1", "mia": "1-2", "organizer": "1-3", "max": "1-4", "lena": "2-4"}
+_, page = save_master(organizer, master)
+check("The master seating has been saved." in text(page) and seats(0) == master, "organizers arrange the master seating")
+_, page = save_master(conductor, master, op="insert_column-1")
+check(seats(0)["mo"] == "1-2" and cells(page) == 10, "the master seating has the same editor")
+save_master(conductor, master, op="delete_column-5")
+status, _ = save_master(mia, master)
+check(status == 403 or seats(0) == master, "members cannot change the master seating")
+
 _, page = conductor.get(TAB)
-check(f'<option value="{AUTUMN}">Autumn Concert</option>' in page and f'<option value="{PROJECT}">' not in page,
-      "other projects with a seating can be imported")
-_, page = mia.get(TAB)
-check("Import seating" not in page, "members cannot import a seating")
-before = seats()
-_, page = save(conductor, placement, op="import", extra={"import_project": str(PROJECT)})
-check("Choose a project with a seating." in text(page) and seats() == before, "a project cannot import its own seating")
-_, page = save(conductor, placement, op="import", extra={"import_project": str(AUTUMN)})
-check("The seating of Autumn Concert has been imported." in text(page), "the seating of another project is imported")
-check(seats().get("mia") == "1-4" and seats().get("lena") == "1-1",
-      "people in both projects keep their seat")
-check("max" not in seats() and "organizer" not in seats() and all(n in tray(page) for n in ["Max", "Olga"]),
-      "people new to the seating are not seated")
-check("mo" not in seats() and cells(page) == 5 and ">Mo<" not in page,
-      "the seats of people who do not take part stay empty")
-save(conductor, placement)
+check('value="apply_master"' in page and "Edit master seating" in page, "projects can apply the master seating")
+_, page = save(conductor, placement, op="apply_master")
+check("The master seating has been applied." in text(page), "the master seating is applied")
+check(seats() == {"mia": "1-1", "organizer": "1-2", "max": "1-3", "lena": "2-1"},
+      "everyone keeps their row, closed up to the left, without the people who do not take part")
+check(cells(page) == 6, "rows and columns nobody sits in are removed")
+save(conductor, seats(), organizers=False, op="apply_master")
+check(seats() == {"mia": "1-1", "max": "1-2", "lena": "2-1"}, "organizers are left out when switched off")
+save(conductor, seats(), op="apply_master")
+placement = seats()
 
 # --- Participation changes ----------------------------------------------------------------------
 wp_eval(f'global $wpdb; $wpdb->update("{{$wpdb->prefix}}orchestra_projects_participation", ["status" => "declined"],'
@@ -324,8 +373,10 @@ for login in ["nia", "ole", "pia"]:
     wp_eval(f'global $wpdb; $wpdb->update("{{$wpdb->prefix}}orchestra_projects_participation", ["status" => "accepted"],'
             f' ["project_id" => {PROJECT}, "user_id" => {user_id(login)}]);')
 _, page = conductor.get(TAB)
-check(cells(page) >= 7 and all(n in tray(page) for n in ["Nia", "Ole", "Pia"]),
-      "rows are added when more people accept")
+check(cells(page) == 6 and all(n in tray(page) for n in ["Nia", "Ole", "Pia"]),
+      "the grid does not grow when more people accept; they are not seated yet")
+_, page = organizer.get(MASTER)
+check(all(n in tray(page) for n in ["Nia", "Ole", "Pia"]), "new members wait in the master seating too")
 
 # --- wp-admin and completed projects ------------------------------------------------------------
 status, page = admin.get(f"/wp-admin/admin.php?page=orchestra-projects&project={PROJECT}&tab=seating")
@@ -339,11 +390,13 @@ wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", "open")
 wp("user", "delete", str(ids["lena"]), "--yes")
 check("lena" not in seats(), "deleting a user removes their seat")
 export = wp_json(f'echo json_encode(apply_filters("wp_privacy_personal_data_exporters", [])["orchestra-seating"]["callback"]("mia@example.com"));')
-check(export and export["data"] and export["data"][0]["data"][1]["value"] == "A", "the seat is in the personal data export")
+check(export and len(export["data"]) == 2 and all(item["data"][1]["value"] == "A" for item in export["data"])
+      and "Master seating" in [item["data"][0]["value"] for item in export["data"]],
+      "the seats of the project and the master seating are in the personal data export")
 wp("post", "delete", str(PROJECT), str(AUTUMN), "--force")
-left = wp_json('global $wpdb; echo json_encode([(int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_seats"),'
-               ' (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_plans")]);')
-check(left == [0, 0], "deleting the project removes its seating")
+left = wp_json('global $wpdb; echo json_encode([(int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_seats WHERE project_id <> 0"),'
+               ' (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}orchestra_seating_plans WHERE project_id <> 0")]);')
+check(left == [0, 0] and "mia" in seats(0), "deleting the project removes its seating, not the master seating")
 wp("plugin", "deactivate", "orchestra-seating")
 wp("plugin", "uninstall", "orchestra-seating")
 tables = wp_json('global $wpdb; echo json_encode($wpdb->get_col("SHOW TABLES LIKE \'%orchestra_seating%\'"));')

@@ -36,66 +36,98 @@ final class SeatingInputTest extends TestCase
         $this->assertSame($this->plan, $plan);
     }
 
-    public function testImportsTheSeatingOfAnotherProject(): void
+    public function testAppliesTheMasterSeating(): void
     {
-        // People 1 and 2 took part in project 5, person 4 did not take part here; person 3 is new.
-        $source = new SeatingPlan(5, new GridSize(1, 5), true, [
-            new Seat(1, 1, 5),
-            new Seat(2, 1, 1),
-            new Seat(4, 1, 3),
+        $master = new SeatingPlan(SeatingPlan::MASTER, new GridSize(2, 5), true, [
+            new Seat(1, 2, 5),
+            new Seat(2, 2, 2),
+            new Seat(4, 1, 3), // does not take part
         ], true);
-        [$plan, $errors] = $this->apply(
-            ['op' => 'import', 'import_project' => '5', 'seat' => [1 => '2-2']],
-            static fn (int $id): ?SeatingPlan => $id === 5 ? $source : null
-        );
+        $input = ['op' => 'apply_master', 'seat' => [1 => '2-2']];
+        [$plan, $errors] = $this->apply($input, static fn (): SeatingPlan => $master);
 
         $this->assertSame([], $errors);
         $this->assertSame(9, $plan->projectId);
-        $this->assertSame([[1, 1, 5], [2, 1, 1]], self::seats($plan), 'the submitted seats are replaced');
+        $this->assertSame([[2, 1, 1], [1, 1, 2]], self::seats($plan), 'the submitted seats are replaced');
+        $this->assertSame([1, 2], self::gridSize($plan));
         $this->assertSame([3], $plan->unseated([1, 2, 3]));
-        $this->assertSame([1, 5], self::gridSize($plan), 'the grid of the other project is taken over');
     }
 
-    public function testImportingGrowsTheGridForEveryone(): void
+    public function testAppliesOnlyAMasterSeatingWithSomeoneWhoTakesPart(): void
     {
-        $source = new SeatingPlan(5, new GridSize(1, 2), true, [new Seat(1, 1, 2)], true);
-        [$plan] = $this->apply(['op' => 'import', 'import_project' => '5'], static fn (): SeatingPlan => $source);
+        $this->assertSame(['There is no master seating yet.'], $this->apply(['op' => 'apply_master'])[1]);
+        $this->assertSame(
+            ['There is no master seating yet.'],
+            SeatingInput::apply(['op' => 'apply_master'], $this->plan, static fn (): array => [1], null)[1],
+            'not in the editor of the master seating'
+        );
+        $master = new SeatingPlan(SeatingPlan::MASTER, new GridSize(1, 4), true, [new Seat(4, 1, 1)], true);
+        [$plan, $errors] = $this->apply(['op' => 'apply_master'], static fn (): SeatingPlan => $master);
 
-        $this->assertSame([2, 2], self::gridSize($plan));
-    }
-
-    public function testImportsOnlyFromProjectsWithASeating(): void
-    {
-        [$plan, $errors] = $this->apply(['op' => 'import', 'import_project' => '6']);
-
-        $this->assertSame(['Choose a project with a seating.'], $errors);
+        $this->assertSame(['Nobody in the master seating takes part.'], $errors);
         $this->assertSame($this->plan, $plan);
     }
 
-    public function testAddsAndRemovesRowsAndColumns(): void
+    public function testInsertsAndDeletesRowsAndColumns(): void
     {
-        $this->assertSame([3, 4], self::gridSize($this->apply(['op' => 'add_row'])[0]));
-        $this->assertSame([2, 5], self::gridSize($this->apply(['op' => 'add_column'])[0]));
-        $this->assertSame([2, 3], self::gridSize($this->apply(['op' => 'remove_column', 'seat' => [1 => '1-1']])[0]));
+        [$plan] = $this->apply(['op' => 'insert_row-1', 'seat' => [1 => '1-1', 2 => '2-3']]);
+        $this->assertSame([3, 4], self::gridSize($plan));
+        $this->assertSame([[1, 2, 1], [2, 3, 3]], self::seats($plan), 'the submitted seats move back');
+
+        [$plan] = $this->apply(['op' => 'delete_column-1', 'seat' => [1 => '1-1', 2 => '2-3']]);
+        $this->assertSame([2, 3], self::gridSize($plan));
+        $this->assertSame([[2, 2, 2]], self::seats($plan), 'the people of the column are not seated');
+
+        $this->assertSame([2, 5], self::gridSize($this->apply(['op' => 'insert_column-5'])[0]));
+    }
+
+    public function testRejectsGridChangesOutsideTheGridAndItsLimits(): void
+    {
+        $this->assertSame(['This row or column does not exist.'], $this->apply(['op' => 'insert_row-4'])[1]);
+        $this->assertSame(['This row or column does not exist.'], $this->apply(['op' => 'delete_column-5'])[1]);
+        $this->assertSame(['This row or column does not exist.'], $this->apply(['op' => 'delete_row-0'])[1]);
+
+        $single = new SeatingPlan(9, new GridSize(1, 30), true, [], true);
+        $people = static fn (): array => [1];
         $this->assertSame(
-            ['Only an empty last row or column can be removed.'],
-            $this->apply(['op' => 'remove_row', 'seat' => [1 => '2-1']])[1]
+            ['The last row or column cannot be deleted.'],
+            SeatingInput::apply(['op' => 'delete_row-1'], $single, $people, null)[1]
+        );
+        $this->assertSame(
+            ['The grid cannot get any larger.'],
+            SeatingInput::apply(['op' => 'insert_column-1'], $single, $people, null)[1]
         );
     }
 
-    public function testKeepsASeatForEveryone(): void
+    public function testInsertsAPersonBetweenTwoOthers(): void
     {
-        $plan = new SeatingPlan(9, new GridSize(1, 4), true, [], true);
-        $input = ['op' => 'remove_column', 'seat_organizers' => '1'];
-        [, $errors] = SeatingInput::apply($input, $plan, static fn (): array => [1, 2, 3, 4], self::noSource(...));
+        $input = ['op' => 'insert_between', 'insert_person' => '3', 'insert_at' => '1-2'];
+        [$plan, $errors] = $this->apply($input + ['seat' => [1 => '1-1', 2 => '1-2']]);
 
-        $this->assertSame(['The grid needs a seat for everyone.'], $errors);
+        $this->assertSame([], $errors);
+        $this->assertSame([[1, 1, 1], [2, 1, 3], [3, 1, 2]], self::seats($plan));
+
+        $this->assertSame(
+            ['The person cannot be seated there.'],
+            $this->apply(['insert_person' => '99'] + $input)[1],
+            'only people of the seating'
+        );
+        $this->assertSame(['The person cannot be seated there.'], $this->apply(['insert_at' => '3-1'] + $input)[1]);
+    }
+
+    public function testDoesNotGrowTheGrid(): void
+    {
+        $plan = new SeatingPlan(9, new GridSize(1, 1), true, [], true);
+        [$saved] = SeatingInput::apply(['seat' => [1 => '1-1']], $plan, static fn (): array => [1, 2, 3], null);
+
+        $this->assertSame([1, 1], self::gridSize($saved));
+        $this->assertSame([2, 3], $saved->unseated([1, 2, 3]));
     }
 
     public function testLeavingOutOrganizersDropsTheirSeats(): void
     {
         $people = static fn (bool $organizers): array => $organizers ? [1, 2] : [1];
-        [$plan] = SeatingInput::apply(['seat' => [1 => '1-1', 2 => '1-2']], $this->plan, $people, self::noSource(...));
+        [$plan] = SeatingInput::apply(['seat' => [1 => '1-1', 2 => '1-2']], $this->plan, $people, null);
 
         $this->assertFalse($plan->seatOrganizers);
         $this->assertSame([[1, 1, 1]], self::seats($plan));
@@ -108,10 +140,10 @@ final class SeatingInputTest extends TestCase
 
     /**
      * @param array<string, mixed> $input
-     * @param (\Closure(int): ?SeatingPlan)|null $source
+     * @param (\Closure(): ?SeatingPlan)|null $master
      * @return array{SeatingPlan, list<string>}
      */
-    private function apply(array $input, ?\Closure $source = null): array
+    private function apply(array $input, ?\Closure $master = null): array
     {
         $people = static fn (): array => [1, 2, 3];
 
@@ -119,13 +151,8 @@ final class SeatingInputTest extends TestCase
             $input + ['seat_organizers' => '1'],
             $this->plan,
             $people,
-            $source ?? self::noSource(...)
+            $master ?? static fn (): ?SeatingPlan => null
         );
-    }
-
-    private static function noSource(int $projectId): ?SeatingPlan
-    {
-        return null;
     }
 
     /**

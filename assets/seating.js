@@ -12,6 +12,12 @@
  * sync, so the server always receives the selects.
  *
  * - Drag a person onto a seat or back to "Not seated". Dropping on a taken seat swaps the two.
+ *   Dropping on the left or right edge of a taken seat puts the person between two people: the
+ *   people between there and the nearest empty seat of the row move one seat towards it (to the
+ *   right if both are equally near). A full row needs a new column, so the form is submitted with
+ *   `op=insert_between` and the server does the same.
+ * - The "×" buttons ask before deleting a row or column with people (`data-orchestra-confirm` of
+ *   orchestra-core); the question follows the seating while people are moved.
  * - Keyboard: Enter or Space on a person picks them up, the arrow keys move between the seats
  *   (up is further back), Enter or Space places them, Delete or Backspace unseats them, Escape
  *   cancels.
@@ -22,6 +28,8 @@
 
     var EDGE = 60;
     var THRESHOLD = 4;
+    // The share of a seat's width at its left and right edge that puts a person between two people.
+    var INSERT_EDGE = 0.25;
 
     // Draws a thick line on every side of a seated person, except towards a neighbour with the same
     // voice, like the server does for the first page.
@@ -148,8 +156,25 @@
         }
 
         function refresh() {
+            var rows = {};
+            var columns = {};
             cells.forEach(function (cell) {
-                cell.classList.toggle('is-empty', !cell.querySelector('[data-seating-person]'));
+                var taken = !!cell.querySelector('[data-seating-person]');
+                cell.classList.toggle('is-empty', !taken);
+                if (taken) {
+                    var at = position(cell);
+                    rows[at.row] = true;
+                    columns[at.column] = true;
+                }
+            });
+            Array.prototype.forEach.call(form.querySelectorAll('[data-seating-question]'), function (button) {
+                var row = button.getAttribute('data-seating-delete-row');
+                var taken = row !== null ? rows[row] : columns[button.getAttribute('data-seating-delete-column')];
+                if (taken) {
+                    button.setAttribute('data-orchestra-confirm', button.getAttribute('data-seating-question'));
+                } else {
+                    button.removeAttribute('data-orchestra-confirm');
+                }
             });
             paint(form);
         }
@@ -175,6 +200,61 @@
             refresh();
         }
 
+        // Puts the person in a row in front of the given column, between two people. Returns
+        // false if the row is full, so that the server adds a column.
+        function insert(person, row, column) {
+            tray.appendChild(person);
+            var columns = 0;
+            while (cellAt(row, columns + 1)) {
+                columns++;
+            }
+            function taken(at) {
+                return !!cellAt(row, at).querySelector('[data-seating-person]');
+            }
+            var left = null;
+            var right = null;
+            for (var before = column - 1; before >= 1 && left === null; before--) {
+                left = taken(before) ? null : before;
+            }
+            for (var after = column; after <= columns && right === null; after++) {
+                right = taken(after) ? null : after;
+            }
+            if (left === null && right === null) {
+                return false;
+            }
+            var at;
+            if (right !== null && (left === null || right - column <= column - 1 - left)) {
+                for (at = right - 1; at >= column; at--) {
+                    moveTo(cellAt(row, at).querySelector('[data-seating-person]'), cellAt(row, at + 1));
+                }
+                moveTo(person, cellAt(row, column));
+            } else {
+                for (at = left + 1; at < column; at++) {
+                    moveTo(cellAt(row, at).querySelector('[data-seating-person]'), cellAt(row, at - 1));
+                }
+                moveTo(person, cellAt(row, column - 1));
+            }
+            refresh();
+            return true;
+        }
+
+        function moveTo(person, cell) {
+            cell.appendChild(person);
+            setSeat(person, cell);
+        }
+
+        // Lets the server add a column to the full row and put the person in.
+        function insertOnServer(person, row, column) {
+            var button = form.querySelector('[data-seating-insert]');
+            form.querySelector('[data-seating-insert-person]').value = person.getAttribute('data-seating-person');
+            form.querySelector('[data-seating-insert-at]').value = row + '-' + column;
+            if (form.requestSubmit) {
+                form.requestSubmit(button);
+            } else {
+                button.click();
+            }
+        }
+
         // Saving right away -------------------------------------------------------------------
 
         Array.prototype.forEach.call(form.querySelectorAll('[data-seating-autosave]'), function (field) {
@@ -196,6 +276,32 @@
             var element = document.elementFromPoint(x, y);
             var found = element ? element.closest('[data-seating-cell], [data-seating-tray]') : null;
             return found && form.contains(found) ? found : null;
+        }
+
+        // "before" or "after" when the pointer is on the left or right edge of a seat with someone
+        // else on it, i.e. the person is put between two people; null otherwise.
+        function edge(cell, x) {
+            if (!cell || !cell.hasAttribute('data-seating-cell')) {
+                return null;
+            }
+            var other = cell.querySelector('[data-seating-person]');
+            if (!other || other === drag.person) {
+                return null;
+            }
+            var box = cell.getBoundingClientRect();
+            var share = (x - box.left) / box.width;
+            return share < INSERT_EDGE ? 'before' : share > 1 - INSERT_EDGE ? 'after' : null;
+        }
+
+        function mark(found, side) {
+            if (drag.target) {
+                drag.target.classList.remove('is-drop-target', 'is-insert-before', 'is-insert-after');
+            }
+            drag.target = found;
+            drag.edge = side;
+            if (found) {
+                found.classList.add(side ? 'is-insert-' + side : 'is-drop-target');
+            }
         }
 
         function move(event) {
@@ -222,14 +328,9 @@
             drag.ghost.style.top = (drag.y - drag.offsetY) + 'px';
 
             var found = target(drag.x, drag.y);
-            if (found !== drag.target) {
-                if (drag.target) {
-                    drag.target.classList.remove('is-drop-target');
-                }
-                drag.target = found;
-                if (found) {
-                    found.classList.add('is-drop-target');
-                }
+            var side = edge(found, drag.x);
+            if (found !== drag.target || side !== drag.edge) {
+                mark(found, side);
             }
         }
 
@@ -262,13 +363,20 @@
 
         function finish(drop) {
             if (drag.moved) {
-                if (drop && drag.target) {
-                    place(drag.person, drag.target.hasAttribute('data-seating-cell') ? drag.target : null);
-                }
+                var found = drag.target;
+                var side = drag.edge;
+                var person = drag.person;
                 drag.ghost.remove();
-                drag.person.classList.remove('is-dragging');
-                if (drag.target) {
-                    drag.target.classList.remove('is-drop-target');
+                person.classList.remove('is-dragging');
+                mark(null, null);
+                if (drop && found && side) {
+                    var at = position(found);
+                    var column = side === 'before' ? at.column : at.column + 1;
+                    if (!insert(person, at.row, column)) {
+                        insertOnServer(person, at.row, column);
+                    }
+                } else if (drop && found) {
+                    place(person, found.hasAttribute('data-seating-cell') ? found : null);
                 }
             }
             drag = null;
@@ -292,7 +400,8 @@
                 offsetY: event.clientY - box.top,
                 moved: false,
                 ghost: null,
-                target: null
+                target: null,
+                edge: null
             };
         });
         form.addEventListener('pointermove', function (event) {

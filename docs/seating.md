@@ -2,7 +2,9 @@
 
 orchestra-seating plans who sits where in a project. It owns the seating data and adds a
 **Seating** tab to the project page of orchestra-projects, with the tab filters of
-orchestra-projects 0.14 (`ProjectsService::TABS_FILTER`, `TAB_CONTENT_FILTER`). It reads
+orchestra-projects 0.14 (`ProjectsService::TABS_FILTER`, `TAB_CONTENT_FILTER`). It also adds the
+**Seating** area `[orchestra_seating]` (menu item at position 50, for conductors and organizers)
+with the **master seating**, the standing seating of the orchestra that projects start from. It reads
 projects, participation, program and assignments through `ProjectsService`, members through
 `MembersService` and parts through `LibraryService`, never their tables.
 
@@ -22,19 +24,32 @@ projects, participation, program and assignments through `ProjectsService`, memb
   every section is outlined as a whole; people without a voice form sections of their own. Colors and lines
   change with the piece and follow the people while they are moved.
 - **Grid:** every seat has the same size and holds one person. A new seating starts with a seat for
-  everyone, wider than deep (e.g. 3 rows of 5 for 12 people). "+ Row" and "+ Column" add a row at
-  the back or a seat at the right of every row; "− Row" and "− Column" remove the last row or
-  column if it is empty. The grid keeps a seat for everyone: when more people accept, rows are
-  added. At most 30 rows and 30 columns.
+  everyone, wider than deep (e.g. 3 rows of 5 for 12 people); after that the grid never grows by
+  itself, and people without a seat wait in "Not seated". "+" buttons between the rows (left of the
+  grid) and between the columns (above it), and at both ends, insert a row or column there; the
+  "×" button left of every row and above every column deletes it. The people on a deleted row or
+  column are no longer seated; the rows behind or the columns to the right move up. Deleting a row
+  or column with people asks first. The last row and column cannot be deleted. At most 30 rows and
+  30 columns.
 - **Rows** count from the front and are labelled with letters: row A is next to the conductor,
   shown at the bottom (after Z come AA, AB, …). **Columns** are numbered from 1 on the left. The
   labels appear beside and below the grid, in the PDF, in the seat selects ("Row A, seat 3") and
   in the personal data export. They are display only: the form and the database keep numbers.
-- **Importing:** conductors and organizers can take over the seating of another project that has
-  a saved seating (any status, newest first). People who take part in both projects get the same
-  seat, the seats of everyone else stay empty, and people new to the seating are not seated. The
-  grid is taken over and grows if it is too small. The import replaces the current seating and is
-  saved right away.
+- **Between two people:** dropping a person on the left or right edge of a taken seat puts them
+  between the two people there. The people between that spot and the nearest empty seat of the
+  row move one seat towards it (to the right if both sides are equally near); nobody changes
+  rows. If the row is full, a column is added at the right and the people right of the spot move
+  one seat to the right.
+- **Master seating:** one seating (project ID 0) of every active member and organizer, edited in
+  the Seating area with the same editor as a project, without voices, without the organizers
+  switch and without PDF. People who become inactive or lose the role leave it; new members wait
+  in "Not seated".
+- **Applying the master seating:** in a project, "Apply master seating" seats the people of the
+  project (respecting "Seat organizers") in their row of the saved master seating. Every row is
+  closed up to the left (gaps of people who do not take part disappear), and rows and columns
+  nobody sits in are removed. People who are not in the master seating are not seated. It replaces
+  the current seating and is saved right away; later changes of the master seating do not change
+  the project. New projects start empty; the seating of another project cannot be imported.
 - **People who no longer take part** (declined, inactive, organizers switched off, deleted) are
   not shown, and their seats are dropped the next time the seating is saved.
 
@@ -43,20 +58,24 @@ projects, participation, program and assignments through `ProjectsService`, memb
 | Capability | Member | Conductor | Organizer |
 |---|:-:|:-:|:-:|
 | `orchestra_seating_plan_read`: see the seating of projects visible to members, once it is arranged | ✓ | ✓ | ✓ |
-| `orchestra_seating_plan_manage`: arrange the seating of every project and download it as PDF | | ✓ | ✓ |
+| `orchestra_seating_plan_manage`: arrange the seating of every project and the master seating, download it as PDF | | ✓ | ✓ |
 
 The seating of completed projects cannot be changed.
 
 ## Editing
 
-The editor posts to `admin-post.php?action=orchestra_seating_save` with a nonce per project.
-Every button (save, add or remove a row or column, clear) submits all seats, so changes are never
-lost. The form contains one select per person (`seat[userId]` = `row-column`); without JavaScript
+The editor of a project posts to `admin-post.php?action=orchestra_seating_save` with a nonce per
+project, the master seating to `admin-post.php?action=orchestra_seating_master_save`. Every button
+submits all seats, so changes are never lost; `op` says which one: `save`, `clear`, `apply_master`,
+`insert_row-N` / `insert_column-N` (in front of row N, left of column N; N = size + 1 adds one at
+the back or right), `delete_row-N` / `delete_column-N`, and `insert_between` with `insert_person`
+(user ID) and `insert_at` (`row-column`: in front of that seat). Each of them reloads the page. The form contains one select per person (`seat[userId]` = `row-column`); without JavaScript
 these are the editor. With JavaScript (`assets/seating.js`) they are hidden and kept in sync with
 the grid:
 
 - drag people between the seats and "Not seated" with mouse, touch or pen; dropping on a taken
-  seat swaps the two
+  seat swaps the two, dropping on its left or right quarter puts the person between two people
+  (in the browser if the row has an empty seat, otherwise with `op=insert_between`)
 - keyboard: Enter or Space picks a person up, the arrow keys move between the seats, Enter or
   Space places them, Delete or Backspace unseats them, Escape cancels
 - changing "Seat organizers" saves right away
@@ -66,8 +85,8 @@ except for the shown piece, with `data-seating-tone` and `data-seating-color`). 
 the colors and lines (`is-line-back`, `is-line-front`, `is-line-left`, `is-line-right`) of the first piece; `seating.js` redraws
 them when the piece changes or someone is moved. With JavaScript the arrows switch the voices in place; without it they
 are links to the tab with `seating_piece=ID`. The shown piece is kept in the URL and in the form's
-`redirect_to`, so saving returns to the same piece. "Import seating" posts `op=import` with
-`import_project`.
+`redirect_to`, so saving returns to the same piece. Moving people between two others is only
+possible by dragging; the keyboard and the selects place and swap.
 
 ## PDF
 
@@ -82,7 +101,7 @@ the editor must be saved before they appear in the PDF.
 
 | Table | Content |
 |---|---|
-| `{prefix}orchestra_seating_plans` | per project: `grid_rows`, `grid_columns`, `seat_organizers`, `updated_at` |
+| `{prefix}orchestra_seating_plans` | per project (`project_id` 0: the master seating): `grid_rows`, `grid_columns`, `seat_organizers`, `updated_at` |
 | `{prefix}orchestra_seating_seats` | `project_id`, `user_id`, `seat_row`, `seat_column`; one seat per person and cell |
 
 The schema version is stored in the option `orchestra_seating_schema_version`. Version 2 dropped

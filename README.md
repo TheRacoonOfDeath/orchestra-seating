@@ -15,10 +15,14 @@ Part of the Orchestra plugin suite. Requires
 - Each voice has its own light color, and a thick line outlines every section of people with the same voice
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
-- The grid starts with a seat for everyone; rows and columns can be added and removed
+- A **Seating** area with the master seating of all active members and organizers, for conductors
+  and organizers
+- "Apply master seating" seats a project's participants in their row of the master seating,
+  closed up to the left, without empty rows and columns
+- The grid starts with a seat for everyone; "+" and "×" buttons around the grid insert and delete
+  rows and columns anywhere, and people on a deleted row or column are no longer seated
+- Dropping a person on the edge of a seat puts them between two people; the others move aside
 - Rows are labelled A, B, … from the front, columns 1, 2, … from the left
-- The seating of another project can be imported: people in both projects keep their seat, new
-  people are not seated
 - Conductors and organizers download the seating as a PDF with names (with orchestra-core 0.8 or
   later)
 - Accepted participants are seated, conductors never; organizers by default, which can be

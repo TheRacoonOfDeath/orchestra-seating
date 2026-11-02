@@ -19,7 +19,7 @@ final class GridSize
 
     /**
      * A grid with a seat for everyone, wider than deep like an orchestra: 12 people get 3 rows of
-     * 5 seats, 40 people 5 rows of 8.
+     * 5 seats, 40 people 5 rows of 8. Only a new seating gets it; the grid never grows by itself.
      */
     public static function initial(int $people): self
     {
@@ -31,19 +31,6 @@ final class GridSize
     public function cells(): int
     {
         return $this->rows * $this->columns;
-    }
-
-    /**
-     * Adds rows at the back until everyone fits.
-     */
-    public function fitting(int $people): self
-    {
-        $rows = $this->rows;
-        while ($rows * $this->columns < $people && $rows < self::MAX_ROWS) {
-            $rows++;
-        }
-
-        return new self($rows, $this->columns);
     }
 
     public function contains(int $row, int $column): bool

@@ -6,6 +6,7 @@ namespace Orchestra\Seating\Privacy;
 
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Seating\Seat;
+use Orchestra\Seating\Seating\SeatingPlan;
 use Orchestra\Seating\Seating\SeatingRepository;
 use WP_User;
 
@@ -77,7 +78,9 @@ final class PersonalData
                 'data' => [
                     [
                         'name' => \__('Project', 'orchestra-seating'),
-                        'value' => $this->projects->project($seat['project_id'])->title ?? '#' . $seat['project_id'],
+                        'value' => $seat['project_id'] === SeatingPlan::MASTER
+                            ? \__('Master seating', 'orchestra-seating')
+                            : $this->projects->project($seat['project_id'])->title ?? '#' . $seat['project_id'],
                     ],
                     ['name' => \__('Row', 'orchestra-seating'), 'value' => Seat::rowName($seat['row'])],
                     ['name' => \__('Seat', 'orchestra-seating'), 'value' => (string) $seat['column']],

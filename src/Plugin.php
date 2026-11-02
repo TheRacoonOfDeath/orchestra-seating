@@ -7,6 +7,8 @@ namespace Orchestra\Seating;
 use LogicException;
 use Orchestra\Core\Authorization\CapabilityRegistry;
 use Orchestra\Core\Ui\Html;
+use Orchestra\Core\Ui\Menu;
+use Orchestra\Core\Ui\MenuItem;
 use Orchestra\Library\Plugin as LibraryPlugin;
 use Orchestra\Members\Plugin as MembersPlugin;
 use Orchestra\Projects\Plugin as ProjectsPlugin;
@@ -17,6 +19,8 @@ use Orchestra\Seating\Export\SeatingPdfController;
 use Orchestra\Seating\Privacy\PersonalData;
 use Orchestra\Seating\Seating\SeatingRepository;
 use Orchestra\Seating\Seating\SeatingService;
+use Orchestra\Seating\Ui\MasterController;
+use Orchestra\Seating\Ui\MasterShortcode;
 use Orchestra\Seating\Ui\SeatingController;
 use Orchestra\Seating\Ui\SeatingTab;
 use wpdb;
@@ -85,6 +89,7 @@ final class Plugin
         if (
             !\class_exists(CapabilityRegistry::class)
             || !\class_exists(Html::class)
+            || !\class_exists(Menu::class)
             || !\class_exists(LibraryPlugin::class)
             || !\class_exists(MembersPlugin::class)
             || !\class_exists(ProjectsPlugin::class)
@@ -111,6 +116,25 @@ final class Plugin
         $tab->register();
         (new SeatingPdfController($projects, $tab, new SeatingPdf($seating)))->register();
         (new SeatingController($seating, $projects))->register();
+        (new MasterShortcode($seating, $this->pluginFile))->register();
+        (new MasterController($seating))->register();
+        \add_action(Menu::REGISTER_ACTION, [self::class, 'registerMenuItem']);
+    }
+
+    /**
+     * The master seating, for conductors and organizers.
+     *
+     * @internal Hooked to `orchestra_core_register_menu_items`.
+     */
+    public static function registerMenuItem(Menu $menu): void
+    {
+        $menu->add(new MenuItem(
+            MasterShortcode::TAG,
+            \__('Seating', 'orchestra-seating'),
+            \__('The master seating of all members, which projects start from.', 'orchestra-seating'),
+            static fn (int $userId): bool => \user_can($userId, Capabilities::PLAN_MANAGE),
+            50
+        ));
     }
 
     /**
@@ -120,7 +144,7 @@ final class Plugin
     {
         echo '<div class="notice notice-error"><p>'
             . \esc_html__(
-                'Orchestra Seating requires Orchestra Core 0.7, Orchestra Projects 0.14, Orchestra Library and'
+                'Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, Orchestra Library and'
                     . ' Orchestra Members to be active.',
                 'orchestra-seating'
             )

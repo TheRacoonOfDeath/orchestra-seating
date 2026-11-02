@@ -6,13 +6,13 @@ namespace Orchestra\Seating\Ui;
 
 use Orchestra\Core\Ui\Form;
 use Orchestra\Core\Ui\Html;
+use Orchestra\Core\Ui\Pages;
 use Orchestra\Projects\Project\Project;
 use Orchestra\Projects\Project\ProjectStatus;
 use Orchestra\Projects\ProjectsService;
 use Orchestra\Seating\Capabilities;
 use Orchestra\Seating\Export\SeatingPdfController;
 use Orchestra\Seating\Seating\Person;
-use Orchestra\Seating\Seating\Seat;
 use Orchestra\Seating\Seating\SeatingInput;
 use Orchestra\Seating\Seating\SeatingPlan;
 use Orchestra\Seating\Seating\SeatingService;
@@ -28,11 +28,6 @@ final class SeatingTab
 
     /** The piece whose voices are shown first, as a query parameter of the tab */
     public const PIECE_PARAMETER = 'seating_piece';
-
-    private const HANDLE = 'orchestra-seating';
-
-    /** The number of voice colors in seating.css; further voices repeat them. */
-    private const COLORS = 8;
 
     public function __construct(private readonly SeatingService $seating, private readonly string $pluginFile)
     {
@@ -81,9 +76,7 @@ final class SeatingTab
             return $html;
         }
 
-        $version = (string) @\filemtime(\dirname($this->pluginFile) . '/assets/seating.css');
-        \wp_enqueue_style(self::HANDLE, \plugins_url('assets/seating.css', $this->pluginFile), [], $version);
-
+        SeatingEditor::enqueue($this->pluginFile);
         $plan = $this->seating->plan($project);
         $people = [];
         foreach ($this->seating->people($plan) as $person) {
@@ -93,19 +86,10 @@ final class SeatingTab
         $requested = \absint(\is_string($_GET[self::PIECE_PARAMETER] ?? null) ? $_GET[self::PIECE_PARAMETER] : 0);
         $pieceId = isset($pieces[$requested]) ? $requested : \array_key_first($pieces);
 
-        $version = (string) @\filemtime(\dirname($this->pluginFile) . '/assets/seating.js');
-        \wp_enqueue_script(
-            self::HANDLE,
-            \plugins_url('assets/seating.js', $this->pluginFile),
-            [],
-            $version,
-            ['in_footer' => true]
-        );
-
         if (!\current_user_can(Capabilities::PLAN_MANAGE) || $project->status === ProjectStatus::Completed) {
             return self::pdfButton($project) . '<div class="orchestra-card orchestra-seating orchestra-stack"'
                 . ' data-seating>' . self::voices($pieces, $pieceId, $tabUrl, false)
-                . self::grid($plan, $people, false, $pieces, $pieceId) . '</div>';
+                . SeatingEditor::grid($plan, $people, false, $pieces, $pieceId) . '</div>';
         }
 
         return self::pdfButton($project) . $this->editor($project, $plan, $people, $pieces, $pieceId, $tabUrl);
@@ -179,223 +163,43 @@ final class SeatingTab
         ?int $pieceId,
         string $tabUrl,
     ): string {
-        $sources = $this->seating->importSources($project->id);
-        $unseated = \array_values(\array_filter(
-            $people,
-            static fn (Person $person): bool => $plan->seatOf($person->userId) === null
-        ));
-        $seated = \count($people) - \count($unseated);
+        $settings = '<div class="orchestra-row"><label class="orchestra-checkbox"><input type="checkbox" name="'
+            . SeatingInput::FIELD_SEAT_ORGANIZERS . '" value="1"' . \checked($plan->seatOrganizers, true, false)
+            . ' data-seating-autosave> <span>' . \esc_html__('Seat organizers', 'orchestra-seating')
+            . '</span></label></div>' . $this->master();
 
-        $html = Form::open(
+        return SeatingEditor::form(
             SeatingController::ACTION,
             SeatingController::nonceAction($project->id),
             ['project' => $project->id, 'redirect_to' => $tabUrl],
-            [
-                'class' => 'orchestra-seating orchestra-seating--edit orchestra-stack',
-                'data-seating' => '',
-                'data-seating-form' => '',
-            ]
+            $settings,
+            self::voices($pieces, $pieceId, $tabUrl, true),
+            $plan,
+            $people,
+            $pieces,
+            $pieceId,
+            \__('Nobody has accepted yet. Everyone who registers can be seated here.', 'orchestra-seating')
         );
-        $html .= '<div class="orchestra-card orchestra-stack"><div class="orchestra-row">'
-            . '<label class="orchestra-checkbox"><input type="checkbox" name="' . SeatingInput::FIELD_SEAT_ORGANIZERS
-            . '" value="1"' . \checked($plan->seatOrganizers, true, false) . ' data-seating-autosave> <span>'
-            . \esc_html__('Seat organizers', 'orchestra-seating') . '</span></label></div>'
-            . '<p class="orchestra-muted">' . \esc_html(\sprintf(
-                /* translators: 1: number of seated people, 2: number of people to seat */
-                \__('%1$d of %2$d people seated. Conductors are not seated.', 'orchestra-seating'),
-                $seated,
-                \count($people)
-            )) . '</p>' . self::import($sources) . '</div>';
-
-        $html .= '<section class="orchestra-seating__tray orchestra-stack" data-seating-tray><h3>'
-            . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list">';
-        foreach ($unseated as $person) {
-            $html .= self::person($person, true, $pieces, $pieceId);
-        }
-        $html .= '</div><p class="orchestra-muted orchestra-seating__hint">' . \esc_html__(
-            'Drag people onto the seats or back here. Dropping on a taken seat swaps the two. With the keyboard:'
-                . ' Enter picks a person up, the arrow keys choose a seat, Enter places them, Delete unseats them.',
-            'orchestra-seating'
-        ) . '</p></section>';
-
-        $html .= '<div class="orchestra-card orchestra-stack">' . self::voices($pieces, $pieceId, $tabUrl, true)
-            . self::grid($plan, $people, true, $pieces, $pieceId)
-            . '<div class="orchestra-actions">'
-            . self::operation(\__('+ Row', 'orchestra-seating'), SeatingInput::ADD_ROW)
-            . self::operation(\__('− Row', 'orchestra-seating'), SeatingInput::REMOVE_ROW)
-            . self::operation(\__('+ Column', 'orchestra-seating'), SeatingInput::ADD_COLUMN)
-            . self::operation(\__('− Column', 'orchestra-seating'), SeatingInput::REMOVE_COLUMN)
-            . '</div></div>';
-
-        $html .= '<div class="orchestra-seating__fallback">'
-            . Html::table(
-                [\__('Person', 'orchestra-seating'), \__('Seat', 'orchestra-seating')],
-                \array_map(static fn (Person $person): array => [
-                    \esc_html($person->name) . ($person->voice($pieceId) === ''
-                        ? ''
-                        : ' <span class="orchestra-muted">(' . \esc_html($person->voice($pieceId)) . ')</span>'),
-                    self::seatSelect($plan, $person),
-                ], \array_values($people)),
-                \__('Nobody has accepted yet. Everyone who registers can be seated here.', 'orchestra-seating')
-            ) . '</div>';
-
-        return $html . '<div class="orchestra-actions">'
-            . self::operation(\__('Save seating', 'orchestra-seating'), SeatingInput::SAVE, 'primary')
-            . '<button type="submit" class="orchestra-button" name="' . SeatingInput::FIELD_OPERATION . '" value="'
-            . SeatingInput::CLEAR . '" data-orchestra-confirm="'
-            . \esc_attr__('Remove everyone from their seats?', 'orchestra-seating') . '">'
-            . \esc_html__('Clear seating', 'orchestra-seating') . '</button></div></form>';
     }
 
     /**
-     * Takes over the seating of another project.
-     *
-     * @param array<int, string> $sources project ID => name
+     * Takes over the master seating, and links to it.
      */
-    private static function import(array $sources): string
+    private function master(): string
     {
-        if ($sources === []) {
-            return '';
+        $url = Pages::url(MasterShortcode::TAG);
+        $link = $url === null ? '' : Form::link($url, \__('Edit master seating', 'orchestra-seating'), 'small');
+        if ($this->seating->savedMaster() === null) {
+            return '<div class="orchestra-actions"><span class="orchestra-muted">'
+                . \esc_html__('There is no master seating yet.', 'orchestra-seating') . '</span>' . $link . '</div>';
         }
 
-        $options = '';
-        foreach ($sources as $id => $title) {
-            $options .= '<option value="' . $id . '">' . \esc_html($title) . '</option>';
-        }
-
-        return '<div class="orchestra-seating__import">' . Html::field(
-            'orchestra-seating-import',
-            \__('Seating of another project', 'orchestra-seating'),
-            '<select id="orchestra-seating-import" name="' . SeatingInput::FIELD_IMPORT . '">' . $options . '</select>'
-        ) . '<button type="submit" class="orchestra-button small" name="' . SeatingInput::FIELD_OPERATION
-            . '" value="' . SeatingInput::IMPORT . '" data-orchestra-confirm="' . \esc_attr__(
-                'Replace the current seating with the seating of the chosen project? People who take part in'
-                    . ' both keep their seat, everyone else is not seated.',
+        return '<div class="orchestra-actions"><button type="submit" class="orchestra-button small" name="'
+            . SeatingInput::FIELD_OPERATION . '" value="' . SeatingInput::APPLY_MASTER . '" data-orchestra-confirm="'
+            . \esc_attr__(
+                'Replace the current seating with the master seating? Everyone keeps their row, the rows are'
+                    . ' closed up to the left, and people who are not in the master seating are not seated.',
                 'orchestra-seating'
-            ) . '">' . \esc_html__('Import seating', 'orchestra-seating') . '</button></div>';
-    }
-
-    private static function operation(string $label, string $operation, string $style = 'small'): string
-    {
-        return Form::submit($label, $style, SeatingInput::FIELD_OPERATION, $operation);
-    }
-
-    /**
-     * The grid with the front row at the bottom, next to the conductor. The rows are labelled with
-     * letters on the left, the columns with numbers below. Every seated person has a thick line on
-     * each side, except towards a neighbour with the same voice in the shown piece, so that every
-     * section is outlined; seating.js redraws the lines when the piece or the seating changes.
-     *
-     * @param array<int, Person> $people
-     * @param array<int, string> $pieces
-     */
-    private static function grid(
-        SeatingPlan $plan,
-        array $people,
-        bool $editable,
-        array $pieces,
-        ?int $pieceId,
-    ): string {
-        $html = '<div class="orchestra-seating__scroll"><div class="orchestra-seating__stage">'
-            . '<div class="orchestra-seating__grid" style="--orchestra-seating-columns: ' . $plan->grid->columns
-            . '; --orchestra-seating-rows: ' . $plan->grid->rows . '">';
-        $tone = static function (int $row, int $column) use ($plan, $people, $pieceId): ?string {
-            $seat = $plan->at($row, $column);
-            $person = $seat === null ? null : ($people[$seat->userId] ?? null);
-
-            return $person === null ? null : (string) $person->tone($pieceId);
-        };
-        for ($row = $plan->grid->rows; $row >= 1; $row--) {
-            $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . Seat::rowName($row) . '</div>';
-            for ($column = 1; $column <= $plan->grid->columns; $column++) {
-                $seat = $plan->at($row, $column);
-                $person = $seat === null ? null : ($people[$seat->userId] ?? null);
-                $own = $tone($row, $column);
-                $lines = '';
-                if ($own !== null) {
-                    $neighbours = [
-                        'back' => [$row + 1, $column],
-                        'front' => [$row - 1, $column],
-                        'left' => [$row, $column - 1],
-                        'right' => [$row, $column + 1],
-                    ];
-                    foreach ($neighbours as $side => [$neighbourRow, $neighbourColumn]) {
-                        if ($tone($neighbourRow, $neighbourColumn) !== $own) {
-                            $lines .= ' is-line-' . $side;
-                        }
-                    }
-                }
-                $html .= '<div class="orchestra-seating__cell' . ($person === null ? ' is-empty' : '') . $lines . '"'
-                    . ' data-seating-seat="' . Seat::key($row, $column) . '"'
-                    . ($editable ? ' data-seating-cell="' . Seat::key($row, $column) . '"' : '')
-                    . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'
-                    . ($person === null ? '' : self::person($person, $editable, $pieces, $pieceId)) . '</div>';
-            }
-        }
-        $html .= '<div aria-hidden="true"></div>';
-        for ($column = 1; $column <= $plan->grid->columns; $column++) {
-            $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . $column . '</div>';
-        }
-
-        return $html . '</div><div class="orchestra-seating__front">'
-            . \esc_html__('Conductor', 'orchestra-seating') . '</div></div></div>';
-    }
-
-    /**
-     * A person with a voice per piece; only the voice of the shown piece is visible.
-     *
-     * @param array<int, string> $pieces
-     */
-    private static function person(Person $person, bool $editable, array $pieces, ?int $pieceId): string
-    {
-        $voices = '';
-        foreach (\array_keys($pieces) as $id) {
-            $voice = $person->voice($id);
-            $voices .= '<span class="orchestra-seating__voice" data-seating-voice="' . $id . '"'
-                . self::tone($person->tone($id)) . ($id === $pieceId ? '' : ' hidden') . '>'
-                . \esc_html($voice === '' ? '—' : $voice) . '</span>';
-        }
-
-        return '<div class="orchestra-seating__person"' . self::tone($person->tone($pieceId))
-            . ($editable ? ' data-seating-person="' . $person->userId . '" tabindex="0" role="button"' : '')
-            . ' title="' . \esc_attr($person->name) . '">'
-            . '<span class="orchestra-seating__name">' . \esc_html($person->name) . '</span>' . $voices . '</div>';
-    }
-
-    /**
-     * The voice of a person as attributes: the tone tells voices apart, the color is one of the
-     * eight colors of seating.css. Without a voice, there is no tone and no color.
-     */
-    private static function tone(?int $tone): string
-    {
-        return $tone === null ? ' data-seating-tone=""'
-            : ' data-seating-tone="' . $tone . '" data-seating-color="' . ($tone % self::COLORS) . '"';
-    }
-
-    private static function seatSelect(SeatingPlan $plan, Person $person): string
-    {
-        $current = $plan->seatOf($person->userId);
-        $options = '<option value="">' . \esc_html__('Not seated', 'orchestra-seating') . '</option>';
-        for ($row = 1; $row <= $plan->grid->rows; $row++) {
-            for ($column = 1; $column <= $plan->grid->columns; $column++) {
-                $key = Seat::key($row, $column);
-                $selected = $current !== null && $current->row === $row && $current->column === $column;
-                $options .= '<option value="' . $key . '"' . \selected($selected, true, false) . '>'
-                    . \esc_html(self::seatLabel($row, $column)) . '</option>';
-            }
-        }
-
-        return '<select name="' . SeatingInput::FIELD_SEATS . '[' . $person->userId . ']" data-seating-select="'
-            . $person->userId . '" aria-label="' . \esc_attr(\sprintf(
-                /* translators: %s: name */
-                \__('Seat of %s', 'orchestra-seating'),
-                $person->name
-            )) . '">' . $options . '</select>';
-    }
-
-    private static function seatLabel(int $row, int $column): string
-    {
-        /* translators: 1: row letter, A at the front, 2: seat number, counted from the left */
-        return \sprintf(\__('Row %1$s, seat %2$d', 'orchestra-seating'), Seat::rowName($row), $column);
+            ) . '">' . \esc_html__('Apply master seating', 'orchestra-seating') . '</button>' . $link . '</div>';
     }
 }

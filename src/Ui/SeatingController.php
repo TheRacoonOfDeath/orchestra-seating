@@ -57,12 +57,11 @@ final class SeatingController
         }
 
         $input = \wp_unslash($_POST);
-        $sources = $this->seating->importSources($project->id);
         [$plan, $errors] = SeatingInput::apply(
             $input,
             $this->seating->plan($project),
             fn (bool $seatOrganizers): array => $this->seating->peopleIds($project->id, $seatOrganizers),
-            fn (int $sourceId): ?SeatingPlan => isset($sources[$sourceId]) ? $this->seating->savedPlan($sourceId) : null
+            fn (): ?SeatingPlan => $this->seating->savedMaster()
         );
         if ($errors !== []) {
             Notices::errors($errors);
@@ -73,13 +72,8 @@ final class SeatingController
         $operation = $input[SeatingInput::FIELD_OPERATION] ?? SeatingInput::SAVE;
         if ($operation === SeatingInput::SAVE) {
             Notices::success(\__('The seating has been saved.', 'orchestra-seating'));
-        } elseif ($operation === SeatingInput::IMPORT) {
-            $sourceId = $input[SeatingInput::FIELD_IMPORT] ?? '';
-            Notices::success(\sprintf(
-                /* translators: %s: project name */
-                \__('The seating of %s has been imported.', 'orchestra-seating'),
-                \is_numeric($sourceId) ? $sources[(int) $sourceId] ?? '' : ''
-            ));
+        } elseif ($operation === SeatingInput::APPLY_MASTER) {
+            Notices::success(\__('The master seating has been applied.', 'orchestra-seating'));
         }
         Redirect::back();
     }

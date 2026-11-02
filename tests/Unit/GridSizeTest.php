@@ -19,12 +19,4 @@ final class GridSizeTest extends TestCase
             $this->assertGreaterThanOrEqual($people, $grid->cells());
         }
     }
-
-    public function testAddsRowsUntilEveryoneFits(): void
-    {
-        $grid = (new GridSize(2, 4))->fitting(11);
-
-        $this->assertSame([3, 4], [$grid->rows, $grid->columns]);
-        $this->assertSame([2, 4], [(new GridSize(2, 4))->fitting(3)->rows, 4], 'never smaller');
-    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Orchestra\Seating\Seating;
 
+use Orchestra\Core\Authorization\Roles;
 use Orchestra\Library\LibraryService;
 use Orchestra\Members\MembersService;
 use Orchestra\Projects\Participation\ParticipationStatus;
@@ -75,8 +76,19 @@ final class SeatingService
             }
         }
 
+        return $this->named($this->peopleIds($plan->projectId, $plan->seatOrganizers), $voices, $tones);
+    }
+
+    /**
+     * @param list<int> $userIds
+     * @param array<int, array<int, string>> $voices user ID => piece ID => voice
+     * @param array<int, array<int, int>> $tones user ID => piece ID => tone
+     * @return list<Person> ordered by name
+     */
+    private function named(array $userIds, array $voices, array $tones): array
+    {
         $people = [];
-        foreach ($this->peopleIds($plan->projectId, $plan->seatOrganizers) as $userId) {
+        foreach ($userIds as $userId) {
             $member = $this->members->member($userId);
             if ($member !== null) {
                 $people[] = new Person($userId, $member->displayName, $voices[$userId] ?? [], $tones[$userId] ?? []);
@@ -101,28 +113,40 @@ final class SeatingService
     }
 
     /**
-     * The saved seating of a project as it was arranged, without the participation changes since.
+     * The saved master seating, or a new one with a grid large enough for everyone. Seats of people
+     * who are no longer active members or organizers are left out.
      */
-    public function savedPlan(int $projectId): ?SeatingPlan
+    public function masterPlan(): SeatingPlan
     {
-        return $this->repository->find($projectId);
+        $people = $this->masterPeopleIds();
+        $plan = $this->repository->find(SeatingPlan::MASTER)
+            ?? SeatingPlan::initial(SeatingPlan::MASTER, \count($people));
+
+        return $plan->arrangedFor($people);
     }
 
     /**
-     * @return array<int, string> project ID => name of the other projects with a saved seating,
-     *         newest first
+     * The saved master seating as it was arranged, or null if it has never been saved.
      */
-    public function importSources(int $projectId): array
+    public function savedMaster(): ?SeatingPlan
     {
-        $withSeating = $this->repository->projectIds();
-        $sources = [];
-        foreach ($this->projects->projects() as $project) {
-            if ($project->id !== $projectId && \in_array($project->id, $withSeating, true)) {
-                $sources[$project->id] = $project->title;
-            }
-        }
+        return $this->repository->find(SeatingPlan::MASTER);
+    }
 
-        return $sources;
+    /**
+     * @return list<int> the people of the master seating: every active member and organizer
+     */
+    public function masterPeopleIds(): array
+    {
+        return $this->members->activeMemberIds([Roles::MEMBER, Roles::ORGANIZER]);
+    }
+
+    /**
+     * @return list<Person> the people of the master seating, without voices, ordered by name
+     */
+    public function masterPeople(): array
+    {
+        return $this->named($this->masterPeopleIds(), [], []);
     }
 
     public function save(SeatingPlan $plan): void
@@ -131,14 +155,17 @@ final class SeatingService
     }
 
     /**
-     * Seatings exist only for projects, so nothing is deleted for other posts. Projects in the
-     * trash are not found by orchestra-projects any more, hence no check of the post type.
+     * Seatings exist only for projects, so nothing is deleted for other posts; the master seating
+     * has the ID 0, which is never deleted with a post. Projects in the trash are not found by orchestra-projects any
+     * more, hence no check of the post type.
      *
      * @internal Hooked to `before_delete_post`.
      */
     public function deleteProject(int $postId): void
     {
-        $this->repository->deleteProject($postId);
+        if ($postId !== SeatingPlan::MASTER) {
+            $this->repository->deleteProject($postId);
+        }
     }
 
     /**
