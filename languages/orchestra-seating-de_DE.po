@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 20:22+0100\n"
+"POT-Creation-Date: 2026-11-02 20:42+0100\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -38,8 +38,12 @@ msgid "The master seating of all members, which projects start from."
 msgstr "Der Stammsitzplan aller Mitglieder, mit dem Projekte beginnen."
 
 #: src/Plugin.php:147
-msgid "Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, Orchestra Library and Orchestra Members to be active."
-msgstr "Orchestra Seating benötigt aktive Plugins Orchestra Core 0.9, Orchestra Projects 0.14, Orchestra Library und Orchestra Members."
+msgid ""
+"Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, "
+"Orchestra Library and Orchestra Members to be active."
+msgstr ""
+"Orchestra Seating benötigt aktive Plugins Orchestra Core 0.9, Orchestra "
+"Projects 0.14, Orchestra Library und Orchestra Members."
 
 #: src/Privacy/PersonalData.php:40 src/Privacy/PersonalData.php:55
 #: src/Privacy/PersonalData.php:76
@@ -62,7 +66,7 @@ msgstr "Reihe"
 msgid "Seat"
 msgstr "Platz"
 
-#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:195
+#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:215
 msgid "There is no master seating yet."
 msgstr "Es gibt noch keinen Stammsitzplan."
 
@@ -107,8 +111,14 @@ msgid "You are not allowed to arrange the seating."
 msgstr "Du darfst den Sitzplan nicht bearbeiten."
 
 #: src/Ui/MasterShortcode.php:55
-msgid "The usual seating of every active member and organizer. In a project, \"Apply master seating\" seats everyone who takes part in their row of the master seating, closed up to the left."
-msgstr "Der übliche Sitzplan aller aktiven Mitglieder und Organisatoren. In einem Projekt setzt „Stammsitzplan übernehmen“ alle Teilnehmenden in ihre Reihe aus dem Stammsitzplan, nach links aufgerückt."
+msgid ""
+"The usual seating of every active member and organizer. In a project, "
+"\"Apply master seating\" seats everyone who takes part in their row of the "
+"master seating, closed up to the left."
+msgstr ""
+"Der übliche Sitzplan aller aktiven Mitglieder und Organisatoren. In einem "
+"Projekt setzt „Stammsitzplan übernehmen“ alle Teilnehmenden in ihre Reihe "
+"aus dem Stammsitzplan, nach links aufgerückt."
 
 #: src/Ui/MasterShortcode.php:64
 msgid "There are no active members yet."
@@ -116,7 +126,8 @@ msgstr "Es gibt noch keine aktiven Mitglieder."
 
 #: src/Ui/SeatingController.php:56
 msgid "The seating of a completed project cannot be changed."
-msgstr "Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
+msgstr ""
+"Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
 
 #: src/Ui/SeatingController.php:85
 msgid "The voice has been changed."
@@ -134,15 +145,26 @@ msgstr "Der Stammsitzplan wurde übernommen."
 #: src/Ui/SeatingEditor.php:81
 #, php-format
 msgid "%1$d of %2$d people seated. Conductors are not seated."
-msgstr "%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
+msgstr ""
+"%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
 #: src/Ui/SeatingEditor.php:87 src/Ui/SeatingEditor.php:381
 msgid "Not seated"
 msgstr "Ohne Platz"
 
 #: src/Ui/SeatingEditor.php:92
-msgid "Drag people onto the seats or back here. Dropping on a taken seat swaps the two; dropping on the left or right edge of a seat puts the person between two people, and the others move aside. With the keyboard: Enter picks a person up, the arrow keys choose a seat, Enter places them, Delete unseats them."
-msgstr "Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz werden die beiden getauscht; am linken oder rechten Rand eines Platzes kommt die Person zwischen zwei Personen, und die anderen rücken zur Seite. Mit der Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, Enter setzt sie ab, Entf nimmt ihr den Platz."
+msgid ""
+"Drag people onto the seats or back here. Dropping on a taken seat swaps the "
+"two; dropping on the left or right edge of a seat puts the person between "
+"two people, and the others move aside. With the keyboard: Enter picks a "
+"person up, the arrow keys choose a seat, Enter places them, Delete unseats "
+"them."
+msgstr ""
+"Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz "
+"werden die beiden getauscht; am linken oder rechten Rand eines Platzes kommt "
+"die Person zwischen zwei Personen, und die anderen rücken zur Seite. Mit der "
+"Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, "
+"Enter setzt sie ab, Entf nimmt ihr den Platz."
 
 #: src/Ui/SeatingEditor.php:107
 msgid "Person"
@@ -220,44 +242,56 @@ msgstr "Platz von %s"
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"
 
-#: src/Ui/SeatingTab.php:108
+#: src/Ui/SeatingTab.php:96
+msgid "The seating has not been finished yet."
+msgstr "Sitzplan noch nicht abgeschlossen"
+
+#: src/Ui/SeatingTab.php:128
 msgid "Add pieces to the program to show the voices."
 msgstr "Füge dem Programm Stücke hinzu, um die Stimmen anzuzeigen."
 
 #. translators: 1: piece title, 2: its position in the program, 3: number of pieces
-#: src/Ui/SeatingTab.php:117
+#: src/Ui/SeatingTab.php:137
 #, php-format
 msgid "Voices in %1$s (%2$d of %3$d)"
 msgstr "Stimmen in %1$s (%2$d von %3$d)"
 
-#: src/Ui/SeatingTab.php:133
+#: src/Ui/SeatingTab.php:153
 msgid "Previous piece"
 msgstr "Vorheriges Stück"
 
-#: src/Ui/SeatingTab.php:136
+#: src/Ui/SeatingTab.php:156
 msgid "Next piece"
 msgstr "Nächstes Stück"
 
-#: src/Ui/SeatingTab.php:148
+#: src/Ui/SeatingTab.php:168
 msgid "Download PDF"
 msgstr "PDF herunterladen"
 
-#: src/Ui/SeatingTab.php:168
+#: src/Ui/SeatingTab.php:188
 msgid "Seat organizers"
 msgstr "Organisatoren setzen"
 
-#: src/Ui/SeatingTab.php:181
+#: src/Ui/SeatingTab.php:201
 msgid "Nobody has accepted yet. Everyone who registers can be seated here."
-msgstr "Noch niemand hat sich angemeldet. Alle, die sich anmelden, können hier gesetzt werden."
+msgstr ""
+"Noch niemand hat sich angemeldet. Alle, die sich anmelden, können hier "
+"gesetzt werden."
 
-#: src/Ui/SeatingTab.php:192
+#: src/Ui/SeatingTab.php:212
 msgid "Edit master seating"
 msgstr "Stammsitzplan bearbeiten"
 
-#: src/Ui/SeatingTab.php:201
-msgid "Replace the current seating with the master seating? Everyone keeps their row, the rows are closed up to the left, and people who are not in the master seating are not seated."
-msgstr "Den aktuellen Sitzplan durch den Stammsitzplan ersetzen? Alle behalten ihre Reihe, die Reihen rücken nach links auf, und wer nicht im Stammsitzplan ist, bekommt keinen Platz."
+#: src/Ui/SeatingTab.php:221
+msgid ""
+"Replace the current seating with the master seating? Everyone keeps their "
+"row, the rows are closed up to the left, and people who are not in the "
+"master seating are not seated."
+msgstr ""
+"Den aktuellen Sitzplan durch den Stammsitzplan ersetzen? Alle behalten ihre "
+"Reihe, die Reihen rücken nach links auf, und wer nicht im Stammsitzplan ist, "
+"bekommt keinen Platz."
 
-#: src/Ui/SeatingTab.php:204
+#: src/Ui/SeatingTab.php:224
 msgid "Apply master seating"
 msgstr "Stammsitzplan übernehmen"

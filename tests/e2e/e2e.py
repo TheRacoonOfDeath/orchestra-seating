@@ -211,8 +211,19 @@ check("orchestra_seating_plan_read" in caps[0] and "orchestra_seating_plan_manag
       "members may only see the seating")
 check(all("orchestra_seating_plan_manage" in c for c in caps[1:]), "conductors and organizers arrange the seating")
 
+
+
+def phase(status):
+    wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", status)
+
+
+_, page = mia.get(TAB)
+check("The seating has not been finished yet." in text(page) and "data-seating" not in page,
+      "until the parts are assigned, members only learn that the seating is not finished")
+phase("parts_assigned")
 _, page = mia.get(OVERVIEW)
 check("orchestra_tab=seating" not in page, "members see no seating before it is arranged")
+phase("open")
 PDF = f"/wp-admin/admin-post.php?action=orchestra_seating_pdf&project={PROJECT}"
 _, page = conductor.get(TAB)
 check("data-seating-form" in page and "Not seated" in page, "conductors open the seating editor")
@@ -235,6 +246,7 @@ _, page = save(conductor, {"mia": "5-1"})
 check("outside the grid" in text(page), "seats outside the grid are rejected")
 
 # --- Viewing ------------------------------------------------------------------------------------
+phase("parts_assigned")
 _, page = mia.get(OVERVIEW)
 check("orchestra_tab=seating" in page, "members see the seating once it is arranged")
 _, page = mia.get(TAB)
@@ -275,6 +287,8 @@ check(status == 403 or "orchestra_seating_save" not in form_of(page), "members c
 status, _ = sam.post("/wp-admin/admin-post.php", {"action": "orchestra_seating_save", "project": str(PROJECT)})
 check(status in (403, 400) or seats()["mia"] == "1-2", "others cannot change the seating")
 
+phase("open")
+
 # --- Voices -------------------------------------------------------------------------------------
 PIRATES, HORN1, HORN2 = SEED["pirates"], SEED["pirates:Horn 1"], SEED["pirates:Horn 2"]
 
@@ -312,8 +326,15 @@ check(parts_in(PIRATES)["mia"] == HORN1, "voices that were not changed in the fo
 _, page = save(conductor, arranged, op="voices", extra={
     f"voice[{PIRATES}][{ids['sam']}]": str(HORN1), f"voice_was[{PIRATES}][{ids['sam']}]": ""})
 check("sam" not in parts_in(PIRATES), "only the people of the seating get a voice")
+phase("parts_assigned")
 _, page = mia.get(TAB)
-check('name="voice[' not in page, "members see the voices without selects")
+check('name="voice[' not in page and "Mia" in text(page), "members see the voices without selects")
+_, page = save(conductor, arranged, op="voices", extra={
+    f"voice[{PIRATES}][{ids['lena']}]": str(HORN2), f"voice_was[{PIRATES}][{ids['lena']}]": ""})
+check(parts_in(PIRATES).get("lena") == HORN2, "voices can still be changed once the parts are assigned")
+save(conductor, arranged, op="voices", extra={
+    f"voice[{PIRATES}][{ids['lena']}]": "", f"voice_was[{PIRATES}][{ids['lena']}]": str(HORN2)})
+phase("open")
 
 # --- Grid ---------------------------------------------------------------------------------------
 placement = {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"}
@@ -404,8 +425,10 @@ placement = seats()
 # --- Participation changes ----------------------------------------------------------------------
 wp_eval(f'global $wpdb; $wpdb->update("{{$wpdb->prefix}}orchestra_projects_participation", ["status" => "declined"],'
         f' ["project_id" => {PROJECT}, "user_id" => {ids["max"]}]);')
+phase("parts_assigned")
 _, page = mia.get(TAB)
-check("Max" not in text(page), "people who no longer take part leave the seating")
+phase("open")
+check("Mia" in text(page) and "Max" not in text(page), "people who no longer take part leave the seating")
 for login in ["nia", "ole", "pia"]:
     wp("user", "create", login, f"{login}@example.com", "--role=orchestra_member", "--user_pass=pass",
        f"--display_name={login.title()}")

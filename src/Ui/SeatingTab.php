@@ -56,15 +56,31 @@ final class SeatingTab
     }
 
     /**
-     * Whether the current user may see the seating of the project.
+     * Whether the current user may see the seating of the project. Until the parts are assigned,
+     * members see the tab with a note only (see {@see notFinished()}).
      */
     public function visible(Project $project): bool
     {
         return \current_user_can(Capabilities::PLAN_MANAGE) || (
             \current_user_can(Capabilities::PLAN_READ)
             && $project->status->visibleToMembers()
-            && $this->seating->plan($project)->seats !== []
+            && (self::notFinished($project) || $this->seating->plan($project)->seats !== [])
         );
+    }
+
+    /**
+     * Whether the seating is still being worked on, so that members do not see it yet: like the
+     * assignments, until the status "Parts assigned" of orchestra-projects 0.28. Conductors and
+     * organizers always see it.
+     */
+    private static function notFinished(Project $project): bool
+    {
+        // Plugins are updated one by one, so an older orchestra-projects may still be running.
+        if (!\in_array('assignmentsVisibleToMembers', \get_class_methods($project->status), true)) {
+            return false;
+        }
+
+        return !$project->status->assignmentsVisibleToMembers() && !\current_user_can(Capabilities::PLAN_MANAGE);
     }
 
     /**
@@ -74,6 +90,10 @@ final class SeatingTab
     {
         if ($tab !== self::TAB) {
             return $html;
+        }
+
+        if (self::notFinished($project)) {
+            return Html::empty(\__('The seating has not been finished yet.', 'orchestra-seating'));
         }
 
         SeatingEditor::enqueue($this->pluginFile);

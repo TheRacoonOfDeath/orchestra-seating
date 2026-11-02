@@ -20,7 +20,7 @@ projects, participation, program and assignments through `ProjectsService`, memb
 - **Changing voices:** in the editor, the voice of every person is a select of the parts of the
   shown piece, with "—" for none. Changing it saves right away and changes the assignment in
   orchestra-projects (`ProjectsService::setPart()`, orchestra-projects 0.27), with the rules of
-  the assignments tab: only while the project is open for participation or in preparation, and
+  the assignments tab: only while the project is neither a draft nor completed, and
   only for users who may manage assignments (`orchestra_projects_assignment_manage`). Otherwise,
   and with an older orchestra-projects, the voices are shown as text.
 - **Voice colors:** in the shown piece, every voice has a light color, chosen by the position of the
@@ -64,6 +64,11 @@ projects, participation, program and assignments through `ProjectsService`, memb
 | Capability | Member | Conductor | Organizer |
 |---|:-:|:-:|:-:|
 | `orchestra_seating_plan_read`: see the seating of projects visible to members, once it is arranged | ✓ | ✓ | ✓ |
+
+Members see the seating only once the parts are assigned (status "Parts assigned" or "Completed"
+of orchestra-projects 0.28, `ProjectStatus::assignmentsVisibleToMembers()`). Before, the Seating
+tab only says "The seating has not been finished yet." ("Sitzplan noch nicht abgeschlossen").
+With an older orchestra-projects, they see it once it is arranged, as before.
 | `orchestra_seating_plan_manage`: arrange the seating of every project and the master seating, download it as PDF | | ✓ | ✓ |
 
 The seating of completed projects cannot be changed.

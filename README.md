@@ -14,7 +14,9 @@ Part of the Orchestra plugin suite. Requires
   program, and arrows step through the pieces of the program
 - Each voice has its own light color, and a thick line outlines every section of people with the same voice
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
-  with a select per person without JavaScript; members see it once it is arranged
+  with a select per person without JavaScript; members see it once it is arranged and the parts are
+  assigned (status "Parts assigned" of orchestra-projects 0.28; before, "Sitzplan noch nicht
+  abgeschlossen")
 - Conductors and organizers change a person's voice right on their seat with a dropdown of the
   piece's parts; it changes the assignment in the project (with orchestra-projects 0.27 or later,
   while the project is open for participation or in preparation)

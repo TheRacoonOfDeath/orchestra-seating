@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 20:22+0100\n"
+"POT-Creation-Date: 2026-11-02 20:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,7 +68,7 @@ msgstr ""
 msgid "Seat"
 msgstr ""
 
-#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:195
+#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:215
 msgid "There is no master seating yet."
 msgstr ""
 
@@ -234,47 +234,51 @@ msgstr ""
 msgid "Row %1$s, seat %2$d"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:108
+#: src/Ui/SeatingTab.php:96
+msgid "The seating has not been finished yet."
+msgstr ""
+
+#: src/Ui/SeatingTab.php:128
 msgid "Add pieces to the program to show the voices."
 msgstr ""
 
 #. translators: 1: piece title, 2: its position in the program, 3: number of pieces
-#: src/Ui/SeatingTab.php:117
+#: src/Ui/SeatingTab.php:137
 #, php-format
 msgid "Voices in %1$s (%2$d of %3$d)"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:133
+#: src/Ui/SeatingTab.php:153
 msgid "Previous piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:136
+#: src/Ui/SeatingTab.php:156
 msgid "Next piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:148
+#: src/Ui/SeatingTab.php:168
 msgid "Download PDF"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:168
+#: src/Ui/SeatingTab.php:188
 msgid "Seat organizers"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:181
+#: src/Ui/SeatingTab.php:201
 msgid "Nobody has accepted yet. Everyone who registers can be seated here."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:192
+#: src/Ui/SeatingTab.php:212
 msgid "Edit master seating"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:201
+#: src/Ui/SeatingTab.php:221
 msgid ""
 "Replace the current seating with the master seating? Everyone keeps their "
 "row, the rows are closed up to the left, and people who are not in the "
 "master seating are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:204
+#: src/Ui/SeatingTab.php:224
 msgid "Apply master seating"
 msgstr ""
