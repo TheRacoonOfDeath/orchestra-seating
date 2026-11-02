@@ -96,9 +96,7 @@ final class SeatingEditor
             . self::grid($plan, $people, true, $pieces, $pieceId) . '</div>'
             . '<input type="hidden" name="' . SeatingInput::FIELD_INSERT_PERSON . '" value=""'
             . ' data-seating-insert-person><input type="hidden" name="' . SeatingInput::FIELD_INSERT_AT . '"'
-            . ' value="" data-seating-insert-at>'
-            . '<button type="submit" name="' . SeatingInput::FIELD_OPERATION . '" value="'
-            . SeatingInput::INSERT_BETWEEN . '" hidden data-seating-insert></button>';
+            . ' value="" data-seating-insert-at data-seating-insert="' . SeatingInput::INSERT_BETWEEN . '">';
 
         $html .= '<div class="orchestra-seating__fallback">'
             . Html::table(

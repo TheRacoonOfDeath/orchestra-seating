@@ -245,14 +245,15 @@
 
         // Lets the server add a column to the full row and put the person in.
         function insertOnServer(person, row, column) {
-            var button = form.querySelector('[data-seating-insert]');
+            var at = form.querySelector('[data-seating-insert-at]');
+            var operation = document.createElement('input');
+            operation.type = 'hidden';
+            operation.name = 'op';
+            operation.value = at.getAttribute('data-seating-insert');
+            form.appendChild(operation);
             form.querySelector('[data-seating-insert-person]').value = person.getAttribute('data-seating-person');
-            form.querySelector('[data-seating-insert-at]').value = row + '-' + column;
-            if (form.requestSubmit) {
-                form.requestSubmit(button);
-            } else {
-                button.click();
-            }
+            at.value = row + '-' + column;
+            form.submit();
         }
 
         // Saving right away -------------------------------------------------------------------
