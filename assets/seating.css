@@ -76,10 +76,15 @@
     width: 1.3rem;
 }
 
+.orchestra-seating__delete {
+    border-color: var(--orchestra-danger);
+    color: var(--orchestra-danger);
+}
+
 .orchestra-seating__delete:hover,
 .orchestra-seating__delete:focus-visible {
-    border-color: #ef4444;
-    color: #ef4444;
+    background: var(--orchestra-danger);
+    color: Canvas;
 }
 
 .orchestra-seating__add {
