@@ -22,7 +22,11 @@ projects, participation, program and assignments through `ProjectsService`, memb
   orchestra-projects (`ProjectsService::setPart()`, orchestra-projects 0.27), with the rules of
   the assignments tab: only while the project is neither a draft nor completed, and
   only for users who may manage assignments (`orchestra_projects_assignment_manage`). Otherwise,
-  and with an older orchestra-projects, the voices are shown as text.
+  and with an older orchestra-projects, the voices are shown as text. In the select, the part the
+  person played last time in another project is green, a part they played before that yellow
+  (`ProjectsService::playedParts()`, orchestra-projects 0.30; only for users with
+  `orchestra_projects_assignment_history_read`). Browsers that show their own picker may ignore
+  the colors.
 - **Voice colors:** in the shown piece, every voice has a light color, chosen by the position of the
   part in the piece (eight colors, repeated after the eighth part); people with the same voice have
   the same color, people without a voice are grey. Every seated person has a thick line on all four

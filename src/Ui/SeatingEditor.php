@@ -50,6 +50,8 @@ final class SeatingEditor
      * @param array<int, string> $pieces piece ID => title
      * @param array<int, list<VoiceChoice>> $voiceChoices piece ID => parts; empty if the voices
      *        cannot be changed here
+     * @param array<int, array<int, array<int, bool>>> $played piece ID => user ID => part ID => whether
+     *        the person played it last time (true) or before (false), to color the voice choices
      */
     public static function form(
         string $action,
@@ -63,6 +65,7 @@ final class SeatingEditor
         ?int $pieceId,
         string $nobody,
         array $voiceChoices = [],
+        array $played = [],
     ): string {
         $unseated = \array_values(\array_filter(
             $people,
@@ -86,7 +89,7 @@ final class SeatingEditor
         $html .= '<section class="orchestra-seating__tray orchestra-stack" data-seating-tray><h3>'
             . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list">';
         foreach ($unseated as $person) {
-            $html .= self::person($person, true, $pieces, $pieceId, $voiceChoices);
+            $html .= self::person($person, true, $pieces, $pieceId, $voiceChoices, $played);
         }
         $html .= '</div><p class="orchestra-muted orchestra-seating__hint">' . \esc_html__(
             'Drag people onto the seats or back here. Dropping on a taken seat swaps the two; dropping on the'
@@ -97,7 +100,7 @@ final class SeatingEditor
         ) . '</p></section>';
 
         $html .= '<div class="orchestra-card orchestra-stack">' . $voices
-            . self::grid($plan, $people, true, $pieces, $pieceId, $voiceChoices) . '</div>'
+            . self::grid($plan, $people, true, $pieces, $pieceId, $voiceChoices, $played) . '</div>'
             . '<input type="hidden" name="' . SeatingInput::FIELD_INSERT_PERSON . '" value=""'
             . ' data-seating-insert-person><input type="hidden" name="' . SeatingInput::FIELD_INSERT_AT . '"'
             . ' value="" data-seating-insert-at data-seating-insert="' . SeatingInput::INSERT_BETWEEN . '">';
@@ -142,6 +145,7 @@ final class SeatingEditor
      * @param array<int, Person> $people
      * @param array<int, string> $pieces
      * @param array<int, list<VoiceChoice>> $voiceChoices piece ID => parts, when the voices can be changed
+     * @param array<int, array<int, array<int, bool>>> $played see {@see form()}
      */
     public static function grid(
         SeatingPlan $plan,
@@ -150,6 +154,7 @@ final class SeatingEditor
         array $pieces,
         ?int $pieceId,
         array $voiceChoices = [],
+        array $played = [],
     ): string {
         $rows = $plan->grid->rows;
         $columns = $plan->grid->columns;
@@ -244,7 +249,9 @@ final class SeatingEditor
                     . ' data-seating-seat="' . Seat::key($row, $column) . '"'
                     . ($editable ? ' data-seating-cell="' . Seat::key($row, $column) . '"' : '')
                     . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'
-                    . ($person === null ? '' : self::person($person, $editable, $pieces, $pieceId, $voiceChoices))
+                    . ($person === null
+                        ? ''
+                        : self::person($person, $editable, $pieces, $pieceId, $voiceChoices, $played))
                     . '</div>';
             }
         }
@@ -309,6 +316,7 @@ final class SeatingEditor
      *
      * @param array<int, string> $pieces
      * @param array<int, list<VoiceChoice>> $voiceChoices
+     * @param array<int, array<int, array<int, bool>>> $played
      */
     private static function person(
         Person $person,
@@ -316,6 +324,7 @@ final class SeatingEditor
         array $pieces,
         ?int $pieceId,
         array $voiceChoices = [],
+        array $played = [],
     ): string {
         $voices = '';
         foreach ($pieces as $id => $title) {
@@ -323,7 +332,14 @@ final class SeatingEditor
             $attributes = ' data-seating-voice="' . $id . '"' . self::tone($person->tone($id))
                 . ($id === $pieceId ? '' : ' hidden');
             $voices .= $editable && isset($voiceChoices[$id])
-                ? self::voiceSelect($person, $id, $title, $voiceChoices[$id], $attributes)
+                ? self::voiceSelect(
+                    $person,
+                    $id,
+                    $title,
+                    $voiceChoices[$id],
+                    $attributes,
+                    $played[$id][$person->userId] ?? []
+                )
                 : '<span class="orchestra-seating__voice"' . $attributes . '>'
                     . \esc_html($voice === '' ? '—' : $voice) . '</span>';
         }
@@ -336,9 +352,11 @@ final class SeatingEditor
 
     /**
      * The voice of a person in a piece as a select of its parts. The hidden field keeps the part
-     * shown when the page was loaded, so that only changed voices are saved.
+     * shown when the page was loaded, so that only changed voices are saved. The part the person
+     * played last time is green, parts they played before are yellow.
      *
      * @param list<VoiceChoice> $choices
+     * @param array<int, bool> $played part ID => whether the person played it last time
      */
     private static function voiceSelect(
         Person $person,
@@ -346,11 +364,15 @@ final class SeatingEditor
         string $title,
         array $choices,
         string $attributes,
+        array $played = [],
     ): string {
         $current = $person->part($pieceId);
         $options = '<option value="">—</option>';
         foreach ($choices as $choice) {
-            $options .= '<option value="' . $choice->partId . '"' . \selected($current, $choice->partId, false) . '>'
+            $class = !isset($played[$choice->partId]) ? ''
+                : ' class="orchestra-seating__played--' . ($played[$choice->partId] ? 'last' : 'earlier') . '"';
+            $options .= '<option value="' . $choice->partId . '"' . $class
+                . \selected($current, $choice->partId, false) . '>'
                 . \esc_html($choice->name) . '</option>';
         }
         $key = '[' . $pieceId . '][' . $person->userId . ']';

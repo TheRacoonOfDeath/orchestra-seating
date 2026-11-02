@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f66609c3e7349275803e6a0aa89e3d2",
+    "content-hash": "a596614b23f5642edd3e5abae1a3a3e0",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -604,16 +604,16 @@
         },
         {
             "name": "orchestra/projects",
-            "version": "v0.28.0",
+            "version": "v0.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TheRacoonOfDeath/orchestra-projects.git",
-                "reference": "0d0618273c7eac5df585ea1fae53480274675d02"
+                "reference": "9686262a5688c8522607555d5e2a4f791233c1cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TheRacoonOfDeath/orchestra-projects/zipball/0d0618273c7eac5df585ea1fae53480274675d02",
-                "reference": "0d0618273c7eac5df585ea1fae53480274675d02",
+                "url": "https://api.github.com/repos/TheRacoonOfDeath/orchestra-projects/zipball/9686262a5688c8522607555d5e2a4f791233c1cc",
+                "reference": "9686262a5688c8522607555d5e2a4f791233c1cc",
                 "shasum": ""
             },
             "require": {
@@ -669,10 +669,10 @@
             ],
             "description": "Projects, programs, participation and assignments for the Orchestra plugin suite.",
             "support": {
-                "source": "https://github.com/TheRacoonOfDeath/orchestra-projects/tree/v0.28.0",
+                "source": "https://github.com/TheRacoonOfDeath/orchestra-projects/tree/v0.30.0",
                 "issues": "https://github.com/TheRacoonOfDeath/orchestra-projects/issues"
             },
-            "time": "2026-11-02T19:47:56+00:00"
+            "time": "2026-11-02T20:48:05+00:00"
         },
         {
             "name": "phar-io/manifest",

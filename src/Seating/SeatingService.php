@@ -19,6 +19,8 @@ final class SeatingService
 {
     /** The capability of orchestra-projects for changing assignments, which the voices are. */
     private const ASSIGNMENT_MANAGE = 'orchestra_projects_assignment_manage';
+    /** The capability of orchestra-projects for seeing what members played before. */
+    private const ASSIGNMENT_HISTORY_READ = 'orchestra_projects_assignment_history_read';
 
     public function __construct(
         private readonly SeatingRepository $repository,
@@ -113,6 +115,30 @@ final class SeatingService
         }
 
         return $choices;
+    }
+
+    /**
+     * The parts the people played in other projects, to color the voice choices: `true` for the part
+     * they played last time, `false` for parts they played before. Empty with an orchestra-projects
+     * older than 0.30 or for users who may not see the assignment history.
+     *
+     * @return array<int, array<int, array<int, bool>>> piece ID => user ID => part ID => latest
+     */
+    public function playedParts(int $projectId): array
+    {
+        if (
+            !\in_array('playedParts', \get_class_methods($this->projects), true)
+            || !\current_user_can(self::ASSIGNMENT_HISTORY_READ)
+        ) {
+            return [];
+        }
+
+        $played = [];
+        foreach ($this->projects->programPieceIds($projectId) as $pieceId) {
+            $played[$pieceId] = $this->projects->playedParts($projectId, $pieceId);
+        }
+
+        return $played;
     }
 
     /**

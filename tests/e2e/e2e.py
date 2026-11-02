@@ -308,6 +308,25 @@ mia_select = re.search(rf'<select[^>]*name="voice\[{PIRATES}\]\[{ids["mia"]}\]"[
 check(mia_select is not None and re.search(rf'value="{HORN1}"[^>]*selected', mia_select.group(0)) is not None
       and field(form, f"voice_was[{PIRATES}][{ids['mia']}]") == str(HORN1),
       "conductors choose the voices in the seating with a select per piece")
+# Mia played Horn 1 and later Horn 2 of the piece in two other projects.
+wp_eval('$r = new Orchestra\\Projects\\Assignment\\AssignmentRepository($GLOBALS["wpdb"],'
+        ' new Orchestra\\Projects\\Database\\Schema($GLOBALS["wpdb"]));'
+        f' $r->insert(999998, {PIRATES}, {HORN1}, {ids["mia"]}, 1); $r->insert(999999, {PIRATES}, {HORN2}, {ids["mia"]}, 1);')
+_, played_page = conductor.get(TAB)
+
+
+def option_class(page, user, part):
+    select = re.search(rf'<select[^>]*name="voice\[{PIRATES}\]\[{ids[user]}\]"[^>]*>.*?</select>', page, flags=re.S)
+    option = re.search(rf'<option value="{part}"([^>]*)>', select.group(0)) if select else None
+    match = re.search(r'orchestra-seating__played--(\w+)', option.group(1)) if option else None
+    return match.group(1) if match else ""
+
+
+check(option_class(played_page, "mia", HORN2) == "last" and option_class(played_page, "mia", HORN1) == "earlier"
+      and option_class(played_page, "lena", HORN1) == "",
+      "the voice select is green for the part played last time, yellow for one played before")
+wp_eval('global $wpdb; $wpdb->query("DELETE FROM {$wpdb->prefix}orchestra_projects_assignments'
+        ' WHERE project_id IN (999998, 999999)");')
 _, page = save(conductor, arranged, op="voices", page=page, extra={
     f"voice[{PIRATES}][{ids['lena']}]": str(HORN2), f"voice_was[{PIRATES}][{ids['lena']}]": "",
     f"voice[{PIRATES}][{ids['mia']}]": str(HORN2), f"voice_was[{PIRATES}][{ids['mia']}]": str(HORN1),

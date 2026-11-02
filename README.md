@@ -19,7 +19,8 @@ Part of the Orchestra plugin suite. Requires
   abgeschlossen")
 - Conductors and organizers change a person's voice right on their seat with a dropdown of the
   piece's parts; it changes the assignment in the project (with orchestra-projects 0.27 or later,
-  while the project is open for participation or in preparation)
+  while the project is neither a draft nor completed). The part a person played last
+  time is green, a part they played before yellow
 - A **Seating** area with the master seating of all active members and organizers, for conductors
   and organizers
 - "Apply master seating" seats a project's participants in their row of the master seating,

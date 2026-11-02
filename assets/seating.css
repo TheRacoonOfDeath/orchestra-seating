@@ -388,3 +388,12 @@
         font-size: 0.7rem;
     }
 }
+
+/* In the voice select: green for the part the person played last time, yellow for one played before. */
+.orchestra-seating__played--last {
+    background: color-mix(in srgb, var(--orchestra-success, #1f7a4d) 30%, Canvas);
+}
+
+.orchestra-seating__played--earlier {
+    background: color-mix(in srgb, var(--orchestra-warning, #a15c00) 30%, Canvas);
+}
