@@ -232,7 +232,8 @@ final class SeatingEditor
                 $person = $seat === null ? null : ($people[$seat->userId] ?? null);
                 $own = $tone($row, $column);
                 $lines = '';
-                if ($own !== null) {
+                // The lines outline the sections of the voices; without voices (the master seating), there are none.
+                if ($own !== null && $pieceId !== null) {
                     $neighbours = [
                         'back' => [$row + 1, $column],
                         'front' => [$row - 1, $column],

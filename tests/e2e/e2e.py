@@ -432,6 +432,7 @@ check(cells(page) == 8, "the master seating starts with a seat for everyone")
 master = {"mo": "1-1", "mia": "1-2", "organizer": "1-3", "max": "1-4", "lena": "2-4"}
 _, page = save_master(organizer, master)
 check("The master seating has been saved." in text(page) and seats(0) == master, "organizers arrange the master seating")
+check("is-line-" not in page, "the master seating has no voices and no lines around the people")
 _, page = save_master(conductor, master, op="insert_column-1")
 check(seats(0)["mo"] == "1-2" and cells(page) == 10, "the master seating has the same editor")
 save_master(conductor, master, op="delete_column-5")

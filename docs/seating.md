@@ -52,8 +52,8 @@ projects, participation, program and assignments through `ProjectsService`, memb
   rows. If the row is full, a column is added at the right and the people right of the spot move
   one seat to the right.
 - **Master seating:** one seating (project ID 0) of every active member and organizer, edited in
-  the Seating area with the same editor as a project, without voices, without the organizers
-  switch and without PDF. People who become inactive or lose the role leave it; new members wait
+  the Seating area with the same editor as a project, without voices (and so without the lines
+  around the sections), without the organizers switch and without PDF. People who become inactive or lose the role leave it; new members wait
   in "Not seated".
 - **Applying the master seating:** in a project, "Apply master seating" seats the people of the
   project (respecting "Seat organizers") in their row of the saved master seating. Every row is

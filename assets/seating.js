@@ -36,8 +36,10 @@
     var INSERT_EDGE = 0.25;
 
     // Draws a thick line on every side of a seated person, except towards a neighbour with the same
-    // voice, like the server does for the first page.
+    // voice, like the server does for the first page. Without voices (the master seating), there are
+    // no sections and no lines.
     function paint(container) {
+        var outline = container.querySelector('[data-seating-voices]') !== null;
         var tones = {};
         Array.prototype.forEach.call(container.querySelectorAll('[data-seating-seat]'), function (cell) {
             var person = cell.querySelector('.orchestra-seating__person');
@@ -56,7 +58,7 @@
             };
             Object.keys(neighbours).forEach(function (side) {
                 var tone = tones[neighbours[side]];
-                cell.classList.toggle('is-line-' + side, own != null && (tone == null || tone !== own));
+                cell.classList.toggle('is-line-' + side, outline && own != null && (tone == null || tone !== own));
             });
         });
     }
