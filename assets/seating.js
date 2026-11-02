@@ -253,7 +253,12 @@
             form.appendChild(operation);
             form.querySelector('[data-seating-insert-person]').value = person.getAttribute('data-seating-person');
             at.value = row + '-' + column;
-            form.submit();
+            // requestSubmit() fires the submit event, so the page keeps its scroll position.
+            if (form.requestSubmit) {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
         }
 
         // Saving right away -------------------------------------------------------------------
