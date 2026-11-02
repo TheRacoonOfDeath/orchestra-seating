@@ -16,7 +16,8 @@ use Orchestra\Seating\Seating\SeatingService;
 
 /**
  * Saves the seating form (admin-post.php?action=orchestra_seating_save). Every button of the form
- * posts here; the `op` field says which one.
+ * posts here; the `op` field says which one. Changed voices are saved as assignments of
+ * orchestra-projects, whatever the button.
  */
 final class SeatingController
 {
@@ -70,7 +71,20 @@ final class SeatingController
 
         $this->seating->save($plan);
         $operation = $input[SeatingInput::FIELD_OPERATION] ?? SeatingInput::SAVE;
-        if ($operation === SeatingInput::SAVE) {
+        $changes = [];
+        if ($this->seating->voicesEditable($project)) {
+            $changes = SeatingInput::voiceChanges(
+                $input,
+                $this->seating->peopleIds($project->id, $plan->seatOrganizers),
+                $this->projects->programPieceIds($project->id)
+            );
+            Notices::errors($this->seating->changeVoices($project, $changes, \get_current_user_id()));
+        }
+        if ($operation === SeatingInput::VOICES) {
+            if ($changes !== []) {
+                Notices::success(\__('The voice has been changed.', 'orchestra-seating'));
+            }
+        } elseif ($operation === SeatingInput::SAVE) {
             Notices::success(\__('The seating has been saved.', 'orchestra-seating'));
         } elseif ($operation === SeatingInput::APPLY_MASTER) {
             Notices::success(\__('The master seating has been applied.', 'orchestra-seating'));

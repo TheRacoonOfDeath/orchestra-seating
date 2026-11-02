@@ -11,6 +11,7 @@ use Orchestra\Seating\Seating\Person;
 use Orchestra\Seating\Seating\Seat;
 use Orchestra\Seating\Seating\SeatingInput;
 use Orchestra\Seating\Seating\SeatingPlan;
+use Orchestra\Seating\Seating\VoiceChoice;
 
 /**
  * The seating grid and its editor, shared by the Seating tab of a project and the master seating.
@@ -47,6 +48,8 @@ final class SeatingEditor
      * @param array<string, int|string> $fields Hidden fields, including `redirect_to`
      * @param array<int, Person> $people user ID => person
      * @param array<int, string> $pieces piece ID => title
+     * @param array<int, list<VoiceChoice>> $voiceChoices piece ID => parts; empty if the voices
+     *        cannot be changed here
      */
     public static function form(
         string $action,
@@ -59,6 +62,7 @@ final class SeatingEditor
         array $pieces,
         ?int $pieceId,
         string $nobody,
+        array $voiceChoices = [],
     ): string {
         $unseated = \array_values(\array_filter(
             $people,
@@ -82,7 +86,7 @@ final class SeatingEditor
         $html .= '<section class="orchestra-seating__tray orchestra-stack" data-seating-tray><h3>'
             . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list">';
         foreach ($unseated as $person) {
-            $html .= self::person($person, true, $pieces, $pieceId);
+            $html .= self::person($person, true, $pieces, $pieceId, $voiceChoices);
         }
         $html .= '</div><p class="orchestra-muted orchestra-seating__hint">' . \esc_html__(
             'Drag people onto the seats or back here. Dropping on a taken seat swaps the two; dropping on the'
@@ -93,7 +97,7 @@ final class SeatingEditor
         ) . '</p></section>';
 
         $html .= '<div class="orchestra-card orchestra-stack">' . $voices
-            . self::grid($plan, $people, true, $pieces, $pieceId) . '</div>'
+            . self::grid($plan, $people, true, $pieces, $pieceId, $voiceChoices) . '</div>'
             . '<input type="hidden" name="' . SeatingInput::FIELD_INSERT_PERSON . '" value=""'
             . ' data-seating-insert-person><input type="hidden" name="' . SeatingInput::FIELD_INSERT_AT . '"'
             . ' value="" data-seating-insert-at data-seating-insert="' . SeatingInput::INSERT_BETWEEN . '">';
@@ -111,6 +115,9 @@ final class SeatingEditor
             ) . '</div>';
 
         return $html . '<div class="orchestra-actions">'
+            // seating.js submits the form with this button when a voice is changed.
+            . ($voiceChoices === [] ? '' : '<button type="submit" name="' . SeatingInput::FIELD_OPERATION
+                . '" value="' . SeatingInput::VOICES . '" hidden data-seating-voices-submit></button>')
             . Form::submit(
                 \__('Save seating', 'orchestra-seating'),
                 'primary',
@@ -134,6 +141,7 @@ final class SeatingEditor
      *
      * @param array<int, Person> $people
      * @param array<int, string> $pieces
+     * @param array<int, list<VoiceChoice>> $voiceChoices piece ID => parts, when the voices can be changed
      */
     public static function grid(
         SeatingPlan $plan,
@@ -141,6 +149,7 @@ final class SeatingEditor
         bool $editable,
         array $pieces,
         ?int $pieceId,
+        array $voiceChoices = [],
     ): string {
         $rows = $plan->grid->rows;
         $columns = $plan->grid->columns;
@@ -235,7 +244,8 @@ final class SeatingEditor
                     . ' data-seating-seat="' . Seat::key($row, $column) . '"'
                     . ($editable ? ' data-seating-cell="' . Seat::key($row, $column) . '"' : '')
                     . ' title="' . \esc_attr(self::seatLabel($row, $column)) . '">'
-                    . ($person === null ? '' : self::person($person, $editable, $pieces, $pieceId)) . '</div>';
+                    . ($person === null ? '' : self::person($person, $editable, $pieces, $pieceId, $voiceChoices))
+                    . '</div>';
             }
         }
         $html .= \str_repeat('<div aria-hidden="true"></div>', $editable ? 2 : 1);
@@ -294,24 +304,65 @@ final class SeatingEditor
     }
 
     /**
-     * A person with a voice per piece; only the voice of the shown piece is visible.
+     * A person with a voice per piece; only the voice of the shown piece is visible. In the editor,
+     * with voice choices, the voice is a select of the parts of the piece.
      *
      * @param array<int, string> $pieces
+     * @param array<int, list<VoiceChoice>> $voiceChoices
      */
-    private static function person(Person $person, bool $editable, array $pieces, ?int $pieceId): string
-    {
+    private static function person(
+        Person $person,
+        bool $editable,
+        array $pieces,
+        ?int $pieceId,
+        array $voiceChoices = [],
+    ): string {
         $voices = '';
-        foreach (\array_keys($pieces) as $id) {
+        foreach ($pieces as $id => $title) {
             $voice = $person->voice($id);
-            $voices .= '<span class="orchestra-seating__voice" data-seating-voice="' . $id . '"'
-                . self::tone($person->tone($id)) . ($id === $pieceId ? '' : ' hidden') . '>'
-                . \esc_html($voice === '' ? '—' : $voice) . '</span>';
+            $attributes = ' data-seating-voice="' . $id . '"' . self::tone($person->tone($id))
+                . ($id === $pieceId ? '' : ' hidden');
+            $voices .= $editable && isset($voiceChoices[$id])
+                ? self::voiceSelect($person, $id, $title, $voiceChoices[$id], $attributes)
+                : '<span class="orchestra-seating__voice"' . $attributes . '>'
+                    . \esc_html($voice === '' ? '—' : $voice) . '</span>';
         }
 
         return '<div class="orchestra-seating__person"' . self::tone($person->tone($pieceId))
             . ($editable ? ' data-seating-person="' . $person->userId . '" tabindex="0" role="button"' : '')
             . ' title="' . \esc_attr($person->name) . '">'
             . '<span class="orchestra-seating__name">' . \esc_html($person->name) . '</span>' . $voices . '</div>';
+    }
+
+    /**
+     * The voice of a person in a piece as a select of its parts. The hidden field keeps the part
+     * shown when the page was loaded, so that only changed voices are saved.
+     *
+     * @param list<VoiceChoice> $choices
+     */
+    private static function voiceSelect(
+        Person $person,
+        int $pieceId,
+        string $title,
+        array $choices,
+        string $attributes,
+    ): string {
+        $current = $person->part($pieceId);
+        $options = '<option value="">—</option>';
+        foreach ($choices as $choice) {
+            $options .= '<option value="' . $choice->partId . '"' . \selected($current, $choice->partId, false) . '>'
+                . \esc_html($choice->name) . '</option>';
+        }
+        $key = '[' . $pieceId . '][' . $person->userId . ']';
+
+        return '<input type="hidden" name="' . SeatingInput::FIELD_VOICES_WAS . $key . '" value="'
+            . ($current ?? '') . '"><select class="orchestra-seating__voice orchestra-seating__voice-select" name="'
+            . SeatingInput::FIELD_VOICES . $key . '"' . $attributes . ' aria-label="' . \esc_attr(\sprintf(
+                /* translators: 1: name, 2: piece title */
+                \__('Voice of %1$s in %2$s', 'orchestra-seating'),
+                $person->name,
+                $title
+            )) . '">' . $options . '</select>';
     }
 
     /**

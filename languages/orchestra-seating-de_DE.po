@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 11:13+0100\n"
+"POT-Creation-Date: 2026-11-02 20:22+0100\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Export/SeatingPdf.php:65 src/Ui/SeatingEditor.php:249
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingEditor.php:257
 msgid "Conductor"
 msgstr "Dirigent"
 
@@ -24,7 +24,7 @@ msgid "Seating: %s"
 msgstr "Sitzplan: %s"
 
 #: src/Export/SeatingPdfController.php:65 src/Ui/MasterController.php:39
-#: src/Ui/SeatingController.php:52
+#: src/Ui/SeatingController.php:53
 msgid "You are not allowed to do this."
 msgstr "Das darfst du nicht."
 
@@ -58,39 +58,39 @@ msgstr "Stammsitzplan"
 msgid "Row"
 msgstr "Reihe"
 
-#: src/Privacy/PersonalData.php:86 src/Ui/SeatingEditor.php:105
+#: src/Privacy/PersonalData.php:86 src/Ui/SeatingEditor.php:107
 msgid "Seat"
 msgstr "Platz"
 
-#: src/Seating/SeatingInput.php:59 src/Ui/SeatingTab.php:194
+#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:195
 msgid "There is no master seating yet."
 msgstr "Es gibt noch keinen Stammsitzplan."
 
-#: src/Seating/SeatingInput.php:63
+#: src/Seating/SeatingInput.php:69
 msgid "Nobody in the master seating takes part."
 msgstr "Niemand aus dem Stammsitzplan nimmt teil."
 
-#: src/Seating/SeatingInput.php:81
+#: src/Seating/SeatingInput.php:87
 msgid "A seat is outside the grid."
 msgstr "Ein Platz liegt außerhalb des Rasters."
 
-#: src/Seating/SeatingInput.php:85
+#: src/Seating/SeatingInput.php:91
 msgid "Two people cannot sit on the same seat."
 msgstr "Zwei Personen können nicht auf demselben Platz sitzen."
 
-#: src/Seating/SeatingInput.php:122 src/Seating/SeatingInput.php:132
+#: src/Seating/SeatingInput.php:162 src/Seating/SeatingInput.php:172
 msgid "This row or column does not exist."
 msgstr "Diese Reihe oder Spalte gibt es nicht."
 
-#: src/Seating/SeatingInput.php:125 src/Seating/SeatingInput.php:164
+#: src/Seating/SeatingInput.php:165 src/Seating/SeatingInput.php:204
 msgid "The grid cannot get any larger."
 msgstr "Das Raster kann nicht größer werden."
 
-#: src/Seating/SeatingInput.php:135
+#: src/Seating/SeatingInput.php:175
 msgid "The last row or column cannot be deleted."
 msgstr "Die letzte Reihe oder Spalte kann nicht gelöscht werden."
 
-#: src/Seating/SeatingInput.php:159
+#: src/Seating/SeatingInput.php:199
 msgid "The person cannot be seated there."
 msgstr "Die Person kann dort nicht platziert werden."
 
@@ -114,98 +114,108 @@ msgstr "Der übliche Sitzplan aller aktiven Mitglieder und Organisatoren. In ein
 msgid "There are no active members yet."
 msgstr "Es gibt noch keine aktiven Mitglieder."
 
-#: src/Ui/SeatingController.php:55
+#: src/Ui/SeatingController.php:56
 msgid "The seating of a completed project cannot be changed."
 msgstr "Der Sitzplan eines abgeschlossenen Projekts kann nicht geändert werden."
 
-#: src/Ui/SeatingController.php:74
+#: src/Ui/SeatingController.php:85
+msgid "The voice has been changed."
+msgstr "Die Stimme wurde geändert."
+
+#: src/Ui/SeatingController.php:88
 msgid "The seating has been saved."
 msgstr "Der Sitzplan wurde gespeichert."
 
-#: src/Ui/SeatingController.php:76
+#: src/Ui/SeatingController.php:90
 msgid "The master seating has been applied."
 msgstr "Der Stammsitzplan wurde übernommen."
 
 #. translators: 1: number of seated people, 2: number of people to seat
-#: src/Ui/SeatingEditor.php:77
+#: src/Ui/SeatingEditor.php:81
 #, php-format
 msgid "%1$d of %2$d people seated. Conductors are not seated."
 msgstr "%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingEditor.php:83 src/Ui/SeatingEditor.php:332
+#: src/Ui/SeatingEditor.php:87 src/Ui/SeatingEditor.php:381
 msgid "Not seated"
 msgstr "Ohne Platz"
 
-#: src/Ui/SeatingEditor.php:88
+#: src/Ui/SeatingEditor.php:92
 msgid "Drag people onto the seats or back here. Dropping on a taken seat swaps the two; dropping on the left or right edge of a seat puts the person between two people, and the others move aside. With the keyboard: Enter picks a person up, the arrow keys choose a seat, Enter places them, Delete unseats them."
 msgstr "Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz werden die beiden getauscht; am linken oder rechten Rand eines Platzes kommt die Person zwischen zwei Personen, und die anderen rücken zur Seite. Mit der Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, Enter setzt sie ab, Entf nimmt ihr den Platz."
 
-#: src/Ui/SeatingEditor.php:105
+#: src/Ui/SeatingEditor.php:107
 msgid "Person"
 msgstr "Person"
 
-#: src/Ui/SeatingEditor.php:117
+#: src/Ui/SeatingEditor.php:122
 msgid "Save seating"
 msgstr "Sitzplan speichern"
 
-#: src/Ui/SeatingEditor.php:124
+#: src/Ui/SeatingEditor.php:129
 msgid "Remove everyone from their seats?"
 msgstr "Alle von ihren Plätzen nehmen?"
 
-#: src/Ui/SeatingEditor.php:125
+#: src/Ui/SeatingEditor.php:130
 msgid "Clear seating"
 msgstr "Sitzplan leeren"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:165
+#: src/Ui/SeatingEditor.php:172
 #, php-format
 msgid "Add a column left of seat %d"
 msgstr "Spalte links von Platz %d einfügen"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:170
+#: src/Ui/SeatingEditor.php:177
 #, php-format
 msgid "Delete column %d"
 msgstr "Spalte %d löschen"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:180
+#: src/Ui/SeatingEditor.php:187
 #, php-format
 msgid "Add a column right of seat %d"
 msgstr "Spalte rechts von Platz %d einfügen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:200
+#: src/Ui/SeatingEditor.php:207
 #, php-format
 msgid "Add a row behind row %s"
 msgstr "Reihe hinter Reihe %s einfügen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:207
+#: src/Ui/SeatingEditor.php:214
 #, php-format
 msgid "Delete row %s"
 msgstr "Reihe %s löschen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:212
+#: src/Ui/SeatingEditor.php:219
 #, php-format
 msgid "Add a row in front of row %s"
 msgstr "Reihe vor Reihe %s einfügen"
 
 #. translators: %s: e.g. "Delete row C"
-#: src/Ui/SeatingEditor.php:287
+#: src/Ui/SeatingEditor.php:295
 #, php-format
 msgid "%s? The people on it will not be seated."
 msgstr "%s? Die Personen darauf haben dann keinen Platz mehr."
 
+#. translators: 1: name, 2: piece title
+#: src/Ui/SeatingEditor.php:362
+#, php-format
+msgid "Voice of %1$s in %2$s"
+msgstr "Stimme von %1$s in %2$s"
+
 #. translators: %s: name
-#: src/Ui/SeatingEditor.php:345
+#: src/Ui/SeatingEditor.php:394
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingEditor.php:353
+#: src/Ui/SeatingEditor.php:402
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"
@@ -240,14 +250,14 @@ msgstr "Organisatoren setzen"
 msgid "Nobody has accepted yet. Everyone who registers can be seated here."
 msgstr "Noch niemand hat sich angemeldet. Alle, die sich anmelden, können hier gesetzt werden."
 
-#: src/Ui/SeatingTab.php:191
+#: src/Ui/SeatingTab.php:192
 msgid "Edit master seating"
 msgstr "Stammsitzplan bearbeiten"
 
-#: src/Ui/SeatingTab.php:200
+#: src/Ui/SeatingTab.php:201
 msgid "Replace the current seating with the master seating? Everyone keeps their row, the rows are closed up to the left, and people who are not in the master seating are not seated."
 msgstr "Den aktuellen Sitzplan durch den Stammsitzplan ersetzen? Alle behalten ihre Reihe, die Reihen rücken nach links auf, und wer nicht im Stammsitzplan ist, bekommt keinen Platz."
 
-#: src/Ui/SeatingTab.php:203
+#: src/Ui/SeatingTab.php:204
 msgid "Apply master seating"
 msgstr "Stammsitzplan übernehmen"

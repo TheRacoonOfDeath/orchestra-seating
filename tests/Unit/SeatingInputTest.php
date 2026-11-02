@@ -138,6 +138,37 @@ final class SeatingInputTest extends TestCase
         $this->assertSame([], $this->apply(['op' => 'clear', 'seat' => [1 => '1-1']])[0]->seats);
     }
 
+    public function testVoiceChangesOnlyContainChangedSelects(): void
+    {
+        $input = [
+            'voice' => [10 => [1 => '7', 2 => '', 3 => '8'], 11 => [1 => '9']],
+            'voice_was' => [10 => [1 => '6', 2 => '5', 3 => '8'], 11 => [1 => '']],
+        ];
+
+        $this->assertSame(
+            [
+                ['pieceId' => 10, 'userId' => 1, 'partId' => 7],
+                ['pieceId' => 10, 'userId' => 2, 'partId' => null],
+                ['pieceId' => 11, 'userId' => 1, 'partId' => 9],
+            ],
+            SeatingInput::voiceChanges($input, [1, 2, 3], [10, 11])
+        );
+    }
+
+    public function testVoiceChangesIgnoreUnknownPeopleAndPiecesAndInvalidValues(): void
+    {
+        $input = [
+            'voice' => [10 => [1 => '7', 4 => '7', 2 => 'x'], 12 => [1 => '7']],
+            'voice_was' => [10 => [1 => '6', 4 => '6', 2 => '6'], 12 => [1 => '6']],
+        ];
+
+        $this->assertSame(
+            [['pieceId' => 10, 'userId' => 1, 'partId' => 7]],
+            SeatingInput::voiceChanges($input, [1, 2], [10])
+        );
+        $this->assertSame([], SeatingInput::voiceChanges(['voice' => [10 => [1 => '7']]], [1], [10]));
+    }
+
     /**
      * @param array<string, mixed> $input
      * @param (\Closure(): ?SeatingPlan)|null $master

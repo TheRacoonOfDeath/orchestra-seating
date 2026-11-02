@@ -138,6 +138,18 @@
     display: none;
 }
 
+/* The voice as a select in the editor: as small as the text it replaces. */
+.orchestra .orchestra-seating__voice-select {
+    background: color-mix(in srgb, Canvas 70%, transparent);
+    border-color: color-mix(in srgb, currentColor 22%, transparent);
+    cursor: pointer;
+    font-size: 0.75rem;
+    max-width: 100%;
+    min-height: 0;
+    padding: 0.1rem 0.2rem;
+    width: auto;
+}
+
 /* Row letters on the left, column numbers below the seats. */
 .orchestra-seating__label {
     align-items: center;

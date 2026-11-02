@@ -15,6 +15,9 @@ Part of the Orchestra plugin suite. Requires
 - Each voice has its own light color, and a thick line outlines every section of people with the same voice
 - Conductors and organizers arrange the seating by drag and drop (mouse, touch or keyboard), or
   with a select per person without JavaScript; members see it once it is arranged
+- Conductors and organizers change a person's voice right on their seat with a dropdown of the
+  piece's parts; it changes the assignment in the project (with orchestra-projects 0.27 or later,
+  while the project is open for participation or in preparation)
 - A **Seating** area with the master seating of all active members and organizers, for conductors
   and organizers
 - "Apply master seating" seats a project's participants in their row of the master seating,

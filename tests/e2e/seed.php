@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 use Orchestra\Library\Database\Schema as LibrarySchema;
 use Orchestra\Library\Part\PartRepository;
+use Orchestra\Library\Part\Voice;
 use Orchestra\Projects\Assignment\AssignmentRepository;
 use Orchestra\Projects\Database\Schema as ProjectsSchema;
 use Orchestra\Projects\Participation\ParticipationRepository;
@@ -32,7 +33,7 @@ foreach ($pieces as $key => [$title, $names]) {
         ['post_type' => 'orchestra_piece', 'post_status' => 'publish', 'post_title' => $title]
     );
     foreach ($names as $position => $name) {
-        $ids[$key . ':' . $name] = $parts->insert($ids[$key], $name, '', $position)->id;
+        $ids[$key . ':' . $name] = $parts->insert($ids[$key], new Voice(0, false, 0, $name), $name, '', $position)->id;
     }
 }
 

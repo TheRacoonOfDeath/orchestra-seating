@@ -178,7 +178,8 @@ final class SeatingTab
             $people,
             $pieces,
             $pieceId,
-            \__('Nobody has accepted yet. Everyone who registers can be seated here.', 'orchestra-seating')
+            \__('Nobody has accepted yet. Everyone who registers can be seated here.', 'orchestra-seating'),
+            $this->seating->voicesEditable($project) ? $this->seating->voiceChoices($project->id) : []
         );
     }
 

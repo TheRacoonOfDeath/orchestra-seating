@@ -22,6 +22,10 @@
  *   (up is further back), Enter or Space places them, Delete or Backspace unseats them, Escape
  *   cancels.
  * - Changing "Seat organizers" saves right away, because it changes the people shown.
+ * - In projects whose assignments can be changed, the voice of every person is a select of the
+ *   parts of the piece (`voice[pieceId][userId]`); changing it saves right away (`op=voices`),
+ *   because the colors and sections follow from the assignments. Pressing a select never starts
+ *   dragging the person.
  */
 (function () {
     'use strict';
@@ -274,6 +278,22 @@
             });
         });
 
+        var voicesSubmit = form.querySelector('[data-seating-voices-submit]');
+        Array.prototype.forEach.call(form.querySelectorAll('.orchestra-seating__voice-select'), function (select) {
+            select.addEventListener('change', function () {
+                if (form.requestSubmit && voicesSubmit) {
+                    form.requestSubmit(voicesSubmit);
+                } else if (voicesSubmit) {
+                    voicesSubmit.click();
+                }
+            });
+        });
+
+        // Form fields inside a person (the voice select) keep their own mouse and keyboard handling.
+        function inField(event) {
+            return event.target instanceof Element && event.target.closest('select, input, button') !== null;
+        }
+
         // Dragging ----------------------------------------------------------------------------
 
         var drag = null;
@@ -390,7 +410,7 @@
 
         form.addEventListener('pointerdown', function (event) {
             var person = event.target instanceof Element ? event.target.closest('[data-seating-person]') : null;
-            if (!person || event.button !== 0) {
+            if (!person || event.button !== 0 || inField(event)) {
                 return;
             }
             event.preventDefault();
@@ -457,7 +477,7 @@
             var key = event.key;
             if (!picked) {
                 var person = event.target instanceof Element ? event.target.closest('[data-seating-person]') : null;
-                if (!person) {
+                if (!person || inField(event)) {
                     return;
                 }
                 if (key === 'Enter' || key === ' ') {

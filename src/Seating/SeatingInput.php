@@ -20,11 +20,17 @@ final class SeatingInput
     public const FIELD_INSERT_PERSON = 'insert_person';
     /** "row-column": the person is seated in front of this seat, with `insert_between` */
     public const FIELD_INSERT_AT = 'insert_at';
+    /** `voice[pieceId][userId]` = part ID, or "" for none */
+    public const FIELD_VOICES = 'voice';
+    /** `voice_was[pieceId][userId]`: the part shown when the page was loaded */
+    public const FIELD_VOICES_WAS = 'voice_was';
 
     public const SAVE = 'save';
     public const CLEAR = 'clear';
     public const APPLY_MASTER = 'apply_master';
     public const INSERT_BETWEEN = 'insert_between';
+    /** Sent by seating.js when a voice is changed; saves the seating and the voices */
+    public const VOICES = 'voices';
     /** Followed by "-" and the row or column, e.g. "insert_row-3" adds a row in front of row 3 */
     public const INSERT_ROW = 'insert_row';
     public const INSERT_COLUMN = 'insert_column';
@@ -106,6 +112,40 @@ final class SeatingInput
         }
 
         return [$plan->arrangedFor($userIds), []];
+    }
+
+    /**
+     * The voices changed in the form: only those whose select differs from the part shown when the
+     * page was loaded, so that a form loaded earlier does not undo assignments made elsewhere.
+     *
+     * @param array<mixed> $input Unslashed form data
+     * @param list<int> $userIds The people who may be given a voice
+     * @param list<int> $pieceIds The pieces of the program
+     * @return list<array{pieceId: int, userId: int, partId: ?int}>
+     */
+    public static function voiceChanges(array $input, array $userIds, array $pieceIds): array
+    {
+        $voices = \is_array($input[self::FIELD_VOICES] ?? null) ? $input[self::FIELD_VOICES] : [];
+        $was = \is_array($input[self::FIELD_VOICES_WAS] ?? null) ? $input[self::FIELD_VOICES_WAS] : [];
+        $changes = [];
+        foreach ($pieceIds as $pieceId) {
+            $pieceVoices = \is_array($voices[$pieceId] ?? null) ? $voices[$pieceId] : [];
+            $pieceWas = \is_array($was[$pieceId] ?? null) ? $was[$pieceId] : [];
+            foreach ($userIds as $userId) {
+                $value = $pieceVoices[$userId] ?? null;
+                $previous = $pieceWas[$userId] ?? null;
+                if (!\is_string($value) || !\is_string($previous) || $value === $previous) {
+                    continue;
+                }
+                if ($value !== '' && !\ctype_digit($value)) {
+                    continue;
+                }
+                $partId = $value === '' ? null : (int) $value;
+                $changes[] = ['pieceId' => $pieceId, 'userId' => $userId, 'partId' => $partId];
+            }
+        }
+
+        return $changes;
     }
 
     /**

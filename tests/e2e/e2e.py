@@ -275,6 +275,46 @@ check(status == 403 or "orchestra_seating_save" not in form_of(page), "members c
 status, _ = sam.post("/wp-admin/admin-post.php", {"action": "orchestra_seating_save", "project": str(PROJECT)})
 check(status in (403, 400) or seats()["mia"] == "1-2", "others cannot change the seating")
 
+# --- Voices -------------------------------------------------------------------------------------
+PIRATES, HORN1, HORN2 = SEED["pirates"], SEED["pirates:Horn 1"], SEED["pirates:Horn 2"]
+
+
+def parts_in(piece):
+    """{login: part ID} of the project's assignments in the piece"""
+    rows = wp_json('echo json_encode(array_map(fn($a) => [$a->userId, $a->pieceId, $a->partId],'
+                   f' Orchestra\\Projects\\Plugin::instance()->projects()->assignments({PROJECT})));') or []
+    names = {v: k for k, v in ids.items()}
+    return {names.get(user, user): part for user, piece_id, part in rows if piece_id == piece}
+
+
+arranged = {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"}
+_, page = conductor.get(TAB)
+form = form_of(page)
+mia_select = re.search(rf'<select[^>]*name="voice\[{PIRATES}\]\[{ids["mia"]}\]"[^>]*>.*?</select>', form, flags=re.S)
+check(mia_select is not None and re.search(rf'value="{HORN1}"[^>]*selected', mia_select.group(0)) is not None
+      and field(form, f"voice_was[{PIRATES}][{ids['mia']}]") == str(HORN1),
+      "conductors choose the voices in the seating with a select per piece")
+_, page = save(conductor, arranged, op="voices", page=page, extra={
+    f"voice[{PIRATES}][{ids['lena']}]": str(HORN2), f"voice_was[{PIRATES}][{ids['lena']}]": "",
+    f"voice[{PIRATES}][{ids['mia']}]": str(HORN2), f"voice_was[{PIRATES}][{ids['mia']}]": str(HORN1),
+})
+check("The voice has been changed." in text(page) and parts_in(PIRATES) == {"mia": HORN2, "max": HORN2, "lena": HORN2},
+      f"changing a voice changes the assignment in orchestra-projects: {parts_in(PIRATES)}")
+check(seats() == arranged, "changing a voice keeps the seating")
+_, page = save(organizer, arranged, op="voices", extra={
+    f"voice[{PIRATES}][{ids['lena']}]": "", f"voice_was[{PIRATES}][{ids['lena']}]": str(HORN2),
+    f"voice[{PIRATES}][{ids['mia']}]": str(HORN1), f"voice_was[{PIRATES}][{ids['mia']}]": str(HORN2),
+})
+check(parts_in(PIRATES) == {"mia": HORN1, "max": HORN2}, "organizers change voices too, and remove them with —")
+save(conductor, arranged, extra={f"voice[{PIRATES}][{ids['mia']}]": str(HORN2),
+                                 f"voice_was[{PIRATES}][{ids['mia']}]": str(HORN2)})
+check(parts_in(PIRATES)["mia"] == HORN1, "voices that were not changed in the form are left alone")
+_, page = save(conductor, arranged, op="voices", extra={
+    f"voice[{PIRATES}][{ids['sam']}]": str(HORN1), f"voice_was[{PIRATES}][{ids['sam']}]": ""})
+check("sam" not in parts_in(PIRATES), "only the people of the seating get a voice")
+_, page = mia.get(TAB)
+check('name="voice[' not in page, "members see the voices without selects")
+
 # --- Grid ---------------------------------------------------------------------------------------
 placement = {"mia": "1-2", "max": "1-1", "organizer": "1-3", "lena": "1-4"}
 _, page = conductor.get(TAB)
@@ -384,6 +424,10 @@ check(status == 200 and "data-seating-form" in page, "administrators arrange the
 wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", "completed")
 _, page = conductor.get(TAB)
 check("data-seating-form" not in page and "Mia" in text(page), "completed projects show the seating without editing")
+wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", "draft")
+_, page = conductor.get(TAB)
+check("data-seating-form" in page and 'name="voice[' not in page,
+      "while the assignments cannot be changed, the seating shows the voices without selects")
 wp("post", "meta", "update", str(PROJECT), "orchestra_projects_status", "open")
 
 # --- Deleting -----------------------------------------------------------------------------------

@@ -17,6 +17,12 @@ projects, participation, program and assignments through `ProjectsService`, memb
   piece of the program; the arrows above the grid step through the pieces (in program order,
   starting with the first), and only the voices change. People without a part in that piece show
   "—". Members and editors can both step through the pieces.
+- **Changing voices:** in the editor, the voice of every person is a select of the parts of the
+  shown piece, with "—" for none. Changing it saves right away and changes the assignment in
+  orchestra-projects (`ProjectsService::setPart()`, orchestra-projects 0.27), with the rules of
+  the assignments tab: only while the project is open for participation or in preparation, and
+  only for users who may manage assignments (`orchestra_projects_assignment_manage`). Otherwise,
+  and with an older orchestra-projects, the voices are shown as text.
 - **Voice colors:** in the shown piece, every voice has a light color, chosen by the position of the
   part in the piece (eight colors, repeated after the eighth part); people with the same voice have
   the same color, people without a voice are grey. Every seated person has a thick line on all four
@@ -81,7 +87,13 @@ the grid:
 - changing "Seat organizers" saves right away
 
 Every person carries their voice in every piece of the program (`data-seating-voice`, hidden
-except for the shown piece, with `data-seating-tone` and `data-seating-color`). The server renders
+except for the shown piece, with `data-seating-tone` and `data-seating-color`). When the voices
+can be changed, these are selects (`voice[pieceId][userId]` = part ID or ""), each with a hidden
+`voice_was[pieceId][userId]` holding the part shown when the page was loaded. Every submit of the
+form changes the assignments whose select differs from `voice_was`, so a page loaded earlier does
+not undo assignments made elsewhere; a changed select submits the form with `op=voices` right
+away. Pressing a select never starts dragging its person, and the keys of the editor do not act
+on it. The server renders
 the colors and lines (`is-line-back`, `is-line-front`, `is-line-left`, `is-line-right`) of the first piece; `seating.js` redraws
 them when the piece changes or someone is moved. With JavaScript the arrows switch the voices in place; without it they
 are links to the tab with `seating_piece=ID`. The shown piece is kept in the URL and in the form's

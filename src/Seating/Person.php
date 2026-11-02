@@ -16,7 +16,17 @@ final class Person
         public readonly array $voices,
         /** @var array<int, int> piece ID => the position of the part among the parts of the piece, from 0 */
         public readonly array $tones = [],
+        /** @var array<int, int> piece ID => the ID of the part, for the pieces with an assignment */
+        public readonly array $parts = [],
     ) {
+    }
+
+    /**
+     * The ID of the part in the piece; null without an assignment.
+     */
+    public function part(int $pieceId): ?int
+    {
+        return $this->parts[$pieceId] ?? null;
     }
 
     /**
