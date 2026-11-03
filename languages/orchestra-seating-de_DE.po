@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 22:01+0100\n"
+"POT-Creation-Date: 2026-11-03 12:12+0100\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Export/SeatingPdf.php:65 src/Ui/SeatingEditor.php:264
+#: src/Export/SeatingPdf.php:65 src/Ui/SeatingEditor.php:263
 msgid "Conductor"
 msgstr "Dirigent"
 
@@ -62,7 +62,7 @@ msgstr "Stammsitzplan"
 msgid "Row"
 msgstr "Reihe"
 
-#: src/Privacy/PersonalData.php:86 src/Ui/SeatingEditor.php:110
+#: src/Privacy/PersonalData.php:86 src/Ui/SeatingEditor.php:111
 msgid "Seat"
 msgstr "Platz"
 
@@ -142,17 +142,17 @@ msgid "The master seating has been applied."
 msgstr "Der Stammsitzplan wurde übernommen."
 
 #. translators: 1: number of seated people, 2: number of people to seat
-#: src/Ui/SeatingEditor.php:84
+#: src/Ui/SeatingEditor.php:85
 #, php-format
-msgid "%1$d of %2$d people seated. Conductors are not seated."
+msgid "%1$s of %2$d people seated. Conductors are not seated."
 msgstr ""
-"%1$d von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
+"%1$s von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingEditor.php:90 src/Ui/SeatingEditor.php:412
+#: src/Ui/SeatingEditor.php:91 src/Ui/SeatingEditor.php:411
 msgid "Not seated"
 msgstr "Ohne Platz"
 
-#: src/Ui/SeatingEditor.php:95
+#: src/Ui/SeatingEditor.php:96
 msgid ""
 "Drag people onto the seats or back here. Dropping on a taken seat swaps the "
 "two; dropping on the left or right edge of a seat puts the person between "
@@ -166,78 +166,78 @@ msgstr ""
 "Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, "
 "Enter setzt sie ab, Entf nimmt ihr den Platz."
 
-#: src/Ui/SeatingEditor.php:110
+#: src/Ui/SeatingEditor.php:111
 msgid "Person"
 msgstr "Person"
 
-#: src/Ui/SeatingEditor.php:125
+#: src/Ui/SeatingEditor.php:123
 msgid "Save seating"
 msgstr "Sitzplan speichern"
 
-#: src/Ui/SeatingEditor.php:132
+#: src/Ui/SeatingEditor.php:130
 msgid "Remove everyone from their seats?"
 msgstr "Alle von ihren Plätzen nehmen?"
 
-#: src/Ui/SeatingEditor.php:133
+#: src/Ui/SeatingEditor.php:131
 msgid "Clear seating"
 msgstr "Sitzplan leeren"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:177
+#: src/Ui/SeatingEditor.php:175
 #, php-format
 msgid "Add a column left of seat %d"
 msgstr "Spalte links von Platz %d einfügen"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:182
+#: src/Ui/SeatingEditor.php:180
 #, php-format
 msgid "Delete column %d"
 msgstr "Spalte %d löschen"
 
 #. translators: %d: seat number
-#: src/Ui/SeatingEditor.php:192
+#: src/Ui/SeatingEditor.php:190
 #, php-format
 msgid "Add a column right of seat %d"
 msgstr "Spalte rechts von Platz %d einfügen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:212
+#: src/Ui/SeatingEditor.php:210
 #, php-format
 msgid "Add a row behind row %s"
 msgstr "Reihe hinter Reihe %s einfügen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:219
+#: src/Ui/SeatingEditor.php:217
 #, php-format
 msgid "Delete row %s"
 msgstr "Reihe %s löschen"
 
 #. translators: %s: row letter
-#: src/Ui/SeatingEditor.php:224
+#: src/Ui/SeatingEditor.php:222
 #, php-format
 msgid "Add a row in front of row %s"
 msgstr "Reihe vor Reihe %s einfügen"
 
 #. translators: %s: e.g. "Delete row C"
-#: src/Ui/SeatingEditor.php:302
+#: src/Ui/SeatingEditor.php:301
 #, php-format
 msgid "%s? The people on it will not be seated."
 msgstr "%s? Die Personen darauf haben dann keinen Platz mehr."
 
 #. translators: 1: name, 2: piece title
-#: src/Ui/SeatingEditor.php:393
+#: src/Ui/SeatingEditor.php:392
 #, php-format
 msgid "Voice of %1$s in %2$s"
 msgstr "Stimme von %1$s in %2$s"
 
 #. translators: %s: name
-#: src/Ui/SeatingEditor.php:425
+#: src/Ui/SeatingEditor.php:424
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingEditor.php:433
+#: src/Ui/SeatingEditor.php:432
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"

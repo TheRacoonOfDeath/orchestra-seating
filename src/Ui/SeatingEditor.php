@@ -79,12 +79,13 @@ final class SeatingEditor
             'data-seating-form' => '',
         ]);
         $html .= '<div class="orchestra-card orchestra-stack">' . $settings
-            . '<p class="orchestra-muted">' . \esc_html(\sprintf(
+            // seating.js updates the number of seated people while people are moved.
+            . '<p class="orchestra-muted">' . \sprintf(
                 /* translators: 1: number of seated people, 2: number of people to seat */
-                \__('%1$d of %2$d people seated. Conductors are not seated.', 'orchestra-seating'),
-                $seated,
+                \esc_html__('%1$s of %2$d people seated. Conductors are not seated.', 'orchestra-seating'),
+                '<span data-seating-seated>' . $seated . '</span>',
                 \count($people)
-            )) . '</p></div>';
+            ) . '</p></div>';
 
         $html .= '<section class="orchestra-seating__tray orchestra-stack" data-seating-tray><h3>'
             . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list">';

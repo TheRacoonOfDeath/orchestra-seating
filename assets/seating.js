@@ -182,6 +182,10 @@
                     button.removeAttribute('data-orchestra-confirm');
                 }
             });
+            var seated = form.querySelector('[data-seating-seated]');
+            if (seated) {
+                seated.textContent = form.querySelectorAll('[data-seating-cell] [data-seating-person]').length;
+            }
             paint(form);
         }
 

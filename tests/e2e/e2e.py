@@ -230,6 +230,8 @@ check("data-seating-form" in page and "Not seated" in page, "conductors open the
 check(all(name in tray(page) for name in ["Mia", "Max", "Olga", "Lena-Marie"]) and "Carl" not in tray(page)
       and "Mo" not in tray(page).split(), "accepted members and organizers are to be seated, conductors and those who declined are not")
 check(cells(page) == 4, "the grid starts with a seat for everyone")
+check("0 of 4 people seated." in text(page) and "<span data-seating-seated>0</span>" in page,
+      "the editor counts the seated people, and the script keeps the number up to date")
 labels = re.findall(r'class="orchestra-seating__label"[^>]*>([^<]*)<', page)
 check(labels == ["A", "1", "2", "3", "4"] and "Row A, seat 4" in page,
       "rows are labelled with letters from the front, columns with numbers from the left")

@@ -95,6 +95,8 @@ the grid:
 - keyboard: Enter or Space picks a person up, the arrow keys move between the seats, Enter or
   Space places them, Delete or Backspace unseats them, Escape cancels
 - changing "Seat organizers" saves right away
+- the number of seated people above the grid ("3 of 12 people seated", `data-seating-seated`)
+  follows every move, before saving
 
 Every person carries their voice in every piece of the program (`data-seating-voice`, hidden
 except for the shown piece, with `data-seating-tone` and `data-seating-color`). When the voices
