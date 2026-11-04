@@ -22,6 +22,7 @@
  *   (up is further back), Enter or Space places them, Delete or Backspace unseats them, Escape
  *   cancels.
  * - Changing "Seat organizers" saves right away, because it changes the people shown.
+ * - A grid wider than the page scrolls; its cut edges fade out and a hint below it says so.
  * - In projects whose assignments can be changed, the voice of every person is a select of the
  *   parts of the piece (`voice[pieceId][userId]`); changing it saves right away (`op=voices`),
  *   because the colors and sections follow from the assignments. Pressing a select never starts
@@ -527,6 +528,28 @@
         });
     }
 
+    // Marks a grid that is wider than the page, and which of its edges are cut, for the faded edges
+    // and the hint below it.
+    function initScroll(scroll) {
+        function update() {
+            var scrollable = scroll.scrollWidth > scroll.clientWidth + 1;
+            scroll.classList.toggle('is-scrollable', scrollable);
+            scroll.classList.toggle('is-more-left', scrollable && scroll.scrollLeft > 1);
+            scroll.classList.toggle(
+                'is-more-right',
+                scrollable && scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1
+            );
+        }
+        scroll.addEventListener('scroll', update, {passive: true});
+        if (window.ResizeObserver) {
+            new ResizeObserver(update).observe(scroll);
+        } else {
+            window.addEventListener('resize', update);
+        }
+        update();
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('.orchestra-seating__scroll'), initScroll);
     Array.prototype.forEach.call(document.querySelectorAll('[data-seating]'), initVoices);
     Array.prototype.forEach.call(document.querySelectorAll('[data-seating-form]'), init);
 }());

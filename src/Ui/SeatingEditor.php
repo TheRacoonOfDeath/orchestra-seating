@@ -88,7 +88,8 @@ final class SeatingEditor
             ) . '</p></div>';
 
         $html .= '<section class="orchestra-seating__tray orchestra-stack" data-seating-tray><h3>'
-            . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list">';
+            . \esc_html__('Not seated', 'orchestra-seating') . '</h3><div class="orchestra-seating__tray-list"'
+            . ' data-seating-empty="' . \esc_attr__('Everyone has a seat.', 'orchestra-seating') . '">';
         foreach ($unseated as $person) {
             $html .= self::person($person, true, $pieces, $pieceId, $voiceChoices, $played);
         }
@@ -118,14 +119,15 @@ final class SeatingEditor
                 $nobody
             ) . '</div>';
 
-        return $html . '<div class="orchestra-actions">'
+        return $html . '<div class="orchestra-actions orchestra-seating__actions">'
             . Form::submit(
                 \__('Save seating', 'orchestra-seating'),
                 'primary',
                 SeatingInput::FIELD_OPERATION,
                 SeatingInput::SAVE
             )
-            . '<button type="submit" class="orchestra-button" name="' . SeatingInput::FIELD_OPERATION . '" value="'
+            . '<button type="submit" class="orchestra-button orchestra-button--danger orchestra-seating__clear" name="'
+            . SeatingInput::FIELD_OPERATION . '" value="'
             . SeatingInput::CLEAR . '" data-orchestra-confirm="'
             . \esc_attr__('Remove everyone from their seats?', 'orchestra-seating') . '">'
             . \esc_html__('Clear seating', 'orchestra-seating') . '</button></div></form>';
@@ -259,8 +261,11 @@ final class SeatingEditor
             $html .= '<div class="orchestra-seating__label" aria-hidden="true">' . $column . '</div>';
         }
 
+        // Shown by seating.js only while the grid is wider than the page.
         return $html . '</div><div class="orchestra-seating__front">'
-            . \esc_html__('Conductor', 'orchestra-seating') . '</div></div></div>';
+            . \esc_html__('Conductor', 'orchestra-seating') . '</div></div></div>'
+            . '<p class="orchestra-muted orchestra-seating__scroll-hint">'
+            . \esc_html__('Swipe or scroll sideways to see all seats.', 'orchestra-seating') . '</p>';
     }
 
     /**

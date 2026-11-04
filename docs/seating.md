@@ -41,7 +41,13 @@ projects, participation, program and assignments through `ProjectsService`, memb
   "×" button left of every row and above every column deletes it. The people on a deleted row or
   column are no longer seated; the rows behind or the columns to the right move up. Deleting a row
   or column with people asks first. The last row and column cannot be deleted. At most 30 rows and
-  30 columns.
+  30 columns. The "×" buttons are faint until pointed at, so that they are not mistaken for the
+  "+" next to them. "Clear seating" stands at the right end, away from "Save seating", and asks
+  first. While everyone has a seat, "Not seated" only says so.
+- **Size on screen:** the seats shrink with the width of the page (from 7rem to 4.5rem, names and
+  voices in a smaller font), so that the whole grid usually fits; only a grid that still does not
+  fit, e.g. on phones, scrolls sideways. Then its cut edges fade out and a hint below it says so
+  (`seating.js` marks the scroll box with `is-scrollable`, `is-more-left` and `is-more-right`).
 - **Rows** count from the front and are labelled with letters: row A is next to the conductor,
   shown at the bottom (after Z come AA, AB, …). **Columns** are numbered from 1 on the left. The
   labels appear beside and below the grid, in the PDF, in the seat selects ("Row A, seat 3") and
