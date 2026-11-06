@@ -100,6 +100,28 @@ final class SeatingService
     }
 
     /**
+     * The notice of orchestra-projects 0.35 about parts changed since the members were last
+     * informed, or its review when the page asks for it ({@see reviewingPartChanges()}). Voices
+     * changed in the seating are part changes, so the seating tab shows it like the assignments tab.
+     */
+    public function partChanges(Project $project): string
+    {
+        // Plugins are updated one by one, so an older orchestra-projects may still be running.
+        return \in_array('partChanges', \get_class_methods($this->projects), true)
+            ? $this->projects->partChanges($project)
+            : '';
+    }
+
+    /**
+     * Whether the page asks for the review of the changed parts.
+     */
+    public function reviewingPartChanges(): bool
+    {
+        return \in_array('reviewingPartChanges', \get_class_methods($this->projects), true)
+            && ProjectsService::reviewingPartChanges();
+    }
+
+    /**
      * The parts that can be chosen as voices, per piece of the program.
      *
      * @return array<int, list<VoiceChoice>> piece ID => parts in the order of the piece

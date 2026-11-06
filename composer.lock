@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a596614b23f5642edd3e5abae1a3a3e0",
+    "content-hash": "c529d8fa1296fcbdfabe05fb81a47257",
     "packages": [
         {
             "name": "yahnis-elsts/plugin-update-checker",
@@ -604,16 +604,16 @@
         },
         {
             "name": "orchestra/projects",
-            "version": "v0.30.0",
+            "version": "v0.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TheRacoonOfDeath/orchestra-projects.git",
-                "reference": "9686262a5688c8522607555d5e2a4f791233c1cc"
+                "reference": "336735f0461046ec8aaab1f20c667f1263d77d01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TheRacoonOfDeath/orchestra-projects/zipball/9686262a5688c8522607555d5e2a4f791233c1cc",
-                "reference": "9686262a5688c8522607555d5e2a4f791233c1cc",
+                "url": "https://api.github.com/repos/TheRacoonOfDeath/orchestra-projects/zipball/336735f0461046ec8aaab1f20c667f1263d77d01",
+                "reference": "336735f0461046ec8aaab1f20c667f1263d77d01",
                 "shasum": ""
             },
             "require": {
@@ -621,8 +621,8 @@
                 "yahnis-elsts/plugin-update-checker": "^5.7"
             },
             "require-dev": {
-                "orchestra/core": "^0.9",
-                "orchestra/email": "^0.1",
+                "orchestra/core": "^0.15",
+                "orchestra/email": "^0.10",
                 "orchestra/library": "^0.2",
                 "orchestra/members": "^0.14",
                 "phpstan/phpstan": "^2.2",
@@ -669,10 +669,10 @@
             ],
             "description": "Projects, programs, participation and assignments for the Orchestra plugin suite.",
             "support": {
-                "source": "https://github.com/TheRacoonOfDeath/orchestra-projects/tree/v0.30.0",
+                "source": "https://github.com/TheRacoonOfDeath/orchestra-projects/tree/v0.35.0",
                 "issues": "https://github.com/TheRacoonOfDeath/orchestra-projects/issues"
             },
-            "time": "2026-11-02T20:48:05+00:00"
+            "time": "2026-11-06T07:00:15+00:00"
         },
         {
             "name": "phar-io/manifest",

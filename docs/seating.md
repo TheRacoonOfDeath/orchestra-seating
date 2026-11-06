@@ -28,6 +28,13 @@ projects, participation, program and assignments through `ProjectsService`, memb
   (`ProjectsService::playedParts()`, orchestra-projects 0.30; only for users with
   `orchestra_projects_assignment_history_read`). Browsers that show their own picker may ignore
   the colors.
+- **Changed parts:** in "Parts assigned", the editor shows the notice of the assignments tab
+  above the seating: "The parts of N members changed since the members were last informed.",
+  with "Inform members about changes" (the review, which replaces the seating until it is sent
+  or closed with "Back") and "Don't inform members" (`ProjectsService::partChanges()`,
+  orchestra-projects 0.35, with orchestra-email 0.10; only for users with
+  `orchestra_projects_assignment_manage`). Only part changes count, wherever they were made;
+  moving people to other seats is no change.
 - **Voice colors:** in the shown piece, every voice has a light color, chosen by the position of the
   part in the piece (eight colors, repeated after the eighth part); people with the same voice have
   the same color, people without a voice are grey. Every seated person has a thick line on all four

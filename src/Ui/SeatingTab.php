@@ -21,6 +21,8 @@ use Orchestra\Seating\Seating\SeatingService;
  * The "Seating" tab of a project, added to orchestra-projects with its tab filters. Members see the
  * seating; conductors and organizers arrange it by drag and drop, or with a select per person
  * without JavaScript. Everyone can step through the pieces of the program to see the voices.
+ * Above the editor, like on the assignments tab, the parts changed since the members were last
+ * informed, with the buttons to inform them.
  */
 final class SeatingTab
 {
@@ -112,7 +114,13 @@ final class SeatingTab
                 . SeatingEditor::grid($plan, $people, false, $pieces, $pieceId) . '</div>';
         }
 
-        return self::pdfButton($project) . $this->editor($project, $plan, $people, $pieces, $pieceId, $tabUrl);
+        $changes = $this->seating->partChanges($project);
+        if ($changes !== '' && $this->seating->reviewingPartChanges()) {
+            return $changes;
+        }
+
+        return self::pdfButton($project) . $changes
+            . $this->editor($project, $plan, $people, $pieces, $pieceId, $tabUrl);
     }
 
     /**
