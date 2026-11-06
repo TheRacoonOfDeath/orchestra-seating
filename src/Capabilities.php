@@ -24,7 +24,7 @@ final class Capabilities
     public static function register(CapabilityRegistry $registry): void
     {
         $registry
-            ->register(self::PLAN_READ, [Roles::MEMBER, Roles::CONDUCTOR, Roles::ORGANIZER])
+            ->register(self::PLAN_READ, [Roles::MEMBER, Roles::CONDUCTOR, Roles::ORGANIZER, Roles::LIBRARIAN])
             ->register(self::PLAN_MANAGE, [Roles::CONDUCTOR, Roles::ORGANIZER]);
     }
 }

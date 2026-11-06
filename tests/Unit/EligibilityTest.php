@@ -18,9 +18,10 @@ final class EligibilityTest extends TestCase
             3 => [Roles::CONDUCTOR],
             4 => null, // inactive or no orchestra role
             5 => [Roles::MEMBER, Roles::ORGANIZER],
+            6 => [Roles::LIBRARIAN],
         ][$userId] ?? null;
 
-        $this->assertSame([1, 2, 5], Eligibility::people([1, 2, 3, 4, 5], $roles, true));
-        $this->assertSame([1], Eligibility::people([1, 2, 3, 4, 5], $roles, false));
+        $this->assertSame([1, 2, 5, 6], Eligibility::people([1, 2, 3, 4, 5, 6], $roles, true));
+        $this->assertSame([1, 6], Eligibility::people([1, 2, 3, 4, 5, 6], $roles, false));
     }
 }

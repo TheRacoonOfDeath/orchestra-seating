@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 22:10+0100\n"
+"POT-Creation-Date: 2026-11-06 11:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,18 +32,18 @@ msgstr ""
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src/Export/SeatingPdfController.php:70 src/Plugin.php:133
-#: src/Ui/SeatingTab.php:52
+#: src/Export/SeatingPdfController.php:70 src/Plugin.php:136
+#: src/Ui/SeatingTab.php:54
 msgid "Seating"
 msgstr ""
 
-#: src/Plugin.php:134
+#: src/Plugin.php:137
 msgid "The master seating of all members, which projects start from."
 msgstr ""
 
-#: src/Plugin.php:147
+#: src/Plugin.php:150
 msgid ""
-"Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, "
+"Orchestra Seating requires Orchestra Core 0.17, Orchestra Projects 0.14, "
 "Orchestra Library and Orchestra Members to be active."
 msgstr ""
 
@@ -68,7 +68,7 @@ msgstr ""
 msgid "Seat"
 msgstr ""
 
-#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:216
+#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:224
 msgid "There is no master seating yet."
 msgstr ""
 
@@ -242,51 +242,51 @@ msgstr ""
 msgid "Row %1$s, seat %2$d"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:96
+#: src/Ui/SeatingTab.php:98
 msgid "The seating has not been finished yet."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:128
+#: src/Ui/SeatingTab.php:136
 msgid "Add pieces to the program to show the voices."
 msgstr ""
 
 #. translators: 1: piece title, 2: its position in the program, 3: number of pieces
-#: src/Ui/SeatingTab.php:137
+#: src/Ui/SeatingTab.php:145
 #, php-format
 msgid "Voices in %1$s (%2$d of %3$d)"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:153
+#: src/Ui/SeatingTab.php:161
 msgid "Previous piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:156
+#: src/Ui/SeatingTab.php:164
 msgid "Next piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:168
+#: src/Ui/SeatingTab.php:176
 msgid "Download PDF"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:188
+#: src/Ui/SeatingTab.php:196
 msgid "Seat organizers"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:201
+#: src/Ui/SeatingTab.php:209
 msgid "Nobody has accepted yet. Everyone who registers can be seated here."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:213
+#: src/Ui/SeatingTab.php:221
 msgid "Edit master seating"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:222
+#: src/Ui/SeatingTab.php:230
 msgid ""
 "Replace the current seating with the master seating? Everyone keeps their "
 "row, the rows are closed up to the left, and people who are not in the "
 "master seating are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:225
+#: src/Ui/SeatingTab.php:233
 msgid "Apply master seating"
 msgstr ""

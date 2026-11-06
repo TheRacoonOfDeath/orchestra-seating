@@ -8,8 +8,9 @@ use Closure;
 use Orchestra\Core\Authorization\Roles;
 
 /**
- * Who is seated: the accepted participants of the project who are active members or organizers.
- * Conductors are never seated; organizers can be left out of the seating.
+ * Who is seated: the accepted participants of the project who are active members, librarians
+ * (members who also maintain the library) or organizers. Conductors are never seated; organizers
+ * can be left out of the seating.
  */
 final class Eligibility
 {
@@ -28,7 +29,9 @@ final class Eligibility
             }
             $organizer = \in_array(Roles::ORGANIZER, $userRoles, true);
 
-            return ($organizer && $seatOrganizers) || (!$organizer && \in_array(Roles::MEMBER, $userRoles, true));
+            $member = \array_intersect([Roles::MEMBER, Roles::LIBRARIAN], $userRoles) !== [];
+
+            return ($organizer && $seatOrganizers) || (!$organizer && $member);
         };
 
         return \array_values(\array_filter($acceptedUserIds, $seated));

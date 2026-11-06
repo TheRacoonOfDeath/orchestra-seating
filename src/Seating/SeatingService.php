@@ -244,11 +244,11 @@ final class SeatingService
     }
 
     /**
-     * @return list<int> the people of the master seating: every active member and organizer
+     * @return list<int> the people of the master seating: every active member, librarian and organizer
      */
     public function masterPeopleIds(): array
     {
-        return $this->members->activeMemberIds([Roles::MEMBER, Roles::ORGANIZER]);
+        return $this->members->activeMemberIds([Roles::MEMBER, Roles::LIBRARIAN, Roles::ORGANIZER]);
     }
 
     /**

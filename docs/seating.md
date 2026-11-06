@@ -11,7 +11,8 @@ projects, participation, program and assignments through `ProjectsService`, memb
 ## Rules
 
 - **Who is seated:** the accepted participants of the project who are active and have the role
-  Member or Organizer. Conductors are never seated. Organizers are seated by default; the switch
+  Member, Librarian (orchestra-core 0.17, a member who also maintains the library; seated like a
+  member) or Organizer. Conductors are never seated. Organizers are seated by default; the switch
   "Seat organizers" leaves them out for the project.
 - **Voices:** the seating does not depend on a piece. Every seat shows the person's part in one
   piece of the program; the arrows above the grid step through the pieces (in program order,
@@ -64,7 +65,7 @@ projects, participation, program and assignments through `ProjectsService`, memb
   row move one seat towards it (to the right if both sides are equally near); nobody changes
   rows. If the row is full, a column is added at the right and the people right of the spot move
   one seat to the right.
-- **Master seating:** one seating (project ID 0) of every active member and organizer, edited in
+- **Master seating:** one seating (project ID 0) of every active member, librarian and organizer, edited in
   the Seating area with the same editor as a project, without voices (and so without the lines
   around the sections), without the organizers switch and without PDF. People who become inactive or lose the role leave it; new members wait
   in "Not seated".
@@ -79,15 +80,15 @@ projects, participation, program and assignments through `ProjectsService`, memb
 
 ## Who can do what
 
-| Capability | Member | Conductor | Organizer |
-|---|:-:|:-:|:-:|
-| `orchestra_seating_plan_read`: see the seating of projects visible to members, once it is arranged | ✓ | ✓ | ✓ |
+| Capability | Member | Conductor | Organizer | Librarian |
+|---|:-:|:-:|:-:|:-:|
+| `orchestra_seating_plan_read`: see the seating of projects visible to members, once it is arranged | ✓ | ✓ | ✓ | ✓ |
 
 Members see the seating only once the parts are assigned (status "Parts assigned" or "Completed"
 of orchestra-projects 0.28, `ProjectStatus::assignmentsVisibleToMembers()`). Before, the Seating
 tab only says "The seating has not been finished yet." ("Sitzplan noch nicht abgeschlossen").
 With an older orchestra-projects, they see it once it is arranged, as before.
-| `orchestra_seating_plan_manage`: arrange the seating of every project and the master seating, download it as PDF | | ✓ | ✓ |
+| `orchestra_seating_plan_manage`: arrange the seating of every project and the master seating, download it as PDF | | ✓ | ✓ | |
 
 The seating of completed projects cannot be changed.
 

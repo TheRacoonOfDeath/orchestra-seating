@@ -6,6 +6,7 @@ namespace Orchestra\Seating;
 
 use LogicException;
 use Orchestra\Core\Authorization\CapabilityRegistry;
+use Orchestra\Core\Authorization\Roles;
 use Orchestra\Core\Ui\Html;
 use Orchestra\Core\Ui\Menu;
 use Orchestra\Core\Ui\MenuItem;
@@ -94,6 +95,8 @@ final class Plugin
             || !\class_exists(MembersPlugin::class)
             || !\class_exists(ProjectsPlugin::class)
             || !\defined(ProjectsService::class . '::TABS_FILTER')
+            // The librarian role exists since orchestra-core 0.17.
+            || !\defined(Roles::class . '::LIBRARIAN')
         ) {
             \add_action('admin_notices', [self::class, 'renderMissingDependencyNotice']);
             return;
@@ -144,7 +147,7 @@ final class Plugin
     {
         echo '<div class="notice notice-error"><p>'
             . \esc_html__(
-                'Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, Orchestra Library and'
+                'Orchestra Seating requires Orchestra Core 0.17, Orchestra Projects 0.14, Orchestra Library and'
                     . ' Orchestra Members to be active.',
                 'orchestra-seating'
             )
