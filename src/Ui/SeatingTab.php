@@ -166,12 +166,13 @@ final class SeatingTab
 
     /**
      * The download of the seating as a PDF, for conductors and organizers, with orchestra-core 0.8
-     * or later. It shows the saved seating, so the editor's changes must be saved first.
+     * or later. It shows the saved seating, so the editor's changes must be saved first. Like the
+     * PDF of the assignments, it sits on the right.
      */
     private static function pdfButton(Project $project): string
     {
         return SeatingPdfController::available() && SeatingPdfController::allowed()
-            ? '<div class="orchestra-actions">' . Form::link(
+            ? '<div class="orchestra-actions orchestra-seating__pdf">' . Form::link(
                 SeatingPdfController::url($project->id),
                 \__('Download PDF', 'orchestra-seating'),
                 'small'

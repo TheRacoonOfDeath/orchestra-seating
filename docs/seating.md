@@ -128,7 +128,7 @@ possible by dragging; the keyboard and the selects place and swap.
 
 ## PDF
 
-"Download PDF" on the tab (`admin-post.php?action=orchestra_seating_pdf&project=ID`) creates a
+"Download PDF" on the right above the seating, like on the assignments tab (`admin-post.php?action=orchestra_seating_pdf&project=ID`) creates a
 landscape A4 page of the saved seating, for conductors and organizers
 (`orchestra_seating_plan_manage`). It shows names only, because the voices depend on the piece.
 Members see the seating but cannot download it. The seats shrink with the grid (at most 28 mm, at least 10 mm), so that up to 30 × 30 seats fit on one page. It is created by

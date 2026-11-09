@@ -12,6 +12,11 @@
     --orchestra-seating-line: color-mix(in srgb, currentColor 22%, transparent);
 }
 
+/* On the right, like the PDF download of the assignments. */
+.orchestra-seating__pdf {
+    justify-content: flex-end;
+}
+
 .orchestra-seating__scroll {
     container-type: inline-size;
     overflow-x: auto;
