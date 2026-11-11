@@ -33,6 +33,8 @@ Part of the Orchestra plugin suite. Requires
   later)
 - Accepted participants are seated, conductors never; organizers by default, which can be
   switched off per project
+- Privacy (GDPR): seats are part of WordPress's personal data export and erasure, and
+  **Settings → Privacy** suggests a text for the privacy policy
 
 ## Installation
 

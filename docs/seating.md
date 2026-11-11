@@ -76,7 +76,9 @@ projects, participation, program and assignments through `ProjectsService`, memb
   the current seating and is saved right away; later changes of the master seating do not change
   the project. New projects start empty; the seating of another project cannot be imported.
 - **People who no longer take part** (declined, inactive, organizers switched off, deleted) are
-  not shown, and their seats are dropped the next time the seating is saved.
+  not shown, and their seats are dropped the next time the seating is saved. The seating of a
+  completed project is not saved again, so such seats stay there, hidden, until the account is
+  erased or deleted.
 
 ## Who can do what
 
@@ -146,5 +148,9 @@ The schema version is stored in the option `orchestra_seating_schema_version`. V
 the column `piece_id` of version 1, when the seating stopped storing a piece.
 
 - Deleting a project or a user deletes their seating or seats.
-- **Tools → Export / Erase Personal Data** export and delete a user's seats.
+- **Tools → Export / Erase Personal Data** export and delete a user's seats, in every project and
+  the master seating.
+- **Settings → Privacy** suggests a text for the privacy policy (since 0.14): the seating is
+  visible to all members once the parts are assigned. See also the
+  [GDPR documentation of orchestra-core](https://github.com/TheRacoonOfDeath/orchestra-core/blob/main/docs/gdpr.md).
 - Deactivating keeps the data; deleting the plugin drops both tables and the option.

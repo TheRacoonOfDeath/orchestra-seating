@@ -11,7 +11,8 @@ use Orchestra\Seating\Seating\SeatingRepository;
 use WP_User;
 
 /**
- * Connects the seats to the WordPress privacy tools (Tools → Export / Erase Personal Data).
+ * Connects the seats to the WordPress privacy tools (Tools → Export / Erase Personal Data) and
+ * suggests a text for the privacy policy.
  */
 final class PersonalData
 {
@@ -27,6 +28,29 @@ final class PersonalData
     {
         \add_filter('wp_privacy_personal_data_exporters', [$this, 'addExporter']);
         \add_filter('wp_privacy_personal_data_erasers', [$this, 'addEraser']);
+        \add_action('admin_init', [self::class, 'addPolicyText']);
+    }
+
+    /**
+     * @internal Hooked to `admin_init`.
+     */
+    public static function addPolicyText(): void
+    {
+        if (!\function_exists('wp_add_privacy_policy_content')) {
+            return;
+        }
+
+        $text = \__(
+            'Conductors and organizers arrange where the participants of a project sit. Once the parts are'
+                . ' assigned, all members can see the seating with names and parts. People who no longer take part'
+                . ' leave the seating; their seats are deleted when their account is deleted or erased.',
+            'orchestra-seating'
+        );
+
+        \wp_add_privacy_policy_content(
+            \__('Orchestra Seating', 'orchestra-seating'),
+            \wp_kses_post('<p>' . \esc_html($text) . '</p>')
+        );
     }
 
     /**

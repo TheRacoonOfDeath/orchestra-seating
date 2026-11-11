@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 11:03+0100\n"
+"POT-Creation-Date: 2026-11-11 13:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,28 +47,40 @@ msgid ""
 "Orchestra Library and Orchestra Members to be active."
 msgstr ""
 
-#: src/Privacy/PersonalData.php:40 src/Privacy/PersonalData.php:55
-#: src/Privacy/PersonalData.php:76
+#: src/Privacy/PersonalData.php:44
+msgid ""
+"Conductors and organizers arrange where the participants of a project sit. "
+"Once the parts are assigned, all members can see the seating with names and "
+"parts. People who no longer take part leave the seating; their seats are "
+"deleted when their account is deleted or erased."
+msgstr ""
+
+#: src/Privacy/PersonalData.php:51
+msgid "Orchestra Seating"
+msgstr ""
+
+#: src/Privacy/PersonalData.php:64 src/Privacy/PersonalData.php:79
+#: src/Privacy/PersonalData.php:100
 msgid "Orchestra seating"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:80
+#: src/Privacy/PersonalData.php:104
 msgid "Project"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:82 src/Ui/MasterShortcode.php:49
+#: src/Privacy/PersonalData.php:106 src/Ui/MasterShortcode.php:49
 msgid "Master seating"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:85
+#: src/Privacy/PersonalData.php:109
 msgid "Row"
 msgstr ""
 
-#: src/Privacy/PersonalData.php:86 src/Ui/SeatingEditor.php:112
+#: src/Privacy/PersonalData.php:110 src/Ui/SeatingEditor.php:112
 msgid "Seat"
 msgstr ""
 
-#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:224
+#: src/Seating/SeatingInput.php:65 src/Ui/SeatingTab.php:225
 msgid "There is no master seating yet."
 msgstr ""
 
@@ -264,29 +276,29 @@ msgstr ""
 msgid "Next piece"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:176
+#: src/Ui/SeatingTab.php:177
 msgid "Download PDF"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:196
+#: src/Ui/SeatingTab.php:197
 msgid "Seat organizers"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:209
+#: src/Ui/SeatingTab.php:210
 msgid "Nobody has accepted yet. Everyone who registers can be seated here."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:221
+#: src/Ui/SeatingTab.php:222
 msgid "Edit master seating"
 msgstr ""
 
-#: src/Ui/SeatingTab.php:230
+#: src/Ui/SeatingTab.php:231
 msgid ""
 "Replace the current seating with the master seating? Everyone keeps their "
 "row, the rows are closed up to the left, and people who are not in the "
 "master seating are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:233
+#: src/Ui/SeatingTab.php:234
 msgid "Apply master seating"
 msgstr ""
