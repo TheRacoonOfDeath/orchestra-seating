@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Test data for e2e.py, run with `wp eval-file`: two pieces with parts in orchestra-library, and an
+ * Test data for e2e.py, required with `wp eval`: two pieces with parts in orchestra-library, and an
  * open project with both pieces, accepted participants and assignments in orchestra-projects, and a
  * completed project.
  * Prints the IDs as JSON.
