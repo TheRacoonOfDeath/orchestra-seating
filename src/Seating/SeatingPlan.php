@@ -96,32 +96,36 @@ final class SeatingPlan
 
     /**
      * The master seating for the people of this project: everyone who is seated there keeps their
-     * row, every row is closed up to the left, and rows and columns nobody sits in are removed.
-     * People who are not in the master seating are not seated.
+     * place, nobody moves closer to anyone. Only rows and columns in which none of them sits are
+     * removed. People who are not in the master seating are not seated.
      *
      * @param list<int> $userIds The people to seat
      */
     public function fromMaster(self $master, array $userIds): self
     {
-        $rows = [];
-        foreach ($master->seats as $seat) {
-            if (\in_array($seat->userId, $userIds, true)) {
-                $rows[$seat->row][$seat->column] = $seat->userId;
-            }
-        }
-        \ksort($rows);
+        $kept = \array_values(\array_filter(
+            $master->seats,
+            static fn (Seat $seat): bool => \in_array($seat->userId, $userIds, true)
+        ));
+        // The rows and columns somebody sits in, numbered from 1 again.
+        $rows = \array_values(\array_unique(\array_map(static fn (Seat $seat): int => $seat->row, $kept)));
+        $columns = \array_values(\array_unique(\array_map(static fn (Seat $seat): int => $seat->column, $kept)));
+        \sort($rows);
+        \sort($columns);
+        $rowIndex = \array_flip($rows);
+        $columnIndex = \array_flip($columns);
 
-        $seats = [];
-        $columns = 1;
-        foreach (\array_values($rows) as $index => $row) {
-            \ksort($row);
-            foreach (\array_values($row) as $position => $userId) {
-                $seats[] = new Seat($userId, $index + 1, $position + 1);
-            }
-            $columns = \max($columns, \count($row));
-        }
+        $seats = \array_map(
+            static fn (Seat $seat): Seat => new Seat(
+                $seat->userId,
+                $rowIndex[$seat->row] + 1,
+                $columnIndex[$seat->column] + 1
+            ),
+            $kept
+        );
+        \usort($seats, static fn (Seat $a, Seat $b): int => [$a->row, $a->column] <=> [$b->row, $b->column]);
 
-        return $this->with(grid: new GridSize(\max(1, \count($rows)), $columns), seats: $seats);
+        return $this->with(grid: new GridSize(\max(1, \count($rows)), \max(1, \count($columns))), seats: $seats);
     }
 
     /**

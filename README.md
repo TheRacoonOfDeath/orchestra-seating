@@ -28,8 +28,8 @@ Part of the Orchestra plugin suite. Requires
   dropdown
 - A **Seating** area with the master seating of all active members and organizers, for conductors
   and organizers
-- "Apply master seating" seats a project's participants in their row of the master seating,
-  closed up to the left, without empty rows and columns
+- "Apply master seating" seats a project's participants on their place of the master seating;
+  only rows and columns in which nobody sits are removed
 - The grid starts with a seat for everyone; "+" and "×" buttons around the grid insert and delete
   rows and columns anywhere, and people on a deleted row or column are no longer seated
 - Dropping a person on the edge of a seat puts them between two people; the others move aside

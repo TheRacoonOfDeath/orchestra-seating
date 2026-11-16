@@ -450,11 +450,11 @@ _, page = conductor.get(TAB)
 check('value="apply_master"' in page and "Edit master seating" in page, "projects can apply the master seating")
 _, page = save(conductor, placement, op="apply_master")
 check("The master seating has been applied." in text(page), "the master seating is applied")
-check(seats() == {"mia": "1-1", "organizer": "1-2", "max": "1-3", "lena": "2-1"},
-      "everyone keeps their row, closed up to the left, without the people who do not take part")
+check(seats() == {"mia": "1-1", "organizer": "1-2", "max": "1-3", "lena": "2-3"},
+      "everyone keeps their place, without the people who do not take part and their empty column")
 check(cells(page) == 6, "rows and columns nobody sits in are removed")
 save(conductor, seats(), organizers=False, op="apply_master")
-check(seats() == {"mia": "1-1", "max": "1-2", "lena": "2-1"}, "organizers are left out when switched off")
+check(seats() == {"mia": "1-1", "max": "1-2", "lena": "2-2"}, "organizers are left out when switched off")
 save(conductor, seats(), op="apply_master")
 placement = seats()
 

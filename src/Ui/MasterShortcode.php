@@ -53,7 +53,8 @@ final class MasterShortcode
                 ['redirect_to' => Redirect::currentUrl()],
                 '<p>' . \esc_html__(
                     'The usual seating of every active member and organizer. In a project, "Apply master seating"'
-                        . ' seats everyone who takes part in their row of the master seating, closed up to the left.',
+                        . ' seats everyone who takes part in their place of the master seating; rows and columns in'
+                        . ' which nobody sits are removed.',
                     'orchestra-seating'
                 ) . '</p>',
                 '',

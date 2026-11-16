@@ -76,9 +76,10 @@ projects, participation, program and assignments through `ProjectsService`, memb
   around the sections), without the organizers switch and without PDF. People who become inactive or lose the role leave it; new members wait
   in "Not seated".
 - **Applying the master seating:** in a project, "Apply master seating" seats the people of the
-  project (respecting "Seat organizers") in their row of the saved master seating. Every row is
-  closed up to the left (gaps of people who do not take part disappear), and rows and columns
-  nobody sits in are removed. People who are not in the master seating are not seated. It replaces
+  project (respecting "Seat organizers") on their place of the saved master seating. Nobody moves
+  closer to anyone: only rows and columns in which none of them sits are removed, so the gaps of
+  people who do not take part stay (until 0.15 every row was closed up to the left). People who
+  are not in the master seating are not seated. It replaces
   the current seating and is saved right away; later changes of the master seating do not change
   the project. New projects start empty; the seating of another project cannot be imported.
 - **People who no longer take part** (declined, inactive, organizers switched off, deleted) are

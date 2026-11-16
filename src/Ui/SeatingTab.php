@@ -228,8 +228,9 @@ final class SeatingTab
         return '<div class="orchestra-actions"><button type="submit" class="orchestra-button small" name="'
             . SeatingInput::FIELD_OPERATION . '" value="' . SeatingInput::APPLY_MASTER . '" data-orchestra-confirm="'
             . \esc_attr__(
-                'Replace the current seating with the master seating? Everyone keeps their row, the rows are'
-                    . ' closed up to the left, and people who are not in the master seating are not seated.',
+                'Replace the current seating with the master seating? Everyone keeps their place; rows and'
+                    . ' columns in which nobody sits are removed, and people who are not in the master seating are'
+                    . ' not seated.',
                 'orchestra-seating'
             ) . '">' . \esc_html__('Apply master seating', 'orchestra-seating') . '</button>' . $link . '</div>';
     }

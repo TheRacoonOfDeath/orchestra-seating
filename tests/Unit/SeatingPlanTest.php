@@ -28,7 +28,7 @@ final class SeatingPlanTest extends TestCase
         $this->assertSame([1, 4], self::gridSize($arranged), 'the grid does not grow');
     }
 
-    public function testTheMasterSeatingIsClosedUpToTheLeft(): void
+    public function testTheMasterSeatingKeepsEveryonesPlaceWithoutEmptyRowsAndColumns(): void
     {
         $current = new SeatingPlan(2, new GridSize(1, 3), false, [new Seat(9, 1, 1)], true);
         // Row 1: 1 . 3 . . 6; row 2: 7 and 8 do not take part; row 3: . . 10
@@ -44,7 +44,8 @@ final class SeatingPlanTest extends TestCase
         $plan = $current->fromMaster($master, [1, 3, 6, 9, 10, 11]);
 
         $this->assertSame([2, false], [$plan->projectId, $plan->seatOrganizers]);
-        $this->assertSame([[1, 1, 1], [3, 1, 2], [6, 1, 3], [10, 2, 1]], self::seats($plan));
+        // Rows 1 and 3 and columns 1, 3 and 6 are kept; nobody moves within them.
+        $this->assertSame([[1, 1, 1], [3, 1, 2], [6, 1, 3], [10, 2, 2]], self::seats($plan));
         $this->assertSame([2, 3], self::gridSize($plan), 'empty rows and columns are removed');
         $this->assertSame([9, 11], $plan->unseated([1, 3, 6, 9, 10, 11]), 'people not in the master are not seated');
     }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 13:25+0100\n"
+"POT-Creation-Date: 2026-11-16 13:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,11 +127,11 @@ msgstr ""
 #: src/Ui/MasterShortcode.php:55
 msgid ""
 "The usual seating of every active member and organizer. In a project, "
-"\"Apply master seating\" seats everyone who takes part in their row of the "
-"master seating, closed up to the left."
+"\"Apply master seating\" seats everyone who takes part in their place of the "
+"master seating; rows and columns in which nobody sits are removed."
 msgstr ""
 
-#: src/Ui/MasterShortcode.php:64
+#: src/Ui/MasterShortcode.php:65
 msgid "There are no active members yet."
 msgstr ""
 
@@ -295,10 +295,10 @@ msgstr ""
 #: src/Ui/SeatingTab.php:231
 msgid ""
 "Replace the current seating with the master seating? Everyone keeps their "
-"row, the rows are closed up to the left, and people who are not in the "
-"master seating are not seated."
+"place; rows and columns in which nobody sits are removed, and people who are "
+"not in the master seating are not seated."
 msgstr ""
 
-#: src/Ui/SeatingTab.php:234
+#: src/Ui/SeatingTab.php:235
 msgid "Apply master seating"
 msgstr ""
