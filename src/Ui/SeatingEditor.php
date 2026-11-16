@@ -97,7 +97,7 @@ final class SeatingEditor
             'Drag people onto the seats or back here. Dropping on a taken seat swaps the two; dropping on the'
                 . ' left or right edge of a seat puts the person between two people, and the others move aside.'
                 . ' With the keyboard: Enter picks a person up, the arrow keys choose a seat, Enter places them,'
-                . ' Delete unseats them.',
+                . ' Delete unseats them. Changes are only saved with "Save seating".',
             'orchestra-seating'
         ) . '</p></section>';
 
@@ -344,8 +344,7 @@ final class SeatingEditor
                     $attributes,
                     $played[$id][$person->userId] ?? []
                 )
-                : '<span class="orchestra-seating__voice"' . $attributes . '>'
-                    . \esc_html($voice === '' ? '—' : $voice) . '</span>';
+                : self::voiceText($voice, $person->shortVoice($id), $attributes);
         }
 
         return '<div class="orchestra-seating__person"' . self::tone($person->tone($pieceId))
@@ -355,10 +354,27 @@ final class SeatingEditor
     }
 
     /**
+     * The voice as text, with the short name of the instrument ("Solo Git 1"); the full voice is
+     * shown when pointed at.
+     */
+    private static function voiceText(string $voice, string $shortVoice, string $attributes): string
+    {
+        if ($voice === '') {
+            return '<span class="orchestra-seating__voice"' . $attributes . '>—</span>';
+        }
+
+        return '<span class="orchestra-seating__voice"' . $attributes
+            . ($shortVoice === $voice ? '' : ' title="' . \esc_attr($voice) . '"') . '>'
+            . \esc_html($shortVoice === '' ? $voice : $shortVoice) . '</span>';
+    }
+
+    /**
      * The voice of a person in a piece as a select of its parts. The hidden field keeps the part
      * shown when the page was loaded, so that only changed voices are saved. The part the person
      * played last time is green and listed first, then the parts they played before in yellow, then
-     * the others; each group by name.
+     * the others; each group by name. Every option carries the tone of its part, so that seating.js
+     * shows the new color and lines right away, and its short name, which seating.js shows while the
+     * select is closed.
      *
      * @param list<VoiceChoice> $choices
      * @param array<int, bool> $played part ID => whether the person played it last time
@@ -372,7 +388,7 @@ final class SeatingEditor
         array $played = [],
     ): string {
         $current = $person->part($pieceId);
-        $options = '<option value="">—</option>';
+        $options = '<option value="" data-seating-tone="">—</option>';
         // Green first, then yellow, then the others; by name within each group.
         $rank = static fn (VoiceChoice $choice): int => match ($played[$choice->partId] ?? null) {
             true => 0,
@@ -384,8 +400,9 @@ final class SeatingEditor
         foreach ($choices as $choice) {
             $class = !isset($played[$choice->partId]) ? ''
                 : ' class="orchestra-seating__played--' . ($played[$choice->partId] ? 'last' : 'earlier') . '"';
-            $options .= '<option value="' . $choice->partId . '"' . $class
-                . \selected($current, $choice->partId, false) . '>'
+            $options .= '<option value="' . $choice->partId . '"' . $class . self::tone($choice->tone)
+                . ' data-seating-short="' . \esc_attr($choice->shortOrName()) . '" data-seating-long="'
+                . \esc_attr($choice->name) . '"' . \selected($current, $choice->partId, false) . '>'
                 . \esc_html($choice->name) . '</option>';
         }
         $key = '[' . $pieceId . '][' . $person->userId . ']';

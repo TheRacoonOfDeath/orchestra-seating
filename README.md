@@ -20,7 +20,12 @@ Part of the Orchestra plugin suite. Requires
 - Conductors and organizers change a person's voice right on their seat with a dropdown of the
   piece's parts; it changes the assignment in the project (with orchestra-projects 0.27 or later,
   while the project is neither a draft nor completed). The part a person played last
-  time is green, a part they played before yellow
+  time is green, a part they played before yellow. The new color and outline show right away; moves
+  and voices are saved together with "Save seating", and leaving the page with unsaved changes
+  asks first (orchestra-core 0.19)
+- The seats show the voices with the short names of the instruments (e.g. "Git 1" for
+  "Gitarre 1", orchestra-library 0.11); the full name appears when pointed at and in the open
+  dropdown
 - A **Seating** area with the master seating of all active members and organizers, for conductors
   and organizers
 - "Apply master seating" seats a project's participants in their row of the master seating,

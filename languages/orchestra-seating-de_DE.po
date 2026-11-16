@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: orchestra-seating\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-11 13:21+0100\n"
+"POT-Creation-Date: 2026-11-16 13:25+0100\n"
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: Julian Nickerl\n"
 "Language-Team: German\n"
@@ -165,7 +165,7 @@ msgid "%1$s of %2$d people seated. Conductors are not seated."
 msgstr ""
 "%1$s von %2$d Personen haben einen Platz. Dirigenten bekommen keinen Platz."
 
-#: src/Ui/SeatingEditor.php:91 src/Ui/SeatingEditor.php:416
+#: src/Ui/SeatingEditor.php:91 src/Ui/SeatingEditor.php:433
 msgid "Not seated"
 msgstr "Ohne Platz"
 
@@ -179,13 +179,14 @@ msgid ""
 "two; dropping on the left or right edge of a seat puts the person between "
 "two people, and the others move aside. With the keyboard: Enter picks a "
 "person up, the arrow keys choose a seat, Enter places them, Delete unseats "
-"them."
+"them. Changes are only saved with \"Save seating\"."
 msgstr ""
-"Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten Platz "
-"werden die beiden getauscht; am linken oder rechten Rand eines Platzes kommt "
-"die Person zwischen zwei Personen, und die anderen rücken zur Seite. Mit der "
-"Tastatur: Enter nimmt eine Person auf, die Pfeiltasten wählen einen Platz, "
-"Enter setzt sie ab, Entf nimmt ihr den Platz."
+"Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten "
+"Platz werden die beiden getauscht; am linken oder rechten Rand eines "
+"Platzes kommt die Person zwischen zwei Personen, und die anderen rücken "
+"zur Seite. Mit der Tastatur: Enter nimmt eine Person auf, die Pfeiltasten "
+"wählen einen Platz, Enter setzt sie ab, Entf nimmt ihr den Platz. "
+"Änderungen werden erst mit „Sitzplan speichern“ gespeichert."
 
 #: src/Ui/SeatingEditor.php:112
 msgid "Person"
@@ -250,19 +251,19 @@ msgid "%s? The people on it will not be seated."
 msgstr "%s? Die Personen darauf haben dann keinen Platz mehr."
 
 #. translators: 1: name, 2: piece title
-#: src/Ui/SeatingEditor.php:397
+#: src/Ui/SeatingEditor.php:414
 #, php-format
 msgid "Voice of %1$s in %2$s"
 msgstr "Stimme von %1$s in %2$s"
 
 #. translators: %s: name
-#: src/Ui/SeatingEditor.php:429
+#: src/Ui/SeatingEditor.php:446
 #, php-format
 msgid "Seat of %s"
 msgstr "Platz von %s"
 
 #. translators: 1: row letter, A at the front, 2: seat number, counted from the left
-#: src/Ui/SeatingEditor.php:437
+#: src/Ui/SeatingEditor.php:454
 #, php-format
 msgid "Row %1$s, seat %2$d"
 msgstr "Reihe %1$s, Platz %2$d"
@@ -320,6 +321,19 @@ msgstr ""
 #: src/Ui/SeatingTab.php:234
 msgid "Apply master seating"
 msgstr "Stammsitzplan übernehmen"
+
+#~ msgid ""
+#~ "Drag people onto the seats or back here. Dropping on a taken seat swaps "
+#~ "the two; dropping on the left or right edge of a seat puts the person "
+#~ "between two people, and the others move aside. With the keyboard: Enter "
+#~ "picks a person up, the arrow keys choose a seat, Enter places them, "
+#~ "Delete unseats them."
+#~ msgstr ""
+#~ "Ziehe Personen auf die Plätze oder hierher zurück. Auf einem besetzten "
+#~ "Platz werden die beiden getauscht; am linken oder rechten Rand eines "
+#~ "Platzes kommt die Person zwischen zwei Personen, und die anderen rücken "
+#~ "zur Seite. Mit der Tastatur: Enter nimmt eine Person auf, die Pfeiltasten "
+#~ "wählen einen Platz, Enter setzt sie ab, Entf nimmt ihr den Platz."
 
 #~ msgid ""
 #~ "Orchestra Seating requires Orchestra Core 0.9, Orchestra Projects 0.14, "

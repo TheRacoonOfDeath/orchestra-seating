@@ -18,6 +18,8 @@ final class Person
         public readonly array $tones = [],
         /** @var array<int, int> piece ID => the ID of the part, for the pieces with an assignment */
         public readonly array $parts = [],
+        /** @var array<int, string> piece ID => the part with the short name of its instrument, e.g. "Git 1" */
+        public readonly array $shortVoices = [],
     ) {
     }
 
@@ -44,5 +46,14 @@ final class Person
     public function voice(?int $pieceId): string
     {
         return $pieceId === null ? '' : $this->voices[$pieceId] ?? '';
+    }
+
+    /**
+     * The part in the piece with the short name of its instrument, e.g. "Git 1"; the part itself
+     * without a short name, "" without an assignment.
+     */
+    public function shortVoice(?int $pieceId): string
+    {
+        return $pieceId === null ? '' : $this->shortVoices[$pieceId] ?? $this->voice($pieceId);
     }
 }

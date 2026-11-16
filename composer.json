@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "orchestra/core": "^0.17",
-        "orchestra/library": "^0.4",
+        "orchestra/library": "^0.11",
         "orchestra/members": "^0.9",
         "orchestra/projects": "^0.35",
         "phpstan/phpstan": "^2.2",

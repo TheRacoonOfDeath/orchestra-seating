@@ -21,12 +21,15 @@
  * - Keyboard: Enter or Space on a person picks them up, the arrow keys move between the seats
  *   (up is further back), Enter or Space places them, Delete or Backspace unseats them, Escape
  *   cancels.
- * - Changing "Seat organizers" saves right away, because it changes the people shown.
+ * - Changing "Seat organizers" saves right away, because it changes the people shown. Everything
+ *   else is only saved with "Save seating" (or another button of the form); orchestra-core 0.19
+ *   asks before leaving the page with unsaved changes ("orchestra:change" events).
  * - A grid wider than the page scrolls; its cut edges fade out and a hint below it says so.
  * - In projects whose assignments can be changed, the voice of every person is a select of the
- *   parts of the piece (`voice[pieceId][userId]`); changing it saves right away (`op=voices`),
- *   because the colors and sections follow from the assignments. Pressing a select never starts
- *   dragging the person.
+ *   parts of the piece (`voice[pieceId][userId]`). Changing it shows the color and lines of the
+ *   new voice right away (each option carries its tone) and is saved with the seating. While the
+ *   select is closed, its options show the short names of the voices ("Git 1"), while it is open
+ *   the full ones ("Gitarre 1"). Pressing a select never starts dragging the person.
  */
 (function () {
     'use strict';
@@ -159,6 +162,7 @@
             var select = form.querySelector('[data-seating-select="' + person.getAttribute('data-seating-person') + '"]');
             if (select) {
                 select.value = cell ? cell.getAttribute('data-seating-cell') : '';
+                select.dispatchEvent(new Event('orchestra:change', {bubbles: true}));
             }
         }
 
@@ -285,18 +289,40 @@
             });
         });
 
+        // Short names while closed, full names while open.
+        function labelOptions(select, attribute) {
+            Array.prototype.forEach.call(select.options, function (option) {
+                var label = option.getAttribute(attribute);
+                if (label !== null && option.textContent !== label) {
+                    option.textContent = label;
+                }
+            });
+        }
+
         Array.prototype.forEach.call(form.querySelectorAll('.orchestra-seating__voice-select'), function (select) {
+            labelOptions(select, 'data-seating-short');
+            ['pointerdown', 'focus'].forEach(function (type) {
+                select.addEventListener(type, function () {
+                    labelOptions(select, 'data-seating-long');
+                });
+            });
+            ['blur', 'change'].forEach(function (type) {
+                select.addEventListener(type, function () {
+                    labelOptions(select, 'data-seating-short');
+                });
+            });
+            // The new voice gets its color and the sections their lines right away.
             select.addEventListener('change', function () {
-                // Submits the form without a button, with op=voices.
-                var operation = document.createElement('input');
-                operation.type = 'hidden';
-                operation.name = 'op';
-                operation.value = 'voices';
-                form.appendChild(operation);
-                if (form.requestSubmit) {
-                    form.requestSubmit();
-                } else {
-                    form.submit();
+                var option = select.options[select.selectedIndex];
+                ['data-seating-tone', 'data-seating-color'].forEach(function (name) {
+                    if (option && option.hasAttribute(name)) {
+                        select.setAttribute(name, option.getAttribute(name));
+                    } else {
+                        select.removeAttribute(name);
+                    }
+                });
+                if (!select.hidden) {
+                    showVoice(form, select.getAttribute('data-seating-voice'));
                 }
             });
         });

@@ -6,6 +6,7 @@ namespace Orchestra\Seating\Seating;
 
 use Orchestra\Core\Authorization\Roles;
 use Orchestra\Library\LibraryService;
+use Orchestra\Library\Part\Part;
 use Orchestra\Members\MembersService;
 use Orchestra\Projects\Participation\ParticipationStatus;
 use Orchestra\Projects\Project\Project;
@@ -69,21 +70,30 @@ final class SeatingService
         $parts = [];
         foreach ($this->projects->programPieceIds($plan->projectId) as $pieceId) {
             foreach ($this->library->parts($pieceId) as $position => $part) {
-                $parts[$part->id] = [$part->name, $position];
+                $parts[$part->id] = [$part->name, $position, $this->shortName($part)];
             }
         }
         $voices = [];
         $tones = [];
         $partIds = [];
+        $shortVoices = [];
         foreach ($this->projects->assignments($plan->projectId) as $assignment) {
             if ($assignment->userId !== null && isset($parts[$assignment->partId])) {
-                [$voices[$assignment->userId][$assignment->pieceId], $tones[$assignment->userId][$assignment->pieceId]]
-                    = $parts[$assignment->partId];
+                [$name, $tone, $shortName] = $parts[$assignment->partId];
+                $voices[$assignment->userId][$assignment->pieceId] = $name;
+                $tones[$assignment->userId][$assignment->pieceId] = $tone;
+                $shortVoices[$assignment->userId][$assignment->pieceId] = $shortName;
                 $partIds[$assignment->userId][$assignment->pieceId] = $assignment->partId;
             }
         }
 
-        return $this->named($this->peopleIds($plan->projectId, $plan->seatOrganizers), $voices, $tones, $partIds);
+        return $this->named(
+            $this->peopleIds($plan->projectId, $plan->seatOrganizers),
+            $voices,
+            $tones,
+            $partIds,
+            $shortVoices
+        );
     }
 
     /**
@@ -132,7 +142,7 @@ final class SeatingService
         foreach ($this->projects->programPieceIds($projectId) as $pieceId) {
             $choices[$pieceId] = [];
             foreach ($this->library->parts($pieceId) as $position => $part) {
-                $choices[$pieceId][] = new VoiceChoice($part->id, $part->name, $position);
+                $choices[$pieceId][] = new VoiceChoice($part->id, $part->name, $position, $this->shortName($part));
             }
         }
 
@@ -187,10 +197,16 @@ final class SeatingService
      * @param array<int, array<int, string>> $voices user ID => piece ID => voice
      * @param array<int, array<int, int>> $tones user ID => piece ID => tone
      * @param array<int, array<int, int>> $parts user ID => piece ID => part ID
+     * @param array<int, array<int, string>> $shortVoices user ID => piece ID => short voice
      * @return list<Person> ordered by name
      */
-    private function named(array $userIds, array $voices, array $tones, array $parts = []): array
-    {
+    private function named(
+        array $userIds,
+        array $voices,
+        array $tones,
+        array $parts = [],
+        array $shortVoices = [],
+    ): array {
         $people = [];
         foreach ($userIds as $userId) {
             $member = $this->members->member($userId);
@@ -200,13 +216,26 @@ final class SeatingService
                     $member->displayName,
                     $voices[$userId] ?? [],
                     $tones[$userId] ?? [],
-                    $parts[$userId] ?? []
+                    $parts[$userId] ?? [],
+                    $shortVoices[$userId] ?? []
                 );
             }
         }
         \usort($people, static fn (Person $a, Person $b): int => \strcasecmp($a->name, $b->name));
 
         return $people;
+    }
+
+    /**
+     * The part with the short name of its instrument, e.g. "Git 1" (orchestra-library 0.11); the
+     * name with an older orchestra-library.
+     */
+    private function shortName(Part $part): string
+    {
+        // Plugins are updated one by one, so an older orchestra-library may still be running.
+        return \in_array('shortName', \get_class_methods($this->library), true)
+            ? $this->library->shortName($part)
+            : $part->name;
     }
 
     /**

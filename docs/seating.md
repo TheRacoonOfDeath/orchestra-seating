@@ -19,7 +19,8 @@ projects, participation, program and assignments through `ProjectsService`, memb
   starting with the first), and only the voices change. People without a part in that piece show
   "—". Members and editors can both step through the pieces.
 - **Changing voices:** in the editor, the voice of every person is a select of the parts of the
-  shown piece, with "—" for none. Changing it saves right away and changes the assignment in
+  shown piece, with "—" for none. Changing it shows the color and lines of the new voice right
+  away; "Save seating" saves it with the seats and changes the assignment in
   orchestra-projects (`ProjectsService::setPart()`, orchestra-projects 0.27), with the rules of
   the assignments tab: only while the project is neither a draft nor completed, and
   only for users who may manage assignments (`orchestra_projects_assignment_manage`). Otherwise,
@@ -29,6 +30,11 @@ projects, participation, program and assignments through `ProjectsService`, memb
   (`ProjectsService::playedParts()`, orchestra-projects 0.30; only for users with
   `orchestra_projects_assignment_history_read`). Browsers that show their own picker may ignore
   the colors.
+- **Short names:** seats are small, so the voices on them use the short names of the instruments
+  of orchestra-library 0.11 (`LibraryService::shortName()`): "Solo Git 1" instead of
+  "Solo Gitarre 1"; the full voice appears when pointed at. In the editor, the closed select shows
+  the short names and the open one the full names. Instruments without a short name, and an older
+  orchestra-library, show the full voice.
 - **Changed parts:** in "Parts assigned", the editor shows the notice of the assignments tab
   above the seating: "The parts of N members changed since the members were last informed.",
   with "Inform members about changes" (the review, which replaces the seating until it is sent
@@ -110,7 +116,10 @@ the grid:
   (in the browser if the row has an empty seat, otherwise with `op=insert_between`)
 - keyboard: Enter or Space picks a person up, the arrow keys move between the seats, Enter or
   Space places them, Delete or Backspace unseats them, Escape cancels
-- changing "Seat organizers" saves right away
+- changing "Seat organizers" saves right away; everything else (moves, voices) is only saved with
+  "Save seating" or another button of the form. Leaving the page with unsaved changes asks first
+  (orchestra-core 0.19; `seating.js` dispatches `orchestra:change` when it moves people, since that
+  changes the hidden selects without input events)
 - the number of seated people above the grid ("3 of 12 people seated", `data-seating-seated`)
   follows every move, before saving
 
@@ -119,8 +128,12 @@ except for the shown piece, with `data-seating-tone` and `data-seating-color`). 
 can be changed, these are selects (`voice[pieceId][userId]` = part ID or ""), each with a hidden
 `voice_was[pieceId][userId]` holding the part shown when the page was loaded. Every submit of the
 form changes the assignments whose select differs from `voice_was`, so a page loaded earlier does
-not undo assignments made elsewhere; a changed select submits the form with `op=voices` right
-away. Pressing a select never starts dragging its person, and the keys of the editor do not act
+not undo assignments made elsewhere. Until 0.14 a changed select submitted the form with
+`op=voices` right away, which reloaded the page after every change; since 0.15 it waits for "Save
+seating", and every option carries the tone and color of its part (`data-seating-tone`,
+`data-seating-color`) and its short and full name (`data-seating-short`, `data-seating-long`), so
+that `seating.js` redraws the colors and lines and switches the names in place. The server still
+accepts `op=voices`. Pressing a select never starts dragging its person, and the keys of the editor do not act
 on it. The server renders
 the colors and lines (`is-line-back`, `is-line-front`, `is-line-left`, `is-line-right`) of the first piece; `seating.js` redraws
 them when the piece changes or someone is moved. With JavaScript the arrows switch the voices in place; without it they
